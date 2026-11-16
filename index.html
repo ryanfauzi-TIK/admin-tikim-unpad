@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Admin Prodi TIKIM — Sekolah Vokasi UNPAD</title>
+  <title>Meja Kerja Admin Prodi TIKIM — Sekolah Vokasi UNPAD</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -64,7 +64,7 @@
 <body class="text-slate-800 min-h-screen antialiased selection:bg-blue-600 selection:text-white">
 
   <!-- TOAST NOTIFICATION CONTAINER -->
-  <div id="toastContainer" class="fixed bottom-5 right-5 z-[60] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-[70] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
 
   <!-- MODAL LOGIN ADMIN (ID & PASSWORD SAJA) -->
   <div id="loginModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
@@ -75,7 +75,7 @@
         </div>
         <span class="text-[10px] font-bold uppercase tracking-widest text-yellow-300">Universitas Padjadjaran • Sekolah Vokasi</span>
         <h2 class="text-xl font-extrabold mt-0.5">Login Admin Prodi TIKIM</h2>
-        <p class="text-xs text-slate-300 mt-1">Masuk menggunakan ID Admin dan Password untuk mengakses dashboard.</p>
+        <p class="text-xs text-slate-300 mt-1">Masuk menggunakan ID Admin dan Password untuk mengakses meja kerja.</p>
       </div>
       
       <form onsubmit="submitAdminLogin(event)" class="p-6 space-y-4">
@@ -98,7 +98,6 @@
           </div>
         </div>
 
-        <!-- Pengaturan URL API (Otomatis tersembunyi jika DEFAULT_API_URL sudah diisi di kode) -->
         <div id="apiUrlOverrideBox" class="hidden pt-1">
           <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Web App URL (/exec)</label>
           <input id="inputApiUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-600" />
@@ -114,6 +113,113 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL PRATINJAU CEPAT FILE / LINK (QUICK PREVIEW) -->
+  <div id="previewFileModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full h-[88vh] flex flex-col overflow-hidden border border-slate-200">
+      <div class="bg-unpad-navy px-5 py-3.5 border-b-4 border-unpad-gold flex items-center justify-between gap-3 text-white shrink-0">
+        <div class="min-w-0 flex items-center gap-2.5">
+          <span id="previewTypeBadge" class="px-2.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-yellow-400 text-unpad-navy shrink-0">DOKUMEN</span>
+          <h3 id="previewFileTitle" class="text-sm sm:text-base font-bold truncate">Pratinjau Dokumen</h3>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button type="button" id="btnPreviewCopy" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-semibold transition">Salin Link</button>
+          <a id="btnPreviewOpenExternal" href="#" target="_blank" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-xs font-bold transition">Buka Tab Baru &nearr;</a>
+          <button onclick="closePreviewModal()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-rose-500/80 text-white flex items-center justify-center text-lg font-bold transition">&times;</button>
+        </div>
+      </div>
+      <div class="flex-1 bg-slate-100 relative">
+        <iframe id="previewIframe" src="about:blank" class="w-full h-full border-0" allow="autoplay"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDIT TUGAS & KELOLA FILE / LINK -->
+  <div id="editTugasModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-slate-200">
+      <div class="bg-unpad-navy px-6 py-4 border-b-4 border-unpad-gold flex justify-between items-start text-white shrink-0">
+        <div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-yellow-400/20 text-yellow-300 border border-yellow-400/30">Note Tugas Admin</span>
+          <h3 class="text-lg font-bold mt-1">Edit Tugas & Kelola File / Link Terkait</h3>
+          <p class="text-xs text-slate-300 mt-0.5">Perubahan langsung disinkronkan ke Google Sheet Note Tugas Admin.</p>
+        </div>
+        <button onclick="closeModal('editTugasModal')" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-lg font-bold transition">&times;</button>
+      </div>
+
+      <div class="p-6 space-y-4 text-sm overflow-y-auto custom-scrollbar">
+        <input type="hidden" id="editTugasRow" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Nama Tugas</label>
+            <input id="editTugasNama" type="text" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 font-semibold focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Status</label>
+            <select id="editTugasStatus" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 bg-white font-semibold focus:ring-2 focus:ring-blue-600 focus:outline-none">
+              <option value="Pending">Pending</option>
+              <option value="Sedang Dikerjakan">Sedang Dikerjakan</option>
+              <option value="Selesai">Selesai</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Tanggal Mulai</label>
+            <input id="editTugasMulai" type="text" placeholder="M/d/yyyy" class="w-full border border-slate-300 rounded-xl px-3.5 py-2 font-mono text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Deadline</label>
+            <input id="editTugasDeadline" type="text" placeholder="Contoh: 11/25/2026" class="w-full border border-slate-300 rounded-xl px-3.5 py-2 font-mono text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Detail / Catatan Tugas</label>
+          <textarea id="editTugasDetail" rows="2" placeholder="Catatan atau keterangan pengerjaan tugas..." class="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm focus:ring-2 focus:ring-blue-600 focus:outline-none"></textarea>
+        </div>
+
+        <!-- PANEL KELOLA FILE & LINK TERKAIT -->
+        <div class="p-4 rounded-xl bg-blue-50/70 border border-blue-200 space-y-3">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-extrabold text-blue-950 uppercase tracking-wide">Daftar File & Link Penting Terkait Tugas Ini</label>
+            <span id="editTugasLinksCount" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">0 tautan</span>
+          </div>
+
+          <!-- List tautan aktif -->
+          <div id="editTugasLinksList" class="space-y-2"></div>
+
+          <!-- Tambah Link Manual -->
+          <div class="pt-2 border-t border-blue-200/70">
+            <p class="text-[11px] font-bold text-slate-600 mb-1.5">Tambah Link Google Drive / Docs / Sheet / Website:</p>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="addTugasLinkInput" type="url" placeholder="Tempel URL lengkap (https://...)" class="flex-1 border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+              <button type="button" onclick="appendLinkToEditTugas()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold whitespace-nowrap transition">
+                + Tambah Link
+              </button>
+            </div>
+          </div>
+
+          <!-- Upload File langsung ke Drive -->
+          <div class="pt-2 border-t border-blue-200/70">
+            <p class="text-[11px] font-bold text-slate-600 mb-1.5">Atau Upload File dari Komputer (Otomatis masuk Google Drive):</p>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="editTugasFileInput" type="file" accept=".pdf,.doc,.docx,.xlsx,.xls,.ppt,.pptx,.jpg,.png,.zip" class="flex-1 text-xs text-slate-600 bg-white border border-slate-300 rounded-xl p-1.5 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 cursor-pointer" />
+              <button type="button" id="btnUploadEditTugasFile" onclick="uploadFileForEditTugas()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold whitespace-nowrap transition">
+                Upload File
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2.5 shrink-0">
+        <button onclick="closeModal('editTugasModal')" class="px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 text-xs font-semibold transition">Batal</button>
+        <button id="btnSaveEditTugas" onclick="submitEditTugas()" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-600/20 transition">Simpan Tugas & Lampiran</button>
+      </div>
     </div>
   </div>
 
@@ -169,7 +275,6 @@
           </div>
         </div>
 
-        <!-- UPLOAD LANGSUNG: DRAFT PENGANTAR ADMIN -->
         <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 space-y-2.5">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <label class="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
@@ -187,7 +292,6 @@
           <input id="editDraftAdmin" type="text" placeholder="Link Google Drive otomatis terisi setelah upload (atau tempel manual)" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
         </div>
 
-        <!-- UPLOAD LANGSUNG: PDF FINAL DARI TU -->
         <div class="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-2.5">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <label class="text-xs font-bold text-emerald-950 uppercase tracking-wide flex items-center gap-1.5">
@@ -209,13 +313,11 @@
           <input id="editLinkPdf" type="url" oninput="onProsesAdminChange()" placeholder="Link Google Drive PDF Final otomatis terisi setelah upload" class="w-full border border-emerald-300 rounded-xl px-3 py-2 text-xs font-mono bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none" />
         </div>
 
-        <!-- Catatan Admin -->
         <div>
           <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Catatan Admin <span class="font-normal normal-case text-slate-400">(Ikut tampil di email pemohon jika diisi)</span></label>
           <textarea id="editCatatanAdmin" rows="2" placeholder="Tambahkan pesan atau instruksi lanjutan untuk pemohon..." class="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm focus:ring-2 focus:ring-blue-600 focus:outline-none"></textarea>
         </div>
 
-        <!-- OPSI KIRIM EMAIL OTOMATIS KE PEMOHON -->
         <div class="p-3.5 rounded-xl bg-blue-50/90 border border-blue-200">
           <label class="flex items-start gap-3 cursor-pointer select-none">
             <input id="chkSendEmailNotif" type="checkbox" class="mt-0.5 w-4 h-4 rounded text-blue-600 focus:ring-blue-500" />
@@ -281,7 +383,7 @@
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="font-extrabold text-white text-base sm:text-lg tracking-tight leading-tight">Dashboard Admin Prodi TIKIM</h1>
+            <h1 class="font-extrabold text-white text-base sm:text-lg tracking-tight leading-tight">Meja Kerja Admin Prodi TIKIM</h1>
             <span class="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/10 text-yellow-300 border border-white/15">
               D-4 Teknologi Industri Kimia
             </span>
@@ -557,33 +659,53 @@
       </div>
     </section>
 
-    <!-- TAB 3: NOTE TUGAS ADMIN -->
+    <!-- TAB 3: NOTE TUGAS ADMIN (INTERAKTIF DENGAN FILE, LINK & DATA) -->
     <section id="panel-tugas" class="tab-panel hidden space-y-4">
-      <div class="glass-card p-5 rounded-2xl border border-slate-200/90 shadow-sm">
-        <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wide mb-3">Tambah Tugas Baru ke Google Sheet</h3>
+      <!-- Form Tambah Tugas + Lampiran Link / File -->
+      <div class="glass-card p-5 rounded-2xl border border-slate-200/90 shadow-sm space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wide">Tambah Tugas Baru ke Google Sheet</h3>
+          <span class="text-[11px] text-slate-500">Bisa langsung melampirkan Link Google Drive/Docs atau Upload File dari komputer</span>
+        </div>
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
           <input id="newTaskName" type="text" placeholder="Nama Tugas (Wajib)" class="sm:col-span-4 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
-          <input id="newTaskDetail" type="text" placeholder="Detail / Catatan Tambahan" class="sm:col-span-4 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
-          <input id="newTaskDeadline" type="text" placeholder="Deadline (mis: 11/25/2026)" class="sm:col-span-2 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
-          <button id="btnAddTask" onclick="submitNewTask()" class="sm:col-span-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl px-4 py-2.5 text-sm shadow-sm transition">
+          <input id="newTaskDetail" type="text" placeholder="Detail / Catatan Tambahan" class="sm:col-span-5 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+          <input id="newTaskDeadline" type="text" placeholder="Deadline (mis: 11/25/2026)" class="sm:col-span-3 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center pt-1">
+          <div class="sm:col-span-5">
+            <input id="newTaskLink" type="url" placeholder="Link Penting / Google Drive / Docs (Opsional)" class="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-mono bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+          </div>
+          <div class="sm:col-span-5">
+            <input id="newTaskFile" type="file" accept=".pdf,.doc,.docx,.xlsx,.xls,.ppt,.pptx,.jpg,.png,.zip" class="w-full text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-xl p-1.5 file:mr-2.5 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-700 file:text-white hover:file:bg-slate-800 cursor-pointer" />
+          </div>
+          <button id="btnAddTask" onclick="submitNewTask()" class="sm:col-span-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl px-4 py-2.5 text-xs sm:text-sm shadow-sm transition">
             + Tambah Tugas
           </button>
         </div>
       </div>
 
+      <!-- Filter & Pencarian Tugas -->
       <div class="glass-card p-4 rounded-2xl border border-slate-200/90 shadow-sm flex flex-wrap justify-between items-center gap-3">
-        <div class="relative w-full sm:w-72">
+        <div class="relative w-full sm:w-80">
           <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          <input id="searchTugas" oninput="renderTugas()" type="text" placeholder="Cari tugas..." class="w-full border border-slate-300 rounded-xl pl-10 pr-3.5 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+          <input id="searchTugas" oninput="renderTugas()" type="text" placeholder="Cari tugas, catatan, atau nama file/link..." class="w-full border border-slate-300 rounded-xl pl-10 pr-3.5 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
         </div>
-        <select id="filterStatusTugas" onchange="renderTugas()" class="border border-slate-300 rounded-xl px-3.5 py-2 text-sm bg-white font-medium text-slate-700">
-          <option value="PENDING">Hanya Pending</option>
-          <option value="SEMUA">Semua Tugas</option>
-          <option value="SELESAI">Sudah Selesai</option>
-        </select>
+        <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+          <label class="inline-flex items-center gap-2 text-xs font-bold text-slate-700 bg-blue-50/80 border border-blue-200 px-3 py-2 rounded-xl cursor-pointer select-none">
+            <input id="filterOnlyWithLinks" type="checkbox" onchange="renderTugas()" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500" />
+            <span>Hanya yang Ada File / Link</span>
+          </label>
+          <select id="filterStatusTugas" onchange="renderTugas()" class="border border-slate-300 rounded-xl px-3.5 py-2 text-sm bg-white font-medium text-slate-700 flex-1 sm:flex-none">
+            <option value="PENDING">Belum Selesai (Aktif)</option>
+            <option value="SEMUA">Semua Tugas</option>
+            <option value="SELESAI">Sudah Selesai</option>
+          </select>
+        </div>
       </div>
 
-      <div id="listTugasContainer" class="space-y-2.5"></div>
+      <!-- Daftar Kartu Tugas Interaktif -->
+      <div id="listTugasContainer" class="space-y-3"></div>
     </section>
 
     <!-- TAB 4: ADUAN SARPRAS -->
@@ -641,12 +763,13 @@
     // =========================================================================
     // TEMPELKAN URL WEB APP (/exec) ANDA DI BAWAH INI AGAR TIDAK PERLU DIINPUT LAGI
     // =========================================================================
-    const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbznpn5uCcvu8Tn42vhF5EMg8LysTcCqVR5n5hMKvAcPpp066e7OUhzvz7gcyIaWoOBT/exec";
+    const DEFAULT_API_URL = "https://script.google.com/macros/s/TEMPEL_URL_EXEC_ANDA_DISINI/exec";
 
     let APP_DATA = { surat: [], sarpras: [], magang: [], tugas: [] };
     let DRIVE_FILES_CACHE = [];
     let activeDriveItemId = 'suratKeluar';
     let refreshTimer = null;
+    let EDIT_TUGAS_LINKS = [];
 
     const DEFAULT_DRIVE_FOLDERS = [
       {
@@ -777,7 +900,6 @@
       document.getElementById('inputAdminId').value = localStorage.getItem('tikim_admin_id') || '';
       document.getElementById('inputAdminPassword').value = '';
 
-      // Tampilkan kotak URL hanya jika DEFAULT_API_URL belum dipasang di kode
       if (!activeUrl) {
         document.getElementById('apiUrlOverrideBox').classList.remove('hidden');
       } else {
@@ -883,7 +1005,8 @@
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
 
     function formatWaLink(rawPhone) {
@@ -995,6 +1118,126 @@
         reader.onerror = err => reject(err);
         reader.readAsDataURL(file);
       });
+    }
+
+    // --- DETEKSI TIPE FILE & PRATINJAU INTERAKTIF ---
+    function classifyResourceUrl(url, customLabel = '') {
+      const u = String(url || '').trim();
+      const lower = u.toLowerCase();
+
+      let typeLabel = 'Link Web';
+      let badgeClass = 'bg-slate-100 text-slate-700 border-slate-200';
+      let iconSvg = '<svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>';
+      let previewUrl = null;
+      let defaultName = customLabel || '';
+
+      if (lower.includes('docs.google.com/document')) {
+        typeLabel = 'Google Docs';
+        badgeClass = 'bg-blue-50 text-blue-700 border-blue-200';
+        iconSvg = '<svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>';
+        const m = u.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
+        if (m) previewUrl = `https://docs.google.com/document/d/${m[1]}/preview`;
+        if (!defaultName) defaultName = 'Dokumen Google Docs';
+      } else if (lower.includes('docs.google.com/spreadsheets')) {
+        typeLabel = 'Google Sheets';
+        badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        iconSvg = '<svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>';
+        const m = u.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+        if (m) previewUrl = `https://docs.google.com/spreadsheets/d/${m[1]}/preview`;
+        if (!defaultName) defaultName = 'Spreadsheet Data';
+      } else if (lower.includes('docs.google.com/presentation')) {
+        typeLabel = 'Google Slides';
+        badgeClass = 'bg-amber-50 text-amber-800 border-amber-200';
+        iconSvg = '<svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>';
+        const m = u.match(/\/presentation\/d\/([a-zA-Z0-9_-]+)/);
+        if (m) previewUrl = `https://docs.google.com/presentation/d/${m[1]}/preview`;
+        if (!defaultName) defaultName = 'Presentasi Slides';
+      } else if (lower.includes('drive.google.com/drive/folders') || lower.includes('drive.google.com/folderview')) {
+        typeLabel = 'Folder Drive';
+        badgeClass = 'bg-indigo-50 text-indigo-700 border-indigo-200';
+        iconSvg = '<svg class="w-4 h-4 text-indigo-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>';
+        const m = u.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+        if (m) previewUrl = `https://drive.google.com/embeddedfolderview?id=${m[1]}#list`;
+        if (!defaultName) defaultName = 'Folder Google Drive';
+      } else if (lower.includes('drive.google.com')) {
+        typeLabel = 'File Drive';
+        badgeClass = 'bg-sky-50 text-sky-700 border-sky-200';
+        iconSvg = '<svg class="w-4 h-4 text-sky-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>';
+        const m = u.match(/\/d\/([a-zA-Z0-9_-]+)/) || u.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        if (m) previewUrl = `https://drive.google.com/file/d/${m[1]}/preview`;
+        if (!defaultName) defaultName = 'Berkas Google Drive';
+      } else if (lower.endsWith('.pdf')) {
+        typeLabel = 'PDF';
+        badgeClass = 'bg-rose-50 text-rose-700 border-rose-200';
+        previewUrl = u;
+        if (!defaultName) defaultName = decodeURIComponent(u.split('/').pop().split('?')[0]);
+      } else if (lower.includes('forms.gle') || lower.includes('docs.google.com/forms')) {
+        typeLabel = 'Google Form';
+        badgeClass = 'bg-purple-50 text-purple-700 border-purple-200';
+        if (!defaultName) defaultName = 'Formulir Google Form';
+      }
+
+      if (!defaultName) {
+        try {
+          const urlObj = new URL(u);
+          defaultName = urlObj.hostname.replace(/^www\./, '') + (urlObj.pathname !== '/' ? urlObj.pathname.slice(0, 28) : '');
+        } catch (e) {
+          defaultName = u.slice(0, 42);
+        }
+      }
+
+      return { url: u, label: defaultName, typeLabel, badgeClass, iconSvg, previewUrl };
+    }
+
+    function extractTaskResources(taskObj) {
+      const resources = [];
+      const seen = new Set();
+
+      const addUrl = (rawUrl, label = '') => {
+        const clean = String(rawUrl || '').trim().replace(/[),.;]+$/, '');
+        if (!clean || !/^https?:\/\//i.test(clean) || seen.has(clean)) return;
+        seen.add(clean);
+        resources.push(classifyResourceUrl(clean, label));
+      };
+
+      // 1. Ambil dari _richLinks (hyperlink tersembunyi / smart chip di Google Sheet)
+      if (Array.isArray(taskObj._richLinks)) {
+        taskObj._richLinks.forEach(item => {
+          const lbl = (item.label && !item.label.startsWith('http')) ? item.label : '';
+          addUrl(item.url, lbl);
+        });
+      }
+
+      // 2. Scan semua kolom pada baris tugas untuk mencari URL http/https
+      Object.keys(taskObj).forEach(key => {
+        if (key.startsWith('_')) return;
+        const val = String(taskObj[key] || '');
+        const matches = val.match(/https?:\/\/[^\s<>"']+/gi);
+        if (matches) {
+          matches.forEach(m => addUrl(m));
+        }
+      });
+
+      return resources;
+    }
+
+    function openQuickPreview(previewUrl, originalUrl, title, typeLabel) {
+      document.getElementById('previewFileTitle').textContent = title || 'Pratinjau Dokumen';
+      document.getElementById('previewTypeBadge').textContent = typeLabel || 'FILE';
+      document.getElementById('previewIframe').src = previewUrl;
+      document.getElementById('btnPreviewOpenExternal').href = originalUrl;
+      document.getElementById('btnPreviewCopy').onclick = () => copyText(originalUrl);
+      document.getElementById('previewFileModal').classList.remove('hidden');
+    }
+
+    function closePreviewModal() {
+      document.getElementById('previewIframe').src = 'about:blank';
+      closeModal('previewFileModal');
+    }
+
+    function linkifyText(text) {
+      const safe = esc(text || '');
+      return safe.replace(/(https?:\/\/[^\s<]+)/gi, '<a href="$1" target="_blank" class="text-blue-600 underline hover:text-blue-800 break-all">$1</a>');
     }
 
     // --- RENDER SURAT ---
@@ -1561,20 +1804,26 @@
 
     function copyText(text) {
       navigator.clipboard.writeText(text);
-      showToast('Tautan Disalin', 'Link Google Drive berhasil disalin ke clipboard.', 'info');
+      showToast('Tautan Disalin', 'Link berhasil disalin ke clipboard.', 'info');
     }
 
-    // --- RENDER TUGAS ---
+    // --- TAB 3: NOTE TUGAS ADMIN (INTERAKTIF FILE, LINK & DATA) ---
     function renderTugas() {
       const q = document.getElementById('searchTugas').value.toLowerCase();
       const st = document.getElementById('filterStatusTugas').value;
+      const onlyLinks = document.getElementById('filterOnlyWithLinks').checked;
 
       const list = [...(APP_DATA.tugas || [])].reverse().filter(t => {
         const isDone = (t['Status'] || '').toLowerCase() === 'selesai';
         if (st === 'PENDING' && isDone) return false;
         if (st === 'SELESAI' && !isDone) return false;
+
+        const resources = extractTaskResources(t);
+        if (onlyLinks && resources.length === 0) return false;
+
         if (q) {
-          const hay = `${t['Nama Tugas']} ${t['Detail / Catatan']}`.toLowerCase();
+          const resourceText = resources.map(r => `${r.label} ${r.url} ${r.typeLabel}`).join(' ');
+          const hay = `${t['Nama Tugas']} ${t['Detail / Catatan']} ${resourceText}`.toLowerCase();
           if (!hay.includes(q)) return false;
         }
         return true;
@@ -1582,33 +1831,217 @@
 
       const container = document.getElementById('listTugasContainer');
       if (list.length === 0) {
-        container.innerHTML = `<div class="glass-card p-8 rounded-2xl border border-slate-200 text-center text-slate-400 text-sm">Tidak ada tugas pada filter ini.</div>`;
+        container.innerHTML = `<div class="glass-card p-8 rounded-2xl border border-slate-200 text-center text-slate-400 text-sm">Tidak ada tugas yang cocok dengan filter saat ini.</div>`;
         return;
       }
 
       container.innerHTML = list.map(t => {
         const isDone = (t['Status'] || '').toLowerCase() === 'selesai';
+        const resources = extractTaskResources(t);
+
+        const resourceSectionHtml = resources.length > 0 ? `
+          <div class="mt-3 pt-3 border-t border-slate-200/80">
+            <div class="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1.5">
+              <span>File, Link & Data Terkait (${resources.length})</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+              ${resources.map(res => `
+                <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 hover:bg-blue-50/50 border border-slate-200/90 transition group">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0">
+                      ${res.iconSvg}
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-[10px] font-extrabold uppercase px-1.5 py-0.2 rounded border ${res.badgeClass}">${esc(res.typeLabel)}</span>
+                        <a href="${esc(res.url)}" target="_blank" class="text-xs font-bold text-slate-800 hover:text-blue-600 truncate">${esc(res.label)}</a>
+                      </div>
+                      <p class="text-[11px] font-mono text-slate-400 truncate mt-0.5">${esc(res.url)}</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1 shrink-0">
+                    ${res.previewUrl ? `
+                      <button type="button" onclick="openQuickPreview('${esc(res.previewUrl)}', '${esc(res.url)}', '${esc(res.label)}', '${esc(res.typeLabel)}')" title="Pratinjau Cepat di Dashboard" class="px-2.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white text-[11px] font-bold transition">
+                        Pratinjau
+                      </button>
+                    ` : ''}
+                    <a href="${esc(res.url)}" target="_blank" title="Buka di Tab Baru" class="px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition">
+                      Buka
+                    </a>
+                    <button type="button" onclick="copyText('${esc(res.url)}')" title="Salin Link" class="p-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-600 text-[11px] font-semibold transition">
+                      Salin
+                    </button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : '';
+
         return `
-          <div class="glass-card p-4 rounded-2xl border ${isDone ? 'border-slate-200/80 opacity-75' : 'border-amber-200/90'} flex flex-wrap items-center justify-between gap-3 shadow-sm hover:shadow transition">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full ${isDone ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800'}">
-                  ${esc(t['Status'] || 'Pending')}
-                </span>
-                <span class="font-bold text-slate-900 ${isDone ? 'line-through text-slate-500' : ''}">${esc(t['Nama Tugas'])}</span>
+          <div class="glass-card p-4 sm:p-5 rounded-2xl border ${isDone ? 'border-slate-200/80 opacity-80' : 'border-amber-200/90'} shadow-sm hover:shadow transition">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div class="space-y-1 flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full ${isDone ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800'}">
+                    ${esc(t['Status'] || 'Pending')}
+                  </span>
+                  ${resources.length > 0 ? `<span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">${resources.length} Lampiran</span>` : ''}
+                  <span class="font-bold text-slate-900 text-sm sm:text-base ${isDone ? 'line-through text-slate-500' : ''}">${esc(t['Nama Tugas'])}</span>
+                </div>
+                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">${linkifyText(t['Detail / Catatan'] || '-')}</p>
+                <p class="text-[11px] font-mono text-slate-400 pt-0.5">Mulai: ${esc(t['Tanggal Mulai'] || '-')} • Deadline: <span class="text-slate-600 font-semibold">${esc(t['Tanggal Selesai / Deadline'] || '-')}</span></p>
               </div>
-              <p class="text-xs text-slate-600">${esc(t['Detail / Catatan'] || '-')}</p>
-              <p class="text-[11px] font-mono text-slate-400">Mulai: ${esc(t['Tanggal Mulai'] || '-')} • Deadline: ${esc(t['Tanggal Selesai / Deadline'] || '-')}</p>
+              <div class="flex items-center gap-2 shrink-0">
+                <button onclick="openEditTugas(${t._row})" class="px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition">
+                  Edit / Lampiran
+                </button>
+                ${isDone
+                  ? `<button onclick="toggleTaskStatus(${t._row}, 'Pending')" class="px-3 py-1.5 rounded-xl border border-slate-300 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">Buka Kembali</button>`
+                  : `<button onclick="toggleTaskStatus(${t._row}, 'Selesai')" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition">Selesai</button>`
+                }
+              </div>
             </div>
-            <div>
-              ${isDone
-                ? `<button onclick="toggleTaskStatus(${t._row}, 'Pending')" class="px-3.5 py-1.5 rounded-xl border border-slate-300 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">Buka Kembali</button>`
-                : `<button onclick="toggleTaskStatus(${t._row}, 'Selesai')" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition">Tandai Selesai</button>`
-              }
-            </div>
+            ${resourceSectionHtml}
           </div>
         `;
       }).join('');
+    }
+
+    function openEditTugas(rowNum) {
+      const item = (APP_DATA.tugas || []).find(t => t._row === rowNum);
+      if (!item) return;
+
+      document.getElementById('editTugasRow').value = rowNum;
+      document.getElementById('editTugasNama').value = item['Nama Tugas'] || '';
+      document.getElementById('editTugasDetail').value = item['Detail / Catatan'] || '';
+      document.getElementById('editTugasMulai').value = item['Tanggal Mulai'] || '';
+      document.getElementById('editTugasDeadline').value = item['Tanggal Selesai / Deadline'] || '';
+      document.getElementById('editTugasStatus').value = item['Status'] || 'Pending';
+      document.getElementById('addTugasLinkInput').value = '';
+      document.getElementById('editTugasFileInput').value = '';
+
+      EDIT_TUGAS_LINKS = extractTaskResources(item).map(r => r.url);
+      renderEditTugasLinksList();
+      document.getElementById('editTugasModal').classList.remove('hidden');
+    }
+
+    function renderEditTugasLinksList() {
+      const container = document.getElementById('editTugasLinksList');
+      document.getElementById('editTugasLinksCount').textContent = `${EDIT_TUGAS_LINKS.length} tautan`;
+
+      if (EDIT_TUGAS_LINKS.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 italic py-1">Belum ada file atau link yang dilampirkan pada tugas ini.</p>`;
+        return;
+      }
+
+      container.innerHTML = EDIT_TUGAS_LINKS.map((url, idx) => {
+        const info = classifyResourceUrl(url);
+        return `
+          <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-white border border-blue-200/80 text-xs">
+            <div class="flex items-center gap-2 min-w-0">
+              ${info.iconSvg}
+              <div class="min-w-0">
+                <span class="font-bold text-slate-800 block truncate">${esc(info.label)}</span>
+                <a href="${esc(url)}" target="_blank" class="text-[11px] font-mono text-blue-600 hover:underline block truncate">${esc(url)}</a>
+              </div>
+            </div>
+            <button type="button" onclick="removeLinkFromEditTugas(${idx})" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold shrink-0 transition">
+              Hapus
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function appendLinkToEditTugas() {
+      const input = document.getElementById('addTugasLinkInput');
+      const url = input.value.trim();
+      if (!url || !/^https?:\/\//i.test(url)) {
+        return showToast('Link Tidak Valid', 'Masukkan URL lengkap yang diawali dengan https://', 'error');
+      }
+      if (!EDIT_TUGAS_LINKS.includes(url)) {
+        EDIT_TUGAS_LINKS.push(url);
+        renderEditTugasLinksList();
+      }
+      input.value = '';
+    }
+
+    function removeLinkFromEditTugas(idx) {
+      EDIT_TUGAS_LINKS.splice(idx, 1);
+      renderEditTugasLinksList();
+    }
+
+    async function uploadFileForEditTugas() {
+      const fileInput = document.getElementById('editTugasFileInput');
+      const file = fileInput.files[0];
+      if (!file) return showToast('Pilih File', 'Pilih file dari komputer Anda terlebih dahulu.', 'error');
+
+      const btn = document.getElementById('btnUploadEditTugasFile');
+      btn.disabled = true;
+      btn.textContent = 'Mengunggah...';
+
+      try {
+        const base64Data = await fileToBase64(file);
+        const taskTitle = document.getElementById('editTugasNama').value.trim().slice(0, 40).replace(/[\\/:*?"<>|]/g, '-');
+        const cleanFileName = taskTitle ? `${taskTitle} - ${file.name}` : file.name;
+
+        const res = await fetch(getConfig().url, {
+          method: 'POST',
+          body: JSON.stringify({
+            token: getConfig().token,
+            action: 'uploadFile',
+            folderKey: 'lampiranTugas',
+            fileName: cleanFileName,
+            mimeType: file.type || 'application/octet-stream',
+            base64Data: base64Data
+          })
+        });
+        const json = await res.json();
+        if (json.status !== 'success') throw new Error(json.message);
+
+        EDIT_TUGAS_LINKS.push(json.fileUrl);
+        renderEditTugasLinksList();
+        fileInput.value = '';
+        showToast('File Diunggah ke Drive', `Disimpan di folder "${json.folderName}". Klik "Simpan Tugas & Lampiran" untuk menyimpan ke Sheet.`, 'success');
+      } catch (err) {
+        showToast('Gagal Mengunggah', err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Upload File';
+      }
+    }
+
+    async function submitEditTugas() {
+      const nama = document.getElementById('editTugasNama').value.trim();
+      if (!nama) return showToast('Nama Tugas Wajib', 'Nama tugas tidak boleh kosong.', 'error');
+
+      const btn = document.getElementById('btnSaveEditTugas');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+
+      const res = await postToApi({
+        token: getConfig().token,
+        action: 'updateTask',
+        row: Number(document.getElementById('editTugasRow').value),
+        task: {
+          namaTugas: nama,
+          detail: document.getElementById('editTugasDetail').value.trim(),
+          tanggalMulai: document.getElementById('editTugasMulai').value.trim(),
+          deadline: document.getElementById('editTugasDeadline').value.trim(),
+          status: document.getElementById('editTugasStatus').value,
+          lampiran: EDIT_TUGAS_LINKS.join('\n')
+        }
+      });
+
+      btn.disabled = false;
+      btn.textContent = 'Simpan Tugas & Lampiran';
+
+      if (res && res.status === 'success') {
+        closeModal('editTugasModal');
+        showToast('Tugas Diperbarui', 'Perubahan tugas dan lampiran berhasil disimpan ke Google Sheet.', 'success');
+        fetchAllData(true);
+      }
     }
 
     async function toggleTaskStatus(rowNum, newStatus) {
@@ -1631,24 +2064,61 @@
       btn.disabled = true;
       btn.textContent = 'Menyimpan...';
 
-      await postToApi({
-        token: getConfig().token,
-        action: 'addTask',
-        task: {
-          namaTugas: nama,
-          detail: document.getElementById('newTaskDetail').value.trim(),
-          deadline: document.getElementById('newTaskDeadline').value.trim(),
-          status: 'Pending'
+      try {
+        const links = [];
+        const manualLink = document.getElementById('newTaskLink').value.trim();
+        if (manualLink && /^https?:\/\//i.test(manualLink)) {
+          links.push(manualLink);
         }
-      });
 
-      document.getElementById('newTaskName').value = '';
-      document.getElementById('newTaskDetail').value = '';
-      document.getElementById('newTaskDeadline').value = '';
-      btn.disabled = false;
-      btn.textContent = '+ Tambah Tugas';
-      showToast('Tugas Ditambahkan', `"${nama}" berhasil dicatat ke Google Sheet.`, 'success');
-      fetchAllData(true);
+        const fileInput = document.getElementById('newTaskFile');
+        const file = fileInput.files[0];
+        if (file) {
+          btn.textContent = 'Mengunggah File...';
+          const base64Data = await fileToBase64(file);
+          const cleanPrefix = nama.slice(0, 40).replace(/[\\/:*?"<>|]/g, '-');
+          const upRes = await fetch(getConfig().url, {
+            method: 'POST',
+            body: JSON.stringify({
+              token: getConfig().token,
+              action: 'uploadFile',
+              folderKey: 'lampiranTugas',
+              fileName: `${cleanPrefix} - ${file.name}`,
+              mimeType: file.type || 'application/octet-stream',
+              base64Data: base64Data
+            })
+          });
+          const upJson = await upRes.json();
+          if (upJson.status !== 'success') throw new Error(upJson.message);
+          links.push(upJson.fileUrl);
+        }
+
+        await postToApi({
+          token: getConfig().token,
+          action: 'addTask',
+          task: {
+            namaTugas: nama,
+            detail: document.getElementById('newTaskDetail').value.trim(),
+            deadline: document.getElementById('newTaskDeadline').value.trim(),
+            status: 'Pending',
+            lampiran: links.join('\n')
+          }
+        });
+
+        document.getElementById('newTaskName').value = '';
+        document.getElementById('newTaskDetail').value = '';
+        document.getElementById('newTaskDeadline').value = '';
+        document.getElementById('newTaskLink').value = '';
+        fileInput.value = '';
+
+        showToast('Tugas Ditambahkan', `"${nama}" berhasil dicatat ke Google Sheet.`, 'success');
+        fetchAllData(true);
+      } catch (err) {
+        showToast('Gagal Menambah Tugas', err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '+ Tambah Tugas';
+      }
     }
 
     // --- RENDER SARPRAS ---
