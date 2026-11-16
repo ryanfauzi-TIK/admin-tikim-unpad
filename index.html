@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Admin Prodi TIKIM — Sekolah Vokasi UNPAD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            unpad: {
+              navy: '#0f2942',
+              dark: '#091b2c',
+              gold: '#eab308',
+              amber: '#f59e0b'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #f4f7fb;
+      background-image: radial-gradient(#cbd5e1 0.65px, transparent 0.65px);
+      background-size: 20px 20px;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .toast-enter {
+      animation: slideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body class="text-slate-800 min-h-screen antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-[60] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- MODAL LOGIN ADMIN (ID & PASSWORD SAJA) -->
+  <div id="loginModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200">
+      <div class="bg-unpad-navy px-6 py-6 border-b-4 border-unpad-gold text-white text-center">
+        <div class="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 text-unpad-navy flex items-center justify-center font-extrabold text-xl shadow-md ring-2 ring-white/20 mb-3">
+          TK
+        </div>
+        <span class="text-[10px] font-bold uppercase tracking-widest text-yellow-300">Universitas Padjadjaran • Sekolah Vokasi</span>
+        <h2 class="text-xl font-extrabold mt-0.5">Login Admin Prodi TIKIM</h2>
+        <p class="text-xs text-slate-300 mt-1">Masuk menggunakan ID Admin dan Password untuk mengakses dashboard.</p>
+      </div>
+      
+      <form onsubmit="submitAdminLogin(event)" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">ID Admin</label>
+          <div class="relative">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            <input id="inputAdminId" type="text" required autocomplete="username" placeholder="Masukkan ID Admin (mis: admin.tikim)" class="w-full border border-slate-300 rounded-xl pl-10 pr-3.5 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Password</label>
+          <div class="relative">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <input id="inputAdminPassword" type="password" required autocomplete="current-password" placeholder="Masukkan Password Admin" class="w-full border border-slate-300 rounded-xl pl-10 pr-10 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition" />
+            <button type="button" onclick="togglePasswordVisibility()" title="Tampilkan / Sembunyikan Password" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-xs font-semibold">
+              Lihat
+            </button>
+          </div>
+        </div>
+
+        <!-- Pengaturan URL API (Otomatis tersembunyi jika DEFAULT_API_URL sudah diisi di kode) -->
+        <div id="apiUrlOverrideBox" class="hidden pt-1">
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Web App URL (/exec)</label>
+          <input id="inputApiUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-600" />
+        </div>
+
+        <button id="btnLoginSubmit" type="submit" class="w-full bg-unpad-navy hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-sm shadow-lg shadow-slate-900/20 transition mt-2">
+          Masuk ke Dashboard
+        </button>
+
+        <div class="text-center pt-1">
+          <button type="button" onclick="toggleApiUrlBox()" class="text-[11px] text-slate-400 hover:text-slate-600 underline">
+            Pengaturan Server API
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL PROSES / EDIT SURAT + DIRECT UPLOAD DRIVE + NOTIF EMAIL -->
+  <div id="editSuratModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-slate-200">
+      <div class="bg-unpad-navy px-6 py-4 border-b-4 border-unpad-gold flex justify-between items-start text-white shrink-0">
+        <div class="pr-4">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-yellow-400/20 text-yellow-300 border border-yellow-400/30">Pemberkasan Surat</span>
+          </div>
+          <h3 class="text-lg font-bold mt-1">Proses & Upload Dokumen Surat</h3>
+          <p id="suratModalSubtitle" class="text-xs text-slate-300 mt-0.5 line-clamp-1"></p>
+        </div>
+        <button onclick="closeModal('editSuratModal')" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-lg font-bold transition">&times;</button>
+      </div>
+
+      <div class="p-6 space-y-4 text-sm overflow-y-auto custom-scrollbar">
+        <input type="hidden" id="editSuratRow" />
+        <input type="hidden" id="editSuratPerihalRaw" />
+        <input type="hidden" id="editSuratPemohonRaw" />
+        <input type="hidden" id="editSuratInitialStatus" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Status ACC Kaprodi</label>
+            <select id="editAccKaprodi" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 bg-white font-medium focus:ring-2 focus:ring-blue-600 focus:outline-none">
+              <option value="">-- Belum Diputuskan --</option>
+              <option value="DISETUJUI KAPRODI">DISETUJUI KAPRODI</option>
+              <option value="DITOLAK KAPRODI">DITOLAK KAPRODI</option>
+              <option value="REVISI">REVISI</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Status Proses Admin</label>
+            <select id="editProsesAdmin" onchange="onProsesAdminChange()" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 bg-white font-medium focus:ring-2 focus:ring-blue-600 focus:outline-none">
+              <option value="DRAFT">DRAFT</option>
+              <option value="PROSES TU FAKULTAS">PROSES TU FAKULTAS</option>
+              <option value="MENUNGGU TTD">MENUNGGU TTD</option>
+              <option value="SELESAI">SELESAI</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Nomor Dokumen Resmi</label>
+            <input id="editNomorDokumen" type="text" placeholder="Contoh: 124/UN6.T.4.6/TU.00/2026" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 font-mono text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">No. Registrasi TU Fakultas</label>
+            <input id="editRegTU" type="text" placeholder="Contoh: 840 atau -" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 font-mono text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+          </div>
+        </div>
+
+        <!-- UPLOAD LANGSUNG: DRAFT PENGANTAR ADMIN -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 space-y-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <label class="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
+              <span class="w-5 h-5 rounded-md bg-amber-100 text-amber-700 inline-flex items-center justify-center font-bold">1</span>
+              Draft Pengantar Admin (Folder: Draft Surat Admin)
+            </label>
+            <a id="linkPreviewDraft" href="#" target="_blank" class="hidden text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline">Buka File Saat Ini &nearr;</a>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="fileUploadDraft" type="file" accept=".pdf,.doc,.docx" class="text-xs text-slate-600 bg-white border border-slate-200 rounded-xl p-1.5 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 flex-1 cursor-pointer" />
+            <button type="button" id="btnUploadDraft" onclick="uploadSuratAttachment('draftAdmin')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold whitespace-nowrap shadow-sm transition">
+              Upload Draft
+            </button>
+          </div>
+          <input id="editDraftAdmin" type="text" placeholder="Link Google Drive otomatis terisi setelah upload (atau tempel manual)" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+        </div>
+
+        <!-- UPLOAD LANGSUNG: PDF FINAL DARI TU -->
+        <div class="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <label class="text-xs font-bold text-emerald-950 uppercase tracking-wide flex items-center gap-1.5">
+              <span class="w-5 h-5 rounded-md bg-emerald-600 text-white inline-flex items-center justify-center font-bold">2</span>
+              Final Surat dari TU (Folder: Final Surat dari TU)
+            </label>
+            <a id="linkPreviewFinal" href="#" target="_blank" class="hidden text-xs font-semibold text-emerald-700 hover:text-emerald-900 hover:underline">Buka PDF Final &nearr;</a>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="fileUploadFinal" type="file" accept=".pdf,.doc,.docx" class="text-xs text-slate-600 bg-white border border-emerald-200 rounded-xl p-1.5 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 flex-1 cursor-pointer" />
+            <button type="button" id="btnUploadFinal" onclick="uploadSuratAttachment('finalTU')" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold whitespace-nowrap shadow-sm transition">
+              Upload Final TU
+            </button>
+          </div>
+          <label class="flex items-center gap-2 text-xs text-emerald-900 cursor-pointer pt-0.5 select-none">
+            <input id="chkCopySuratKeluar" type="checkbox" checked class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500" />
+            <span>Sekaligus arsipkan salinan rapi ke folder <b>Surat Keluar 2026</b></span>
+          </label>
+          <input id="editLinkPdf" type="url" oninput="onProsesAdminChange()" placeholder="Link Google Drive PDF Final otomatis terisi setelah upload" class="w-full border border-emerald-300 rounded-xl px-3 py-2 text-xs font-mono bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none" />
+        </div>
+
+        <!-- Catatan Admin -->
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Catatan Admin <span class="font-normal normal-case text-slate-400">(Ikut tampil di email pemohon jika diisi)</span></label>
+          <textarea id="editCatatanAdmin" rows="2" placeholder="Tambahkan pesan atau instruksi lanjutan untuk pemohon..." class="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm focus:ring-2 focus:ring-blue-600 focus:outline-none"></textarea>
+        </div>
+
+        <!-- OPSI KIRIM EMAIL OTOMATIS KE PEMOHON -->
+        <div class="p-3.5 rounded-xl bg-blue-50/90 border border-blue-200">
+          <label class="flex items-start gap-3 cursor-pointer select-none">
+            <input id="chkSendEmailNotif" type="checkbox" class="mt-0.5 w-4 h-4 rounded text-blue-600 focus:ring-blue-500" />
+            <div class="text-xs">
+              <span class="font-bold text-blue-950 block">Kirim Email Notifikasi Resmi ke Pemohon saat Disimpan</span>
+              <span class="text-blue-700">Tujuan email: <b id="emailRecipientLabel" class="font-mono">-</b></span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2.5 shrink-0">
+        <button onclick="closeModal('editSuratModal')" class="px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 text-xs font-semibold transition">Tutup</button>
+        <button id="btnSaveSurat" onclick="submitEditSurat()" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-600/20 transition">Simpan Semua Perubahan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDIT SARPRAS -->
+  <div id="editSarprasModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+      <div class="bg-unpad-navy px-6 py-4 border-b-4 border-unpad-gold flex justify-between items-start text-white">
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-yellow-300">Pemeliharaan & Fasilitas</span>
+          <h3 class="text-lg font-bold mt-0.5">Tindak Lanjut Aduan Sarpras</h3>
+          <p id="sarprasModalSubtitle" class="text-xs text-slate-300 mt-0.5"></p>
+        </div>
+        <button onclick="closeModal('editSarprasModal')" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-lg font-bold transition">&times;</button>
+      </div>
+      <div class="p-6 space-y-4 text-sm">
+        <input type="hidden" id="editSarprasRow" />
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Status Pengaduan</label>
+          <select id="editStatusSarpras" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 bg-white font-medium focus:ring-2 focus:ring-blue-600 focus:outline-none">
+            <option value="Belum Diproses">Belum Diproses</option>
+            <option value="Diteruskan ke Sarpras Fakultas">Diteruskan ke Sarpras Fakultas</option>
+            <option value="Dalam Perbaikan">Dalam Perbaikan</option>
+            <option value="Selesai">Selesai</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Kontak / PJ Sarpras</label>
+          <input id="editPjSarpras" type="text" placeholder="Nama teknisi / staf sarpras fakultas" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Catatan Internal Prodi</label>
+          <textarea id="editCatatanSarpras" rows="2" placeholder="Keterangan progres perbaikan..." class="w-full border border-slate-300 rounded-xl px-3.5 py-2 focus:ring-2 focus:ring-blue-600 focus:outline-none"></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button onclick="closeModal('editSarprasModal')" class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-50 text-xs font-semibold">Batal</button>
+          <button id="btnSaveSarpras" onclick="submitEditSarpras()" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-600/20">Simpan Perubahan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP INSTITUTIONAL NAVBAR -->
+  <header class="bg-unpad-navy text-white border-b-4 border-unpad-gold sticky top-0 z-30 shadow-lg shadow-slate-900/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 text-unpad-navy flex items-center justify-center font-extrabold text-lg shadow-md ring-2 ring-white/20">
+          TK
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-white text-base sm:text-lg tracking-tight leading-tight">Dashboard Admin Prodi TIKIM</h1>
+            <span class="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/10 text-yellow-300 border border-white/15">
+              D-4 Teknologi Industri Kimia
+            </span>
+          </div>
+          <p class="text-xs text-slate-300 mt-0.5">Sekolah Vokasi — Universitas Padjadjaran</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5 text-xs">
+        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-200 font-medium">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="lastUpdatedText">Memuat...</span>
+        </span>
+        <button onclick="fetchAllData(true)" title="Sinkronkan Data Sekarang" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold border border-white/15 transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <span>Refresh</span>
+        </button>
+        <button onclick="logoutAdmin()" title="Keluar dari Sesi Admin" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/35 text-rose-200 font-semibold border border-rose-400/30 transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          <span>Keluar</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+    
+    <!-- KPI STAT CARDS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div id="kpiCard-surat" onclick="switchTab('surat')" class="kpi-card cursor-pointer glass-card p-5 rounded-2xl border-2 border-blue-500/40 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex items-start justify-between">
+        <div>
+          <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Antrean Surat Aktif</p>
+          <p id="kpiSurat" class="text-3xl font-extrabold text-slate-900 mt-1.5">-</p>
+          <p id="kpiSuratSub" class="text-xs text-slate-500 mt-1 font-medium">Total ajuan: -</p>
+        </div>
+        <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        </div>
+      </div>
+
+      <div id="kpiCard-tugas" onclick="switchTab('tugas')" class="kpi-card cursor-pointer glass-card p-5 rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md hover:border-amber-400 hover:-translate-y-0.5 transition-all flex items-start justify-between">
+        <div>
+          <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Note Tugas Pending</p>
+          <p id="kpiTugas" class="text-3xl font-extrabold text-slate-900 mt-1.5">-</p>
+          <p id="kpiTugasSub" class="text-xs text-slate-500 mt-1 font-medium">Selesai: -</p>
+        </div>
+        <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+        </div>
+      </div>
+
+      <div id="kpiCard-sarpras" onclick="switchTab('sarpras')" class="kpi-card cursor-pointer glass-card p-5 rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md hover:border-rose-400 hover:-translate-y-0.5 transition-all flex items-start justify-between">
+        <div>
+          <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Aduan Sarpras</p>
+          <p id="kpiSarpras" class="text-3xl font-extrabold text-slate-900 mt-1.5">-</p>
+          <p id="kpiSarprasSub" class="text-xs text-slate-500 mt-1 font-medium">Belum selesai</p>
+        </div>
+        <div class="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+      </div>
+
+      <div id="kpiCard-drive" onclick="switchTab('drive')" class="kpi-card cursor-pointer glass-card p-5 rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md hover:border-indigo-400 hover:-translate-y-0.5 transition-all flex items-start justify-between">
+        <div>
+          <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Arsip Google Drive</p>
+          <p id="kpiDriveCount" class="text-xl font-extrabold text-indigo-700 mt-2">5 Folder Tampil</p>
+          <p class="text-xs text-slate-500 mt-1.5 font-medium">Kelola & upload berkas &rarr;</p>
+        </div>
+        <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODERN SEGMENTED NAVIGATION TABS -->
+    <div class="bg-white/90 p-1.5 rounded-2xl border border-slate-200/90 shadow-sm flex gap-1.5 overflow-x-auto custom-scrollbar">
+      <button id="tab-surat" onclick="switchTab('surat')" class="tab-btn flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl bg-unpad-navy text-white shadow-sm whitespace-nowrap transition">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <span>Persuratan & Nota Dinas</span>
+        <span id="badge-tab-surat" class="px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-yellow-400 text-unpad-navy">0</span>
+      </button>
+
+      <button id="tab-drive" onclick="switchTab('drive')" class="tab-btn flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-slate-600 hover:bg-slate-100 whitespace-nowrap transition">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+        <span>Pemberkasan & Drive</span>
+      </button>
+
+      <button id="tab-tugas" onclick="switchTab('tugas')" class="tab-btn flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-slate-600 hover:bg-slate-100 whitespace-nowrap transition">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <span>Note Tugas Admin</span>
+        <span id="badge-tab-tugas" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-200 text-slate-700">0</span>
+      </button>
+
+      <button id="tab-sarpras" onclick="switchTab('sarpras')" class="tab-btn flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-slate-600 hover:bg-slate-100 whitespace-nowrap transition">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        <span>Aduan Sarpras</span>
+        <span id="badge-tab-sarpras" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-200 text-slate-700">0</span>
+      </button>
+
+      <button id="tab-magang" onclick="switchTab('magang')" class="tab-btn flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-slate-600 hover:bg-slate-100 whitespace-nowrap transition">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <span>Arsip Laporan Magang</span>
+      </button>
+    </div>
+
+    <!-- TAB 1: PERSURATAN & NOTA DINAS -->
+    <section id="panel-surat" class="tab-panel space-y-4">
+      <div class="glass-card p-4 rounded-2xl border border-slate-200/90 shadow-sm flex flex-wrap gap-3 items-center justify-between">
+        <div class="relative w-full sm:w-80">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input id="searchSurat" oninput="renderSurat()" type="text" placeholder="Cari nama, NPM, perihal, atau nomor surat..." class="w-full border border-slate-300 rounded-xl pl-10 pr-3.5 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition" />
+        </div>
+        <div class="flex flex-wrap gap-2.5 w-full sm:w-auto">
+          <select id="filterKategoriSurat" onchange="renderSurat()" class="border border-slate-300 rounded-xl px-3.5 py-2 text-sm bg-white font-medium text-slate-700 focus:ring-2 focus:ring-blue-600 focus:outline-none flex-1 sm:flex-none">
+            <option value="">Semua Kategori</option>
+            <option value="Surat Internal Prodi TIKIM">Internal Prodi TIKIM</option>
+            <option value="Surat Lintas Fakultas / Pihak Luar Vokasi">Lintas Fakultas / Luar Vokasi</option>
+          </select>
+          <select id="filterStatusSurat" onchange="renderSurat()" class="border border-slate-300 rounded-xl px-3.5 py-2 text-sm bg-white font-medium text-slate-700 focus:ring-2 focus:ring-blue-600 focus:outline-none flex-1 sm:flex-none">
+            <option value="AKTIF">Belum Selesai (Antrean)</option>
+            <option value="SEMUA">Semua Status</option>
+            <option value="SELESAI">Selesai</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl border border-slate-200/90 overflow-hidden shadow-sm">
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead class="bg-slate-100/90 text-slate-600 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
+              <tr>
+                <th class="p-4">Pemohon & Kontak</th>
+                <th class="p-4">Perihal & Instansi Tujuan</th>
+                <th class="p-4">Status Proses</th>
+                <th class="p-4">Nomor & Berkas Drive</th>
+                <th class="p-4 text-right">Tindakan</th>
+              </tr>
+            </thead>
+            <tbody id="tableSuratBody" class="divide-y divide-slate-100">
+              <tr><td colspan="5" class="p-8 text-center text-slate-400">Memuat data surat...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: PEMBERKASAN & UPLOAD GOOGLE DRIVE -->
+    <section id="panel-drive" class="tab-panel hidden space-y-6">
+      <div class="space-y-3.5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wide">Akses Cepat Folder Arsip Google Drive</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Klik kartu folder untuk menjelajahi isi berkas sekaligus memilih tujuan unggahan</p>
+          </div>
+          <button onclick="toggleFolderSettings()" id="btnToggleFolderSettings" class="px-4 py-2 rounded-xl bg-white border border-slate-300 hover:border-blue-400 hover:bg-blue-50/50 text-slate-700 text-xs font-bold shadow-sm transition inline-flex items-center gap-2">
+            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+            <span>Atur Folder Tampil</span>
+          </button>
+        </div>
+
+        <div id="folderSettingsPanel" class="hidden glass-card p-5 rounded-2xl border-2 border-blue-200 shadow-md space-y-5">
+          <div>
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+              <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-700">1. Pilih Folder yang Ditampilkan di Akses Cepat</h4>
+              <div class="flex gap-2.5 text-xs">
+                <button type="button" onclick="setAllFoldersVisible(true)" class="text-blue-600 hover:underline font-semibold">Tampilkan Semua</button>
+                <span class="text-slate-300">|</span>
+                <button type="button" onclick="resetDefaultFolders()" class="text-slate-500 hover:text-slate-800 hover:underline">Reset Default</button>
+              </div>
+            </div>
+            <div id="folderChecklistContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-200/80">
+            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-3">2. Tambah Folder Google Drive Lain ke Akses Cepat</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 text-xs">
+              <input id="customFolderTitle" type="text" placeholder="Nama Folder (mis: Arsip SK Prodi)" class="sm:col-span-3 border border-slate-300 rounded-xl px-3.5 py-2.5 bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+              <input id="customFolderTag" type="text" placeholder="Label (mis: SK / Akreditasi)" class="sm:col-span-2 border border-slate-300 rounded-xl px-3.5 py-2.5 bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+              <input id="customFolderUrl" type="text" placeholder="Tempel Link Folder Google Drive (https://drive.google.com/drive/folders/...)" class="sm:col-span-4 border border-slate-300 rounded-xl px-3.5 py-2.5 bg-white font-mono focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+              <select id="customFolderColor" class="sm:col-span-1 border border-slate-300 rounded-xl px-2.5 py-2.5 bg-white font-medium">
+                <option value="indigo">Indigo</option>
+                <option value="blue">Biru</option>
+                <option value="emerald">Hijau</option>
+                <option value="amber">Kuning</option>
+                <option value="purple">Ungu</option>
+                <option value="rose">Merah</option>
+              </select>
+              <button type="button" onclick="addCustomFolder()" class="sm:col-span-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl px-3.5 py-2.5 shadow-sm transition">
+                + Tambah Folder
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="quickAccessFoldersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5"></div>
+      </div>
+
+      <div id="archiveUploadBox" class="glass-card p-6 rounded-2xl border border-slate-200/90 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            </div>
+            <h3 class="text-base font-bold text-slate-900">Upload & Pengarsipan Otomatis ke Google Drive</h3>
+          </div>
+          <span id="uploadTargetBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Tujuan: Surat Keluar 2026</span>
+        </div>
+        <p class="text-xs text-slate-500 mb-4 ml-10">File akan otomatis dinamai ulang sesuai format standar arsip Program Studi TIKIM.</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3.5 text-sm">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Folder Tujuan</label>
+            <select id="archiveFolderSelect" onchange="onUploadFolderSelectChange()" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 bg-white font-medium focus:ring-2 focus:ring-blue-600 focus:outline-none"></select>
+          </div>
+          <div id="archiveYearWrapper">
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Tahun Arsip</label>
+            <select id="archiveYear" onchange="updateArchivePreview()" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 bg-white font-medium focus:ring-2 focus:ring-blue-600 focus:outline-none">
+              <option value="2026" selected>2026</option>
+              <option value="2027">2027 (Otomatis buat folder)</option>
+              <option value="2028">2028 (Otomatis buat folder)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Nomor Urut / Kode</label>
+            <input id="archiveNomor" oninput="updateArchivePreview()" type="text" placeholder="Contoh: 124 atau 015-Dekanat" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 font-mono text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Perihal / Judul Singkat</label>
+            <input id="archivePerihal" oninput="updateArchivePreview()" type="text" placeholder="Contoh: Undangan Rapat Kurikulum" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+          </div>
+        </div>
+
+        <div class="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-4 border-t border-slate-100">
+          <div class="space-y-1.5 w-full sm:w-auto">
+            <input id="archiveFileInput" onchange="updateArchivePreview()" type="file" accept=".pdf,.doc,.docx,.xlsx,.jpg,.png" class="text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-xl p-1.5 file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer w-full sm:w-auto" />
+            <p class="text-xs text-slate-500">Nama file di Drive: <span id="archiveFileNamePreview" class="font-mono font-semibold text-slate-800 bg-slate-100 px-2 py-0.5 rounded">-</span></p>
+          </div>
+          <button id="btnUploadArchive" onclick="submitArchiveUpload()" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-unpad-navy hover:bg-slate-800 text-white text-sm font-bold shadow-md shadow-slate-900/15 transition">
+            Upload & Arsipkan
+          </button>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl border border-slate-200/90 overflow-hidden shadow-sm">
+        <div class="p-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-slate-50/90">
+          <div>
+            <h4 id="driveBrowserTitle" class="font-bold text-slate-900 text-sm">Daftar File: Surat Keluar 2026</h4>
+            <p class="text-xs text-slate-500">Klik kartu folder di atas untuk berpindah isi folder secara langsung</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <select id="browserYearSelect" onchange="browseDriveItem(activeDriveItemId)" class="border border-slate-300 rounded-xl px-3 py-1.5 text-xs bg-white font-semibold">
+              <option value="2026">Tahun 2026</option>
+              <option value="2027">Tahun 2027</option>
+            </select>
+            <input id="searchDriveFiles" oninput="renderDriveFileList()" type="text" placeholder="Cari nama file..." class="border border-slate-300 rounded-xl px-3.5 py-1.5 text-xs bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+          </div>
+        </div>
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead class="bg-slate-100/90 text-slate-600 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
+              <tr>
+                <th class="p-3.5">Nama File di Google Drive</th>
+                <th class="p-3.5">Terakhir Diubah</th>
+                <th class="p-3.5 text-right">Tindakan</th>
+              </tr>
+            </thead>
+            <tbody id="tableDriveFilesBody" class="divide-y divide-slate-100">
+              <tr><td colspan="3" class="p-8 text-center text-slate-400">Memuat daftar file...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: NOTE TUGAS ADMIN -->
+    <section id="panel-tugas" class="tab-panel hidden space-y-4">
+      <div class="glass-card p-5 rounded-2xl border border-slate-200/90 shadow-sm">
+        <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wide mb-3">Tambah Tugas Baru ke Google Sheet</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+          <input id="newTaskName" type="text" placeholder="Nama Tugas (Wajib)" class="sm:col-span-4 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+          <input id="newTaskDetail" type="text" placeholder="Detail / Catatan Tambahan" class="sm:col-span-4 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+          <input id="newTaskDeadline" type="text" placeholder="Deadline (mis: 11/25/2026)" class="sm:col-span-2 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+          <button id="btnAddTask" onclick="submitNewTask()" class="sm:col-span-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl px-4 py-2.5 text-sm shadow-sm transition">
+            + Tambah Tugas
+          </button>
+        </div>
+      </div>
+
+      <div class="glass-card p-4 rounded-2xl border border-slate-200/90 shadow-sm flex flex-wrap justify-between items-center gap-3">
+        <div class="relative w-full sm:w-72">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input id="searchTugas" oninput="renderTugas()" type="text" placeholder="Cari tugas..." class="w-full border border-slate-300 rounded-xl pl-10 pr-3.5 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+        </div>
+        <select id="filterStatusTugas" onchange="renderTugas()" class="border border-slate-300 rounded-xl px-3.5 py-2 text-sm bg-white font-medium text-slate-700">
+          <option value="PENDING">Hanya Pending</option>
+          <option value="SEMUA">Semua Tugas</option>
+          <option value="SELESAI">Sudah Selesai</option>
+        </select>
+      </div>
+
+      <div id="listTugasContainer" class="space-y-2.5"></div>
+    </section>
+
+    <!-- TAB 4: ADUAN SARPRAS -->
+    <section id="panel-sarpras" class="tab-panel hidden space-y-4">
+      <div class="glass-card rounded-2xl border border-slate-200/90 overflow-hidden shadow-sm">
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead class="bg-slate-100/90 text-slate-600 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
+              <tr>
+                <th class="p-4">Waktu & Pelapor</th>
+                <th class="p-4">Lokasi & Kategori</th>
+                <th class="p-4">Deskripsi & Bukti</th>
+                <th class="p-4">Status & PJ</th>
+                <th class="p-4 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tableSarprasBody" class="divide-y divide-slate-100">
+              <tr><td colspan="5" class="p-8 text-center text-slate-400">Memuat data aduan sarpras...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: ARSIP LAPORAN MAGANG -->
+    <section id="panel-magang" class="tab-panel hidden space-y-4">
+      <div class="glass-card p-4 rounded-2xl border border-slate-200/90 shadow-sm">
+        <div class="relative w-full sm:w-96">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input id="searchMagang" oninput="renderMagang()" type="text" placeholder="Cari nama mahasiswa, NPM, angkatan, perusahaan, atau dosbing..." class="w-full border border-slate-300 rounded-xl pl-10 pr-3.5 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+        </div>
+      </div>
+      <div class="glass-card rounded-2xl border border-slate-200/90 overflow-hidden shadow-sm">
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead class="bg-slate-100/90 text-slate-600 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
+              <tr>
+                <th class="p-4">Mahasiswa</th>
+                <th class="p-4">Instansi / Perusahaan Magang</th>
+                <th class="p-4">Dosen Pembimbing</th>
+                <th class="p-4">Dokumen Drive</th>
+              </tr>
+            </thead>
+            <tbody id="tableMagangBody" class="divide-y divide-slate-100">
+              <tr><td colspan="4" class="p-8 text-center text-slate-400">Memuat data magang...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // =========================================================================
+    // TEMPELKAN URL WEB APP (/exec) ANDA DI BAWAH INI AGAR TIDAK PERLU DIINPUT LAGI
+    // =========================================================================
+    const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbznpn5uCcvu8Tn42vhF5EMg8LysTcCqVR5n5hMKvAcPpp066e7OUhzvz7gcyIaWoOBT/exec";
+
+    let APP_DATA = { surat: [], sarpras: [], magang: [], tugas: [] };
+    let DRIVE_FILES_CACHE = [];
+    let activeDriveItemId = 'suratKeluar';
+    let refreshTimer = null;
+
+    const DEFAULT_DRIVE_FOLDERS = [
+      {
+        id: 'suratKeluar',
+        folderKey: 'suratKeluar',
+        customFolderId: '',
+        isYearly: true,
+        title: 'Surat Keluar 2026',
+        desc: 'Arsip resmi surat keluar prodi',
+        tag: 'Surat Keluar',
+        color: 'blue',
+        visible: true,
+        isDefault: true,
+        driveUrl: 'https://drive.google.com/drive/folders/1nKiC631oHKgjx7OVwgt0q9sDn8-Xw0Wt'
+      },
+      {
+        id: 'suratMasuk',
+        folderKey: 'suratMasuk',
+        customFolderId: '',
+        isYearly: true,
+        title: 'Surat Masuk 2026',
+        desc: 'Surat dari Dekanat / Mitra',
+        tag: 'Surat Masuk',
+        color: 'purple',
+        visible: true,
+        isDefault: true,
+        driveUrl: 'https://drive.google.com/drive/folders/1jKQGTVJzyP9vg2aly6mI8CbyX7eBuvdy'
+      },
+      {
+        id: 'draftAdmin',
+        folderKey: 'draftAdmin',
+        customFolderId: '',
+        isYearly: false,
+        title: 'Draft Surat Admin',
+        desc: 'Konsep surat pengantar prodi',
+        tag: 'Draft Admin',
+        color: 'amber',
+        visible: true,
+        isDefault: true,
+        driveUrl: 'https://drive.google.com/drive/folders/15Nr29X7eYTx3E11AZGsuwZ-cZVkzjvAO'
+      },
+      {
+        id: 'finalTU',
+        folderKey: 'finalTU',
+        customFolderId: '',
+        isYearly: false,
+        title: 'Final Surat dari TU',
+        desc: 'Surat bertanda tangan & cap',
+        tag: 'Final TU',
+        color: 'emerald',
+        visible: true,
+        isDefault: true,
+        driveUrl: 'https://drive.google.com/drive/folders/1LuiP_k2_JgxIQo4mKAz6OIgJ9JBEl7yE'
+      },
+      {
+        id: 'berkasPendukung',
+        folderKey: 'berkasPendukung',
+        customFolderId: '',
+        isYearly: false,
+        title: 'Berkas Pendukung',
+        desc: 'Lampiran upload GForm pemohon',
+        tag: 'GForm Upload',
+        color: 'slate',
+        visible: true,
+        isDefault: true,
+        driveUrl: 'https://drive.google.com/drive/folders/1bho29zXrq2AVdYTFt1FNh9JxLkIk1ERnoiP65XsFgSXhcJAec4UAeZIxrppZ_vVLOyBXOkYz'
+      }
+    ];
+
+    const COLOR_STYLES = {
+      blue:    { badge: 'bg-blue-100 text-blue-700',       active: 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/50',       btn: 'text-blue-600' },
+      purple:  { badge: 'bg-purple-100 text-purple-700',   active: 'border-purple-500 ring-2 ring-purple-500/20 bg-purple-50/50', btn: 'text-purple-600' },
+      amber:   { badge: 'bg-amber-100 text-amber-800',     active: 'border-amber-500 ring-2 ring-amber-500/20 bg-amber-50/50',    btn: 'text-amber-700' },
+      emerald: { badge: 'bg-emerald-100 text-emerald-700', active: 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/50', btn: 'text-emerald-700' },
+      slate:   { badge: 'bg-slate-200 text-slate-700',     active: 'border-slate-500 ring-2 ring-slate-500/20 bg-slate-100/70',    btn: 'text-slate-700' },
+      indigo:  { badge: 'bg-indigo-100 text-indigo-700',   active: 'border-indigo-500 ring-2 ring-indigo-500/20 bg-indigo-50/50', btn: 'text-indigo-600' },
+      rose:    { badge: 'bg-rose-100 text-rose-700',       active: 'border-rose-500 ring-2 ring-rose-500/20 bg-rose-50/50',       btn: 'text-rose-600' }
+    };
+
+    // --- TOAST HELPER ---
+    function showToast(title, message = '', type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const colors = {
+        success: 'bg-slate-900 border-emerald-500 text-white',
+        error: 'bg-rose-950 border-rose-500 text-white',
+        info: 'bg-unpad-navy border-yellow-400 text-white'
+      };
+      const icon = type === 'error' ? '&#9888;' : '&#10003;';
+      const iconBg = type === 'error' ? 'bg-rose-500' : (type === 'info' ? 'bg-yellow-400 text-unpad-navy' : 'bg-emerald-500');
+
+      const el = document.createElement('div');
+      el.className = `toast-enter pointer-events-auto rounded-xl border-l-4 p-3.5 shadow-xl flex items-start gap-3 ${colors[type] || colors.success}`;
+      el.innerHTML = `
+        <span class="w-6 h-6 rounded-full ${iconBg} flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">${icon}</span>
+        <div class="text-xs flex-1 min-w-0">
+          <p class="font-bold text-sm leading-snug">${esc(title)}</p>
+          ${message ? `<p class="text-slate-300 mt-0.5 leading-relaxed break-words">${esc(message)}</p>` : ''}
+        </div>
+      `;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.25s ease';
+        setTimeout(() => el.remove(), 260);
+      }, 4200);
+    }
+
+    // --- AUTENTIKASI ID & PASSWORD ADMIN ---
+    function getActiveApiUrl() {
+      const saved = localStorage.getItem('tikim_api_url') || '';
+      if (saved && saved.startsWith('https://')) return saved;
+      if (DEFAULT_API_URL && DEFAULT_API_URL.startsWith('https://') && !DEFAULT_API_URL.includes('TEMPEL_URL')) {
+        return DEFAULT_API_URL;
+      }
+      return '';
+    }
+
+    function getConfig() {
+      return {
+        url: getActiveApiUrl(),
+        token: localStorage.getItem('tikim_api_token') || ''
+      };
+    }
+
+    function openLoginModal() {
+      const activeUrl = getActiveApiUrl();
+      document.getElementById('inputApiUrl').value = activeUrl;
+      document.getElementById('inputAdminId').value = localStorage.getItem('tikim_admin_id') || '';
+      document.getElementById('inputAdminPassword').value = '';
+
+      // Tampilkan kotak URL hanya jika DEFAULT_API_URL belum dipasang di kode
+      if (!activeUrl) {
+        document.getElementById('apiUrlOverrideBox').classList.remove('hidden');
+      } else {
+        document.getElementById('apiUrlOverrideBox').classList.add('hidden');
+      }
+
+      document.getElementById('loginModal').classList.remove('hidden');
+    }
+
+    function toggleApiUrlBox() {
+      document.getElementById('apiUrlOverrideBox').classList.toggle('hidden');
+    }
+
+    function togglePasswordVisibility() {
+      const inp = document.getElementById('inputAdminPassword');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+    }
+
+    async function submitAdminLogin(e) {
+      e.preventDefault();
+      const adminId = document.getElementById('inputAdminId').value.trim();
+      const password = document.getElementById('inputAdminPassword').value.trim();
+      const urlInput = document.getElementById('inputApiUrl').value.trim();
+      const targetUrl = urlInput || getActiveApiUrl();
+
+      if (!targetUrl || !targetUrl.startsWith('https://')) {
+        document.getElementById('apiUrlOverrideBox').classList.remove('hidden');
+        return showToast('URL Server Belum Diatur', 'Klik "Pengaturan Server API" dan tempel URL /exec Anda.', 'error');
+      }
+
+      const btn = document.getElementById('btnLoginSubmit');
+      btn.disabled = true;
+      btn.textContent = 'Memverifikasi Akun...';
+
+      try {
+        const res = await fetch(targetUrl, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'login',
+            adminId: adminId,
+            password: password
+          })
+        });
+        const json = await res.json();
+
+        if (json.status !== 'success') {
+          showToast('Login Gagal', json.message || 'ID Admin atau Password salah.', 'error');
+          return;
+        }
+
+        localStorage.setItem('tikim_api_url', targetUrl);
+        localStorage.setItem('tikim_api_token', json.token);
+        localStorage.setItem('tikim_admin_id', adminId);
+
+        closeModal('loginModal');
+        showToast('Login Berhasil', `Selamat datang kembali, ${adminId}!`, 'success');
+        fetchAllData(true);
+      } catch (err) {
+        showToast('Gagal Terhubung', 'Pastikan URL Apps Script aktif dan sudah di-deploy sebagai Web App.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Masuk ke Dashboard';
+      }
+    }
+
+    function logoutAdmin() {
+      if (!confirm('Keluar dari sesi Admin Prodi TIKIM?')) return;
+      localStorage.removeItem('tikim_api_token');
+      APP_DATA = { surat: [], sarpras: [], magang: [], tugas: [] };
+      openLoginModal();
+      showToast('Berhasil Keluar', 'Sesi admin telah dikunci.', 'info');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    function getInitials(name) {
+      const clean = String(name || 'U').trim();
+      const parts = clean.split(/\s+/);
+      if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+
+    function getQuickFolders() {
+      try {
+        const saved = localStorage.getItem('tikim_quick_folders_v1');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {}
+      return JSON.parse(JSON.stringify(DEFAULT_DRIVE_FOLDERS));
+    }
+
+    function saveQuickFolders(list) {
+      localStorage.setItem('tikim_quick_folders_v1', JSON.stringify(list));
+      renderQuickAccessSection();
+    }
+
+    function esc(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function formatWaLink(rawPhone) {
+      let digits = String(rawPhone || '').replace(/\D/g, '');
+      if (!digits || digits.length < 8) return null;
+      if (digits.startsWith('0')) digits = '62' + digits.slice(1);
+      return 'https://wa.me/' + digits;
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-panel').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(el => {
+        el.classList.remove('bg-unpad-navy', 'text-white', 'shadow-sm', 'font-bold');
+        el.classList.add('text-slate-600', 'hover:bg-slate-100', 'font-semibold');
+      });
+
+      document.getElementById('panel-' + tabName).classList.remove('hidden');
+      const activeBtn = document.getElementById('tab-' + tabName);
+      activeBtn.classList.add('bg-unpad-navy', 'text-white', 'shadow-sm', 'font-bold');
+      activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100', 'font-semibold');
+
+      document.querySelectorAll('.kpi-card').forEach(c => {
+        c.classList.remove('border-2', 'border-blue-500/50', 'ring-2', 'ring-blue-500/10');
+        c.classList.add('border', 'border-slate-200/90');
+      });
+      const kpiEl = document.getElementById('kpiCard-' + tabName);
+      if (kpiEl) {
+        kpiEl.classList.remove('border', 'border-slate-200/90');
+        kpiEl.classList.add('border-2', 'border-blue-500/50', 'ring-2', 'ring-blue-500/10');
+      }
+
+      if (tabName === 'drive') {
+        renderQuickAccessSection();
+        if (DRIVE_FILES_CACHE.length === 0) {
+          const firstVisible = getQuickFolders().find(f => f.visible) || getQuickFolders()[0];
+          if (firstVisible) browseDriveItem(firstVisible.id);
+        }
+      }
+    }
+
+    async function fetchAllData(showLoading = false) {
+      const cfg = getConfig();
+      if (!cfg.url || !cfg.token) {
+        openLoginModal();
+        return;
+      }
+
+      if (showLoading) {
+        document.getElementById('lastUpdatedText').textContent = 'Sinkronisasi...';
+      }
+
+      try {
+        const res = await fetch(`${cfg.url}?token=${encodeURIComponent(cfg.token)}`);
+        const json = await res.json();
+        if (json.status !== 'success') {
+          localStorage.removeItem('tikim_api_token');
+          openLoginModal();
+          showToast('Sesi Berakhir', json.message, 'error');
+          return;
+        }
+        APP_DATA = json.data;
+        document.getElementById('lastUpdatedText').textContent = 'Live: ' + json.updatedAt;
+        updateKPIs();
+        renderSurat();
+        renderTugas();
+        renderSarpras();
+        renderMagang();
+      } catch (err) {
+        document.getElementById('lastUpdatedText').textContent = 'Gagal terhubung';
+        console.error(err);
+      }
+    }
+
+    function updateKPIs() {
+      const suratAll = APP_DATA.surat || [];
+      const suratAktif = suratAll.filter(s => {
+        const st = (s['STATUS PROSES ADMIN'] || '').toUpperCase();
+        const acc = (s['STATUS ACC KAPRODI'] || '').toUpperCase();
+        return st !== 'SELESAI' && acc !== 'DITOLAK KAPRODI';
+      });
+      document.getElementById('kpiSurat').textContent = suratAktif.length;
+      document.getElementById('kpiSuratSub').textContent = `Total ajuan masuk: ${suratAll.length}`;
+      document.getElementById('badge-tab-surat').textContent = suratAktif.length;
+
+      const tugasAll = APP_DATA.tugas || [];
+      const tugasPending = tugasAll.filter(t => (t['Status'] || '').toLowerCase() !== 'selesai');
+      document.getElementById('kpiTugas').textContent = tugasPending.length;
+      document.getElementById('kpiTugasSub').textContent = `Selesai dikerjakan: ${tugasAll.length - tugasPending.length}`;
+      document.getElementById('badge-tab-tugas').textContent = tugasPending.length;
+
+      const sarprasAll = APP_DATA.sarpras || [];
+      const sarprasAktif = sarprasAll.filter(s => (s['Status Pengaduan'] || '').toLowerCase() !== 'selesai');
+      document.getElementById('kpiSarpras').textContent = sarprasAktif.length;
+      document.getElementById('kpiSarprasSub').textContent = `Total laporan masuk: ${sarprasAll.length}`;
+      document.getElementById('badge-tab-sarpras').textContent = sarprasAktif.length;
+
+      const visibleCount = getQuickFolders().filter(f => f.visible).length;
+      document.getElementById('kpiDriveCount').textContent = `${visibleCount} Folder Tampil`;
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        if (file.size > 15 * 1024 * 1024) {
+          reject(new Error("Ukuran file maksimal 15 MB."));
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = err => reject(err);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // --- RENDER SURAT ---
+    function renderSurat() {
+      const q = document.getElementById('searchSurat').value.toLowerCase();
+      const kat = document.getElementById('filterKategoriSurat').value;
+      const stFilter = document.getElementById('filterStatusSurat').value;
+
+      const list = [...(APP_DATA.surat || [])].reverse().filter(item => {
+        const proses = (item['STATUS PROSES ADMIN'] || '').toUpperCase();
+        const acc = (item['STATUS ACC KAPRODI'] || '').toUpperCase();
+        if (stFilter === 'AKTIF' && (proses === 'SELESAI' || acc === 'DITOLAK KAPRODI')) return false;
+        if (stFilter === 'SELESAI' && proses !== 'SELESAI') return false;
+        if (kat && item['Pilih Kategori Surat'] !== kat) return false;
+
+        if (q) {
+          const hay = [
+            item['Nama Lengkap & Gelar'],
+            item['NIP / NPM'],
+            item['Perihal / Judul Ajuan Surat'],
+            item['Nomor Dokumen Resmi'],
+            item['Pejabat / Instansi Tujuan']
+          ].join(' ').toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      const tbody = document.getElementById('tableSuratBody');
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400">Tidak ada data surat yang sesuai dengan filter pencarian.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(item => {
+        const waUrl = formatWaLink(item['Nomor WhatsApp Active']);
+        const acc = item['STATUS ACC KAPRODI'] || 'MENUNGGU ACC';
+        const proses = item['STATUS PROSES ADMIN'] || 'BARU';
+        const accBadge = acc.includes('DISETUJUI') ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                         acc.includes('DITOLAK') ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-amber-50 text-amber-700 border-amber-200';
+        const prosesBadge = proses === 'SELESAI' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-slate-100 text-slate-700 border-slate-200';
+
+        const berkasPemohon = item['Upload Draft / Berkas Pendukung'];
+        const draftAdmin = item['DRAFT PENGANTAR ADMIN'];
+        const pdfFinal = item['Link PDF Final'];
+        const initials = getInitials(item['Nama Lengkap & Gelar']);
+
+        return `
+          <tr class="hover:bg-blue-50/30 transition align-top">
+            <td class="p-4">
+              <div class="flex items-start gap-3">
+                <div class="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                  ${esc(initials)}
+                </div>
+                <div>
+                  <div class="text-[11px] font-mono text-slate-400">${esc(item['Timestamp'])}</div>
+                  <div class="font-bold text-slate-900 mt-0.5">${esc(item['Nama Lengkap & Gelar'])}</div>
+                  <div class="text-xs text-slate-500">${esc(item['Status Pemohon'])} • <span class="font-mono">${esc(item['NIP / NPM'])}</span></div>
+                  ${waUrl ? `<a href="${waUrl}" target="_blank" class="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[11px] font-semibold transition">Chat WA (${esc(item['Nomor WhatsApp Active'])})</a>` : ''}
+                </div>
+              </div>
+            </td>
+            <td class="p-4 max-w-xs">
+              <span class="inline-block text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 mb-1.5">${esc(item['Pilih Kategori Surat'])}</span>
+              <div class="font-bold text-slate-900 leading-snug">${esc(item['Perihal / Judul Ajuan Surat'])}</div>
+              <div class="text-xs text-slate-500 mt-1">Tujuan: <span class="text-slate-700 font-medium">${esc(item['Pejabat / Instansi Tujuan'])}</span></div>
+              ${item['Catatan Admin'] ? `<div class="text-xs text-amber-800 bg-amber-50 border border-amber-200/80 px-2.5 py-1.5 rounded-lg mt-2"><b>Note:</b> ${esc(item['Catatan Admin'])}</div>` : ''}
+            </td>
+            <td class="p-4 space-y-1.5">
+              <div><span class="inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${accBadge}">${esc(acc)}</span></div>
+              <div><span class="inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${prosesBadge}">${esc(proses)}</span></div>
+            </td>
+            <td class="p-4 text-xs space-y-1.5">
+              <div class="font-mono font-semibold text-slate-800">${esc(item['Nomor Dokumen Resmi'] || '-')}</div>
+              <div class="text-slate-500">Reg TU: <span class="font-mono">${esc(item['No registrasi TU Fakultas'] || '-')}</span></div>
+              <div class="flex flex-wrap gap-1.5 pt-1">
+                ${berkasPemohon && berkasPemohon.startsWith('http') ? `<a href="${esc(berkasPemohon)}" target="_blank" class="px-2 py-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold transition">1. Berkas</a>` : ''}
+                ${draftAdmin && draftAdmin.startsWith('http') ? `<a href="${esc(draftAdmin)}" target="_blank" class="px-2 py-1 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 font-semibold transition">2. Draft</a>` : ''}
+                ${pdfFinal && pdfFinal.startsWith('http') ? `<a href="${esc(pdfFinal)}" target="_blank" class="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 font-bold transition">3. PDF Final</a>` : ''}
+              </div>
+            </td>
+            <td class="p-4 text-right">
+              <button onclick="openEditSurat(${item._row})" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition shadow-sm shadow-blue-600/20">
+                Proses / Upload
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openEditSurat(rowNum) {
+      const item = (APP_DATA.surat || []).find(s => s._row === rowNum);
+      if (!item) return;
+      const initialStatus = (item['STATUS PROSES ADMIN'] || 'DRAFT').toUpperCase();
+      const emailPemohon = String(item['Email Aktif'] || '').trim();
+
+      document.getElementById('editSuratRow').value = rowNum;
+      document.getElementById('editSuratInitialStatus').value = initialStatus;
+      document.getElementById('editSuratPerihalRaw').value = item['Perihal / Judul Ajuan Surat'] || '';
+      document.getElementById('editSuratPemohonRaw').value = item['Nama Lengkap & Gelar'] || '';
+      document.getElementById('suratModalSubtitle').textContent = `${item['Nama Lengkap & Gelar']} — ${item['Perihal / Judul Ajuan Surat']}`;
+      document.getElementById('editAccKaprodi').value = item['STATUS ACC KAPRODI'] || '';
+      document.getElementById('editProsesAdmin').value = item['STATUS PROSES ADMIN'] || 'DRAFT';
+      document.getElementById('editNomorDokumen').value = item['Nomor Dokumen Resmi'] || '';
+      document.getElementById('editRegTU').value = item['No registrasi TU Fakultas'] || '';
+      document.getElementById('editLinkPdf').value = item['Link PDF Final'] || '';
+      document.getElementById('editDraftAdmin').value = item['DRAFT PENGANTAR ADMIN'] || '';
+      document.getElementById('editCatatanAdmin').value = item['Catatan Admin'] || '';
+
+      document.getElementById('fileUploadDraft').value = '';
+      document.getElementById('fileUploadFinal').value = '';
+
+      const chkEmail = document.getElementById('chkSendEmailNotif');
+      const emailLabel = document.getElementById('emailRecipientLabel');
+      if (emailPemohon && emailPemohon.includes('@')) {
+        emailLabel.textContent = emailPemohon;
+        chkEmail.disabled = false;
+      } else {
+        emailLabel.textContent = 'Email pemohon tidak tersedia di GForm';
+        chkEmail.disabled = true;
+      }
+      chkEmail.checked = false;
+
+      const pDraft = document.getElementById('linkPreviewDraft');
+      if (item['DRAFT PENGANTAR ADMIN'] && item['DRAFT PENGANTAR ADMIN'].startsWith('http')) {
+        pDraft.href = item['DRAFT PENGANTAR ADMIN'];
+        pDraft.classList.remove('hidden');
+      } else {
+        pDraft.classList.add('hidden');
+      }
+
+      const pFinal = document.getElementById('linkPreviewFinal');
+      if (item['Link PDF Final'] && item['Link PDF Final'].startsWith('http')) {
+        pFinal.href = item['Link PDF Final'];
+        pFinal.classList.remove('hidden');
+      } else {
+        pFinal.classList.add('hidden');
+      }
+
+      document.getElementById('editSuratModal').classList.remove('hidden');
+    }
+
+    function onProsesAdminChange() {
+      const chkEmail = document.getElementById('chkSendEmailNotif');
+      if (chkEmail.disabled) return;
+      const initialStatus = document.getElementById('editSuratInitialStatus').value;
+      const currentStatus = document.getElementById('editProsesAdmin').value;
+      const pdfUrl = document.getElementById('editLinkPdf').value.trim();
+
+      if (initialStatus !== 'SELESAI' && currentStatus === 'SELESAI' && pdfUrl.startsWith('http')) {
+        chkEmail.checked = true;
+      }
+    }
+
+    async function uploadSuratAttachment(folderKey) {
+      const isDraft = folderKey === 'draftAdmin';
+      const fileInput = document.getElementById(isDraft ? 'fileUploadDraft' : 'fileUploadFinal');
+      const btn = document.getElementById(isDraft ? 'btnUploadDraft' : 'btnUploadFinal');
+      const file = fileInput.files[0];
+
+      if (!file) return showToast('Pilih File', 'Silakan pilih file terlebih dahulu dari komputer Anda.', 'error');
+
+      const noSurat = document.getElementById('editNomorDokumen').value.trim();
+      const shortNo = noSurat ? noSurat.split('/')[0].replace(/[^a-zA-Z0-9-]/g, '') : 'TANPA-NO';
+      const perihal = document.getElementById('editSuratPerihalRaw').value.trim().slice(0, 60).replace(/[\\/:*?"<>|]/g, '-');
+      const ext = file.name.split('.').pop();
+      const cleanFileName = `${shortNo}-${perihal}.${ext}`;
+
+      btn.disabled = true;
+      const oldText = btn.textContent;
+      btn.textContent = 'Mengunggah...';
+
+      try {
+        const base64Data = await fileToBase64(file);
+        const copyToKeluar = !isDraft && document.getElementById('chkCopySuratKeluar').checked;
+
+        const res = await fetch(getConfig().url, {
+          method: 'POST',
+          body: JSON.stringify({
+            token: getConfig().token,
+            action: 'uploadFile',
+            folderKey: folderKey,
+            fileName: cleanFileName,
+            mimeType: file.type || 'application/pdf',
+            base64Data: base64Data,
+            copyToSuratKeluar: copyToKeluar,
+            tahun: '2026'
+          })
+        });
+        const json = await res.json();
+        if (json.status !== 'success') throw new Error(json.message);
+
+        if (isDraft) {
+          document.getElementById('editDraftAdmin').value = json.fileUrl;
+          const pDraft = document.getElementById('linkPreviewDraft');
+          pDraft.href = json.fileUrl;
+          pDraft.classList.remove('hidden');
+        } else {
+          document.getElementById('editLinkPdf').value = json.fileUrl;
+          document.getElementById('editProsesAdmin').value = 'SELESAI';
+          const chkEmail = document.getElementById('chkSendEmailNotif');
+          if (!chkEmail.disabled) chkEmail.checked = true;
+
+          const pFinal = document.getElementById('linkPreviewFinal');
+          pFinal.href = json.fileUrl;
+          pFinal.classList.remove('hidden');
+        }
+
+        showToast(`Berhasil Diunggah ke "${json.folderName}"`, `File: ${json.fileName}. Klik "Simpan Semua Perubahan" untuk menyelesaikannya.`, 'success');
+      } catch (err) {
+        showToast('Gagal Mengunggah', err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = oldText;
+      }
+    }
+
+    async function submitEditSurat() {
+      const btn = document.getElementById('btnSaveSurat');
+      const sendEmail = document.getElementById('chkSendEmailNotif').checked;
+
+      btn.disabled = true;
+      btn.textContent = sendEmail ? 'Menyimpan & Mengirim Email...' : 'Menyimpan...';
+
+      const payload = {
+        token: getConfig().token,
+        action: 'updateRow',
+        sheet: 'surat',
+        row: Number(document.getElementById('editSuratRow').value),
+        sendEmail: sendEmail,
+        updates: {
+          'STATUS ACC KAPRODI': document.getElementById('editAccKaprodi').value,
+          'STATUS PROSES ADMIN': document.getElementById('editProsesAdmin').value,
+          'Nomor Dokumen Resmi': document.getElementById('editNomorDokumen').value,
+          'No registrasi TU Fakultas': document.getElementById('editRegTU').value,
+          'Link PDF Final': document.getElementById('editLinkPdf').value,
+          'DRAFT PENGANTAR ADMIN': document.getElementById('editDraftAdmin').value,
+          'Catatan Admin': document.getElementById('editCatatanAdmin').value
+        }
+      };
+
+      const res = await postToApi(payload);
+      btn.disabled = false;
+      btn.textContent = 'Simpan Semua Perubahan';
+
+      if (res && res.status === 'success') {
+        closeModal('editSuratModal');
+        if (res.emailSent) {
+          showToast('Tersimpan & Email Terkirim', `Notifikasi resmi telah dikirim ke ${res.emailRecipient}`, 'success');
+        } else if (res.emailError) {
+          showToast('Tersimpan, Email Gagal', res.emailError, 'error');
+        } else {
+          showToast('Perubahan Disimpan', 'Data persuratan berhasil diperbarui di Google Sheet.', 'success');
+        }
+        fetchAllData(true);
+      }
+    }
+
+    // --- TAB 2: INTERAKTIF AKSES CEPAT & KUSTOMISASI FOLDER DRIVE ---
+    function toggleFolderSettings() {
+      const panel = document.getElementById('folderSettingsPanel');
+      panel.classList.toggle('hidden');
+      renderFolderChecklist();
+    }
+
+    function toggleFolderVisibility(itemId) {
+      const list = getQuickFolders();
+      const target = list.find(f => f.id === itemId);
+      if (target) {
+        target.visible = !target.visible;
+        saveQuickFolders(list);
+        renderFolderChecklist();
+        updateKPIs();
+      }
+    }
+
+    function setAllFoldersVisible(state) {
+      const list = getQuickFolders().map(f => ({ ...f, visible: state }));
+      saveQuickFolders(list);
+      renderFolderChecklist();
+      updateKPIs();
+    }
+
+    function resetDefaultFolders() {
+      if (!confirm('Kembalikan daftar folder ke pengaturan awal (5 folder utama)?')) return;
+      saveQuickFolders(JSON.parse(JSON.stringify(DEFAULT_DRIVE_FOLDERS)));
+      renderFolderChecklist();
+      updateKPIs();
+      showToast('Folder Direset', 'Daftar folder dikembalikan ke pengaturan awal.', 'info');
+    }
+
+    function extractDriveFolderId(input) {
+      const str = String(input || '').trim();
+      const match = str.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+      if (match) return match[1];
+      const idParam = str.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (idParam) return idParam[1];
+      if (/^[a-zA-Z0-9_-]{15,}$/.test(str)) return str;
+      return null;
+    }
+
+    function addCustomFolder() {
+      const title = document.getElementById('customFolderTitle').value.trim();
+      const tag = document.getElementById('customFolderTag').value.trim() || 'Arsip Prodi';
+      const rawUrl = document.getElementById('customFolderUrl').value.trim();
+      const color = document.getElementById('customFolderColor').value;
+
+      if (!title) return showToast('Nama Wajib Diisi', 'Masukkan nama folder terlebih dahulu.', 'error');
+      const folderId = extractDriveFolderId(rawUrl);
+      if (!folderId) return showToast('Link Tidak Valid', 'Pastikan menyalin URL folder Google Drive yang benar.', 'error');
+
+      const list = getQuickFolders();
+      const newId = 'custom_' + Date.now();
+      list.push({
+        id: newId,
+        folderKey: '',
+        customFolderId: folderId,
+        isYearly: false,
+        title: title,
+        desc: 'Folder arsip tambahan',
+        tag: tag,
+        color: color,
+        visible: true,
+        isDefault: false,
+        driveUrl: `https://drive.google.com/drive/folders/${folderId}`
+      });
+
+      document.getElementById('customFolderTitle').value = '';
+      document.getElementById('customFolderTag').value = '';
+      document.getElementById('customFolderUrl').value = '';
+
+      saveQuickFolders(list);
+      renderFolderChecklist();
+      updateKPIs();
+      browseDriveItem(newId);
+      showToast('Folder Ditambahkan', `"${title}" kini tampil di Akses Cepat.`, 'success');
+    }
+
+    function deleteCustomFolder(itemId) {
+      if (!confirm('Hapus folder tambahan ini dari daftar Akses Cepat? (File asli di Google Drive tetap aman)')) return;
+      const list = getQuickFolders().filter(f => f.id !== itemId);
+      saveQuickFolders(list);
+      renderFolderChecklist();
+      updateKPIs();
+      showToast('Folder Dihapus', 'Folder dihapus dari daftar Akses Cepat.', 'info');
+    }
+
+    function renderFolderChecklist() {
+      const list = getQuickFolders();
+      const container = document.getElementById('folderChecklistContainer');
+      if (!container) return;
+
+      container.innerHTML = list.map(f => {
+        const style = COLOR_STYLES[f.color] || COLOR_STYLES.blue;
+        return `
+          <div class="flex items-center justify-between p-2.5 rounded-xl border ${f.visible ? 'border-slate-300 bg-slate-50' : 'border-slate-200 bg-white opacity-60'} transition">
+            <label class="flex items-center gap-2.5 cursor-pointer flex-1 min-w-0">
+              <input type="checkbox" ${f.visible ? 'checked' : ''} onchange="toggleFolderVisibility('${f.id}')" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500" />
+              <div class="truncate">
+                <div class="text-xs font-bold text-slate-800 truncate">${esc(f.title)}</div>
+                <span class="inline-block text-[10px] font-bold px-1.5 py-0.2 rounded ${style.badge}">${esc(f.tag)}</span>
+              </div>
+            </label>
+            ${!f.isDefault ? `<button type="button" onclick="deleteCustomFolder('${f.id}')" title="Hapus dari daftar" class="text-rose-500 hover:text-rose-700 text-xs font-bold px-2">Hapus</button>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderQuickAccessSection() {
+      const allFolders = getQuickFolders();
+      const visibleFolders = allFolders.filter(f => f.visible);
+      const grid = document.getElementById('quickAccessFoldersGrid');
+
+      if (visibleFolders.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full glass-card p-6 rounded-2xl border border-dashed border-slate-300 text-center text-xs text-slate-500">
+            Semua folder sedang disembunyikan. Klik <b>"Atur Folder Tampil"</b> di kanan atas untuk memilih folder yang ingin ditampilkan.
+          </div>
+        `;
+      } else {
+        grid.innerHTML = visibleFolders.map(f => {
+          const style = COLOR_STYLES[f.color] || COLOR_STYLES.blue;
+          const isActive = activeDriveItemId === f.id;
+          return `
+            <div onclick="browseDriveItem('${f.id}')" class="cursor-pointer glass-card p-4 rounded-2xl border transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 flex flex-col justify-between ${isActive ? style.active : 'border-slate-200/90 hover:border-slate-300'}">
+              <div>
+                <div class="flex items-center justify-between gap-1">
+                  <span class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-md ${style.badge}">${esc(f.tag)}</span>
+                  <button type="button" onclick="event.stopPropagation(); toggleFolderVisibility('${f.id}')" title="Sembunyikan kartu ini" class="text-slate-300 hover:text-slate-600 text-base font-bold px-1 leading-none">&times;</button>
+                </div>
+                <h4 class="font-bold text-slate-900 mt-2.5 text-sm leading-snug">${esc(f.title)}</h4>
+                <p class="text-xs text-slate-500 mt-0.5 line-clamp-1">${esc(f.desc)}</p>
+              </div>
+              <div class="mt-3.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs gap-1">
+                <button type="button" onclick="event.stopPropagation(); browseDriveItem('${f.id}')" class="font-bold ${style.btn} hover:underline">
+                  ${isActive ? '&#9679; Aktif' : 'Lihat Isi'}
+                </button>
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="event.stopPropagation(); jumpToUploadFolder('${f.id}')" class="text-slate-600 hover:text-blue-600 font-semibold">Upload</button>
+                  <span class="text-slate-300">|</span>
+                  <a href="${esc(f.driveUrl)}" target="_blank" onclick="event.stopPropagation()" class="text-slate-500 hover:text-slate-900 font-medium">Drive &nearr;</a>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      const selectEl = document.getElementById('archiveFolderSelect');
+      if (selectEl) {
+        const prevVal = selectEl.value;
+        selectEl.innerHTML = allFolders.map(f =>
+          `<option value="${f.id}">${esc(f.title)} (${esc(f.tag)})</option>`
+        ).join('');
+        if (prevVal && allFolders.some(f => f.id === prevVal)) {
+          selectEl.value = prevVal;
+        }
+        onUploadFolderSelectChange();
+      }
+    }
+
+    function jumpToUploadFolder(itemId) {
+      browseDriveItem(itemId);
+      const selectEl = document.getElementById('archiveFolderSelect');
+      selectEl.value = itemId;
+      onUploadFolderSelectChange();
+      document.getElementById('archiveUploadBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function onUploadFolderSelectChange() {
+      const selectEl = document.getElementById('archiveFolderSelect');
+      const item = getQuickFolders().find(f => f.id === selectEl.value);
+      if (!item) return;
+
+      document.getElementById('uploadTargetBadge').textContent = `Tujuan: ${item.title}`;
+      const yearWrap = document.getElementById('archiveYearWrapper');
+      if (item.isYearly) {
+        yearWrap.classList.remove('opacity-40', 'pointer-events-none');
+      } else {
+        yearWrap.classList.add('opacity-40', 'pointer-events-none');
+      }
+      updateArchivePreview();
+    }
+
+    function updateArchivePreview() {
+      const nomor = document.getElementById('archiveNomor').value.trim() || 'NO';
+      const perihal = document.getElementById('archivePerihal').value.trim() || 'Dokumen';
+      const file = document.getElementById('archiveFileInput').files[0];
+      const ext = file ? file.name.split('.').pop() : 'pdf';
+      const cleanName = `${nomor.replace(/[\\/:*?"<>|]/g, '-')} - ${perihal.replace(/[\\/:*?"<>|]/g, '-')}.${ext}`;
+      document.getElementById('archiveFileNamePreview').textContent = cleanName;
+      return cleanName;
+    }
+
+    async function submitArchiveUpload() {
+      const file = document.getElementById('archiveFileInput').files[0];
+      if (!file) return showToast('Pilih File', 'Pilih file yang ingin diarsipkan terlebih dahulu.', 'error');
+
+      const selectedId = document.getElementById('archiveFolderSelect').value;
+      const folderObj = getQuickFolders().find(f => f.id === selectedId);
+      if (!folderObj) return showToast('Folder Tidak Valid', 'Folder tujuan tidak ditemukan.', 'error');
+
+      const tahun = document.getElementById('archiveYear').value;
+      const cleanName = updateArchivePreview();
+      const btn = document.getElementById('btnUploadArchive');
+
+      btn.disabled = true;
+      btn.textContent = 'Mengarsipkan ke Drive...';
+
+      try {
+        const base64Data = await fileToBase64(file);
+        const res = await fetch(getConfig().url, {
+          method: 'POST',
+          body: JSON.stringify({
+            token: getConfig().token,
+            action: 'uploadFile',
+            folderKey: folderObj.folderKey || '',
+            customFolderId: folderObj.customFolderId || '',
+            tahun: tahun,
+            fileName: cleanName,
+            mimeType: file.type || 'application/pdf',
+            base64Data: base64Data
+          })
+        });
+        const json = await res.json();
+        if (json.status !== 'success') throw new Error(json.message);
+
+        showToast(`Berhasil Diarsipkan ke "${json.folderName}"`, `File disimpan sebagai ${cleanName}`, 'success');
+        document.getElementById('archiveNomor').value = '';
+        document.getElementById('archivePerihal').value = '';
+        document.getElementById('archiveFileInput').value = '';
+        document.getElementById('archiveFileNamePreview').textContent = '-';
+        browseDriveItem(selectedId);
+      } catch (err) {
+        showToast('Gagal Mengunggah', err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Upload & Arsipkan';
+      }
+    }
+
+    async function browseDriveItem(itemId) {
+      activeDriveItemId = itemId;
+      const folderObj = getQuickFolders().find(f => f.id === itemId);
+      if (!folderObj) return;
+
+      renderQuickAccessSection();
+
+      const selectEl = document.getElementById('archiveFolderSelect');
+      if (selectEl) {
+        selectEl.value = itemId;
+        onUploadFolderSelectChange();
+      }
+
+      const browserYearEl = document.getElementById('browserYearSelect');
+      if (folderObj.isYearly) {
+        browserYearEl.classList.remove('hidden');
+      } else {
+        browserYearEl.classList.add('hidden');
+      }
+
+      const tahun = browserYearEl.value;
+      const tbody = document.getElementById('tableDriveFilesBody');
+      tbody.innerHTML = `<tr><td colspan="3" class="p-8 text-center text-slate-400">Memuat daftar file dari "${esc(folderObj.title)}"...</td></tr>`;
+
+      try {
+        const cfg = getConfig();
+        const url = `${cfg.url}?token=${encodeURIComponent(cfg.token)}&action=listFiles&folderKey=${encodeURIComponent(folderObj.folderKey || '')}&customFolderId=${encodeURIComponent(folderObj.customFolderId || '')}&tahun=${encodeURIComponent(tahun)}`;
+        const res = await fetch(url);
+        const json = await res.json();
+        if (json.status !== 'success') throw new Error(json.message);
+
+        document.getElementById('driveBrowserTitle').textContent = `Daftar File: ${json.folderData.folderName} (${json.folderData.files.length} file)`;
+        DRIVE_FILES_CACHE = json.folderData.files || [];
+        renderDriveFileList();
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="3" class="p-8 text-center text-rose-500">Gagal memuat folder: ${esc(err.message)}</td></tr>`;
+      }
+    }
+
+    function renderDriveFileList() {
+      const q = document.getElementById('searchDriveFiles').value.toLowerCase();
+      const filtered = DRIVE_FILES_CACHE.filter(f => f.name.toLowerCase().includes(q));
+      const tbody = document.getElementById('tableDriveFilesBody');
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" class="p-8 text-center text-slate-400">Folder kosong atau tidak ada file yang cocok.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(f => `
+        <tr class="hover:bg-blue-50/30 transition">
+          <td class="p-3.5 font-semibold text-slate-800">${esc(f.name)}</td>
+          <td class="p-3.5 text-xs font-mono text-slate-500">${esc(f.updated)}</td>
+          <td class="p-3.5 text-right space-x-2 text-xs">
+            <button onclick="copyText('${esc(f.url)}')" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-semibold transition">Salin Link</button>
+            <a href="${esc(f.url)}" target="_blank" class="inline-block px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition">Buka File</a>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text);
+      showToast('Tautan Disalin', 'Link Google Drive berhasil disalin ke clipboard.', 'info');
+    }
+
+    // --- RENDER TUGAS ---
+    function renderTugas() {
+      const q = document.getElementById('searchTugas').value.toLowerCase();
+      const st = document.getElementById('filterStatusTugas').value;
+
+      const list = [...(APP_DATA.tugas || [])].reverse().filter(t => {
+        const isDone = (t['Status'] || '').toLowerCase() === 'selesai';
+        if (st === 'PENDING' && isDone) return false;
+        if (st === 'SELESAI' && !isDone) return false;
+        if (q) {
+          const hay = `${t['Nama Tugas']} ${t['Detail / Catatan']}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      const container = document.getElementById('listTugasContainer');
+      if (list.length === 0) {
+        container.innerHTML = `<div class="glass-card p-8 rounded-2xl border border-slate-200 text-center text-slate-400 text-sm">Tidak ada tugas pada filter ini.</div>`;
+        return;
+      }
+
+      container.innerHTML = list.map(t => {
+        const isDone = (t['Status'] || '').toLowerCase() === 'selesai';
+        return `
+          <div class="glass-card p-4 rounded-2xl border ${isDone ? 'border-slate-200/80 opacity-75' : 'border-amber-200/90'} flex flex-wrap items-center justify-between gap-3 shadow-sm hover:shadow transition">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full ${isDone ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800'}">
+                  ${esc(t['Status'] || 'Pending')}
+                </span>
+                <span class="font-bold text-slate-900 ${isDone ? 'line-through text-slate-500' : ''}">${esc(t['Nama Tugas'])}</span>
+              </div>
+              <p class="text-xs text-slate-600">${esc(t['Detail / Catatan'] || '-')}</p>
+              <p class="text-[11px] font-mono text-slate-400">Mulai: ${esc(t['Tanggal Mulai'] || '-')} • Deadline: ${esc(t['Tanggal Selesai / Deadline'] || '-')}</p>
+            </div>
+            <div>
+              ${isDone
+                ? `<button onclick="toggleTaskStatus(${t._row}, 'Pending')" class="px-3.5 py-1.5 rounded-xl border border-slate-300 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">Buka Kembali</button>`
+                : `<button onclick="toggleTaskStatus(${t._row}, 'Selesai')" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition">Tandai Selesai</button>`
+              }
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function toggleTaskStatus(rowNum, newStatus) {
+      await postToApi({
+        token: getConfig().token,
+        action: 'updateRow',
+        sheet: 'tugas',
+        row: rowNum,
+        updates: { 'Status': newStatus }
+      });
+      showToast('Status Tugas Diperbarui', `Tugas ditandai sebagai ${newStatus}.`, 'success');
+      fetchAllData(true);
+    }
+
+    async function submitNewTask() {
+      const nama = document.getElementById('newTaskName').value.trim();
+      if (!nama) return showToast('Nama Tugas Kosong', 'Masukkan nama tugas terlebih dahulu.', 'error');
+
+      const btn = document.getElementById('btnAddTask');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+
+      await postToApi({
+        token: getConfig().token,
+        action: 'addTask',
+        task: {
+          namaTugas: nama,
+          detail: document.getElementById('newTaskDetail').value.trim(),
+          deadline: document.getElementById('newTaskDeadline').value.trim(),
+          status: 'Pending'
+        }
+      });
+
+      document.getElementById('newTaskName').value = '';
+      document.getElementById('newTaskDetail').value = '';
+      document.getElementById('newTaskDeadline').value = '';
+      btn.disabled = false;
+      btn.textContent = '+ Tambah Tugas';
+      showToast('Tugas Ditambahkan', `"${nama}" berhasil dicatat ke Google Sheet.`, 'success');
+      fetchAllData(true);
+    }
+
+    // --- RENDER SARPRAS ---
+    function renderSarpras() {
+      const list = [...(APP_DATA.sarpras || [])].reverse();
+      const tbody = document.getElementById('tableSarprasBody');
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400">Belum ada aduan sarana prasarana masuk.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(s => {
+        const bukti = s['Unggah Foto / Video Bukti Kerusakan'];
+        return `
+          <tr class="hover:bg-blue-50/30 transition align-top">
+            <td class="p-4">
+              <div class="text-[11px] font-mono text-slate-400">${esc(s['Timestamp'])}</div>
+              <div class="font-bold text-slate-900 mt-0.5">${esc(s['Nama Lengkap'] || 'Anonim')}</div>
+              <div class="text-xs text-slate-500">${esc(s['Status Pelapor'])} • ${esc(s['Nomor WhatsApp / Email'])}</div>
+            </td>
+            <td class="p-4">
+              <div class="font-bold text-slate-800">${esc(s['Lokasi Spesifik'])}</div>
+              <div class="text-xs text-slate-500 mt-0.5">${esc(s['Kategori Sarana Prasarana'])}</div>
+              <span class="inline-block mt-1.5 text-[10px] font-extrabold uppercase tracking-wide px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">${esc(s['Tingkat Urgensi'])}</span>
+            </td>
+            <td class="p-4 max-w-xs">
+              <p class="text-slate-700 leading-relaxed">${esc(s['Deskripsi Kerusakan / Pengaduan'])}</p>
+              ${bukti && bukti.startsWith('http') ? `<a href="${esc(bukti)}" target="_blank" class="inline-block mt-1.5 text-xs font-bold text-blue-600 hover:underline">Lihat Foto/Video Bukti &nearr;</a>` : ''}
+            </td>
+            <td class="p-4 text-xs space-y-1.5">
+              <span class="inline-block font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">${esc(s['Status Pengaduan'] || 'Belum Diproses')}</span>
+              <div class="text-slate-500">PJ: <span class="font-medium text-slate-700">${esc(s['Kontak / PJ Sarpras'] || '-')}</span></div>
+              ${s['Catatan Internal Prodi'] ? `<div class="text-slate-600 italic bg-slate-50 px-2 py-1 rounded border border-slate-100">${esc(s['Catatan Internal Prodi'])}</div>` : ''}
+            </td>
+            <td class="p-4 text-right">
+              <button onclick="openEditSarpras(${s._row})" class="px-3.5 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-bold text-xs transition">Update</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openEditSarpras(rowNum) {
+      const item = (APP_DATA.sarpras || []).find(s => s._row === rowNum);
+      if (!item) return;
+      document.getElementById('editSarprasRow').value = rowNum;
+      document.getElementById('sarprasModalSubtitle').textContent = `${item['Lokasi Spesifik']} — ${item['Kategori Sarana Prasarana']}`;
+      document.getElementById('editStatusSarpras').value = item['Status Pengaduan'] || 'Belum Diproses';
+      document.getElementById('editPjSarpras').value = item['Kontak / PJ Sarpras'] || '';
+      document.getElementById('editCatatanSarpras').value = item['Catatan Internal Prodi'] || '';
+      document.getElementById('editSarprasModal').classList.remove('hidden');
+    }
+
+    async function submitEditSarpras() {
+      const btn = document.getElementById('btnSaveSarpras');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+
+      await postToApi({
+        token: getConfig().token,
+        action: 'updateRow',
+        sheet: 'sarpras',
+        row: Number(document.getElementById('editSarprasRow').value),
+        updates: {
+          'Status Pengaduan': document.getElementById('editStatusSarpras').value,
+          'Kontak / PJ Sarpras': document.getElementById('editPjSarpras').value,
+          'Catatan Internal Prodi': document.getElementById('editCatatanSarpras').value
+        }
+      });
+
+      btn.disabled = false;
+      btn.textContent = 'Simpan Perubahan';
+      closeModal('editSarprasModal');
+      showToast('Aduan Sarpras Diperbarui', 'Status tindak lanjut berhasil disimpan.', 'success');
+      fetchAllData(true);
+    }
+
+    // --- RENDER MAGANG ---
+    function renderMagang() {
+      const q = document.getElementById('searchMagang').value.toLowerCase();
+      const list = [...(APP_DATA.magang || [])].reverse().filter(m => {
+        if (!q) return true;
+        const hay = Object.values(m).join(' ').toLowerCase();
+        return hay.includes(q);
+      });
+
+      const tbody = document.getElementById('tableMagangBody');
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-400">Belum ada data backup magang.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(m => {
+        const lap = m['Upload File Laporan Magang'];
+        const nil = m['Upload File / Lembar Nilai Magang'];
+        const initials = getInitials(m['Nama Lengkap']);
+
+        return `
+          <tr class="hover:bg-blue-50/30 transition align-top">
+            <td class="p-4">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">
+                  ${esc(initials)}
+                </div>
+                <div>
+                  <div class="font-bold text-slate-900">${esc(m['Nama Lengkap'])}</div>
+                  <div class="text-xs text-slate-500 font-mono">NPM: ${esc(m['NPM'])} • Angkatan ${esc(m['Angkatan'])}</div>
+                </div>
+              </div>
+            </td>
+            <td class="p-4 text-xs space-y-1">
+              <div class="font-bold text-slate-800">1. ${esc(m['Nama Perusahaan / Instansi Magang 1'] || '-')} <span class="font-normal text-slate-400">(${esc(m['Periode Magang 1'] || '-')})</span></div>
+              ${m['Nama Perusahaan / Instansi Magang 2'] ? `<div class="text-slate-700">2. ${esc(m['Nama Perusahaan / Instansi Magang 2'])} <span class="text-slate-400">(${esc(m['Periode Magang 2'] || '-')})</span></div>` : ''}
+              ${m['Nama Perusahaan / Instansi Magang 3'] ? `<div class="text-slate-700">3. ${esc(m['Nama Perusahaan / Instansi Magang 3'])} <span class="text-slate-400">(${esc(m['Periode Magang 3'] || '-')})</span></div>` : ''}
+            </td>
+            <td class="p-4 text-xs font-medium text-slate-700">${esc(m['Dosen Pembimbing'] || '-')}</td>
+            <td class="p-4 text-xs space-x-1.5">
+              ${lap && lap.startsWith('http') ? `<a href="${esc(lap)}" target="_blank" class="inline-block px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 font-bold hover:bg-blue-100 transition">Laporan</a>` : '-'}
+              ${nil && nil.startsWith('http') ? `<a href="${esc(nil)}" target="_blank" class="inline-block px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold hover:bg-emerald-100 transition">Lembar Nilai</a>` : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function postToApi(payload) {
+      const cfg = getConfig();
+      try {
+        const res = await fetch(cfg.url, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json.status !== 'success') {
+          showToast('Gagal Menyimpan', json.message, 'error');
+        }
+        return json;
+      } catch (err) {
+        showToast('Kesalahan Koneksi', 'Tidak dapat terhubung ke server Apps Script.', 'error');
+        console.error(err);
+        return null;
+      }
+    }
+
+    // INIT
+    window.addEventListener('DOMContentLoaded', () => {
+      renderQuickAccessSection();
+      const cfg = getConfig();
+      if (!cfg.url || !cfg.token) {
+        openLoginModal();
+      } else {
+        fetchAllData(true);
+      }
+      refreshTimer = setInterval(() => {
+        if (getConfig().token) fetchAllData(false);
+      }, 30000);
+    });
+  </script>
+</body>
+</html>
