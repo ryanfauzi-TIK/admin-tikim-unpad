@@ -59,23 +59,6 @@
     .toast-enter {
       animation: slideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-    /* Pratinjau Surat Persis Format MS Word Bookman Old Style 10pt */
-    .word-letter-preview {
-      font-family: 'Bookman Old Style', Georgia, serif;
-      font-size: 10pt;
-      line-height: 1.25;
-      color: #000000;
-    }
-    .word-letter-preview table {
-      border-collapse: collapse;
-      font-family: 'Bookman Old Style', Georgia, serif;
-      font-size: 10pt;
-      color: #000000;
-    }
-    .word-letter-preview td {
-      padding: 1px 0;
-      vertical-align: top;
-    }
   </style>
 </head>
 <body class="text-slate-800 min-h-screen antialiased selection:bg-blue-600 selection:text-white">
@@ -236,7 +219,7 @@
     </div>
   </div>
 
-  <!-- MODAL PROSES / EDIT SURAT + AI GENERATOR ISI SURAT + DIRECT UPLOAD DRIVE + NOTIF EMAIL -->
+  <!-- MODAL PROSES / EDIT SURAT + PELUNCUR PROMPT GEMINI INSTAN + DIRECT UPLOAD DRIVE + NOTIF EMAIL -->
   <div id="editSuratModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-slate-200">
       <div class="bg-unpad-navy px-6 py-4 border-b-4 border-unpad-gold flex justify-between items-start text-white shrink-0">
@@ -288,22 +271,22 @@
           </div>
         </div>
 
-        <!-- PANEL ASISTEN PENYUSUN ISI SURAT (BOOKMAN OLD STYLE 10PT) -->
-        <div class="p-4 rounded-xl bg-indigo-50/70 border border-indigo-200 space-y-3">
+        <!-- PANEL PELUNCUR PROMPT GEMINI INSTAN (TANPA KOP, BOOKMAN OLD STYLE 10PT) -->
+        <div class="p-4 rounded-xl bg-indigo-50/80 border border-indigo-200 space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <span class="text-xs font-extrabold text-indigo-950 uppercase tracking-wide block">Asisten Penyusun Isi Surat (Tanpa Kop Surat)</span>
-              <span class="text-[11px] text-indigo-700">Otomatis membaca detail ajuan pemohon & siap disalin ke MS Word (<b>Bookman Old Style 10pt</b>)</span>
+              <span class="text-xs font-extrabold text-indigo-950 uppercase tracking-wide block">Susun Isi Surat di Gemini (Instan 0 Detik)</span>
+              <span class="text-[11px] text-indigo-700">Otomatis menyalin prompt siap tempel (<b>Ctrl+V</b>) ke <b>gemini.google.com</b> untuk format MS Word <b>Bookman Old Style 10pt</b></span>
             </div>
-            <button type="button" id="btnGenerateSuratAi" onclick="generateSuratBodyWithAi()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition shrink-0">
-              Susun Isi Surat Otomatis
+            <button type="button" onclick="launchGeminiSuratPrompt()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition shrink-0">
+              Salin Prompt & Buka Gemini &nearr;
             </button>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
             <div>
               <label class="block text-[11px] font-bold text-slate-600 mb-1">Lampiran (Opsional)</label>
-              <input id="aiSuratLampiran" type="text" placeholder="Contoh: - atau 1 (satu) berkas" value="-" class="w-full border border-slate-300 rounded-xl px-3 py-2 bg-white focus:ring-2 focus:ring-indigo-600 focus:outline-none" />
+              <input id="aiSuratLampiran" type="text" placeholder="Kosongkan / - jika tidak ada" value="-" class="w-full border border-slate-300 rounded-xl px-3 py-2 bg-white focus:ring-2 focus:ring-indigo-600 focus:outline-none" />
             </div>
             <div class="sm:col-span-2">
               <label class="block text-[11px] font-bold text-slate-600 mb-1">Konteks / Instruksi Tambahan (Opsional)</label>
@@ -311,15 +294,13 @@
             </div>
           </div>
 
-          <!-- Area Pratinjau & Edit Langsung (Bookman Old Style 10pt) -->
-          <div id="aiSuratPreviewWrapper" class="hidden space-y-2 pt-1">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <span class="text-[11px] font-bold text-slate-600">Pratinjau Isi Surat (Bisa langsung diklik & diedit sebelum disalin):</span>
-              <button type="button" onclick="copyLetterToWord()" class="px-3.5 py-1.5 rounded-lg bg-unpad-navy hover:bg-slate-800 text-yellow-300 text-xs font-bold shadow-sm transition">
-                Salin ke MS Word (Bookman Old Style 10pt)
-              </button>
+          <!-- Pratinjau Prompt yang Disalin -->
+          <div id="geminiPromptWrapper" class="hidden space-y-1.5 pt-1">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-slate-600">Prompt Tersusun (Sudah otomatis tersalin ke clipboard):</span>
+              <button type="button" onclick="copyPromptAgain()" class="text-[11px] font-bold text-indigo-700 hover:underline">Salin Ulang Prompt</button>
             </div>
-            <div id="aiSuratPreviewBox" contenteditable="true" class="word-letter-preview bg-white border border-indigo-200 rounded-xl p-5 shadow-inner max-h-80 overflow-y-auto custom-scrollbar focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
+            <textarea id="geminiPromptPreviewBox" rows="4" class="w-full border border-indigo-200 rounded-xl p-2.5 text-[11px] font-mono bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
           </div>
         </div>
 
@@ -897,7 +878,6 @@
       rose:    { badge: 'bg-rose-100 text-rose-700',       active: 'border-rose-500 ring-2 ring-rose-500/20 bg-rose-50/50',       btn: 'text-rose-600' }
     };
 
-    // --- TOAST HELPER ---
     function showToast(title, message = '', type = 'success') {
       const container = document.getElementById('toastContainer');
       const colors = {
@@ -922,10 +902,9 @@
         el.style.opacity = '0';
         el.style.transition = 'opacity 0.25s ease';
         setTimeout(() => el.remove(), 260);
-      }, 4200);
+      }, 4500);
     }
 
-    // --- AUTENTIKASI ID & PASSWORD ADMIN ---
     function getActiveApiUrl() {
       const saved = localStorage.getItem('tikim_api_url') || '';
       if (saved && saved.startsWith('https://')) return saved;
@@ -1168,7 +1147,6 @@
       });
     }
 
-    // --- DETEKSI TIPE FILE & PRATINJAU INTERAKTIF ---
     function classifyResourceUrl(url, customLabel = '') {
       const u = String(url || '').trim();
       const lower = u.toLowerCase();
@@ -1396,11 +1374,10 @@
       document.getElementById('editDraftAdmin').value = item['DRAFT PENGANTAR ADMIN'] || '';
       document.getElementById('editCatatanAdmin').value = item['Catatan Admin'] || '';
 
-      // Reset asisten penyusun surat
       document.getElementById('aiSuratLampiran').value = '-';
       document.getElementById('aiSuratExtraNotes').value = '';
-      document.getElementById('aiSuratPreviewWrapper').classList.add('hidden');
-      document.getElementById('aiSuratPreviewBox').innerHTML = '';
+      document.getElementById('geminiPromptWrapper').classList.add('hidden');
+      document.getElementById('geminiPromptPreviewBox').value = '';
 
       document.getElementById('fileUploadDraft').value = '';
       document.getElementById('fileUploadFinal').value = '';
@@ -1435,138 +1412,81 @@
       document.getElementById('editSuratModal').classList.remove('hidden');
     }
 
-    // --- PENYUSUN ISI SURAT (BOOKMAN OLD STYLE 10PT) ---
-    async function generateSuratBodyWithAi() {
-      if (!CURRENT_SURAT_ITEM) return;
-      const btn = document.getElementById('btnGenerateSuratAi');
-      btn.disabled = true;
-      btn.textContent = 'Menyusun Draf...';
+    // --- PELUNCUR PROMPT GEMINI INSTAN (TANPA KOP SURAT, BOOKMAN OLD STYLE 10PT) ---
+    function buildSuratPromptForGemini() {
+      if (!CURRENT_SURAT_ITEM) return '';
 
-      try {
-        const res = await fetch(getConfig().url, {
-          method: 'POST',
-          body: JSON.stringify({
-            token: getConfig().token,
-            action: 'generateSuratDraft',
-            rowData: CURRENT_SURAT_ITEM,
-            nomorSurat: document.getElementById('editNomorDokumen').value.trim(),
-            lampiran: document.getElementById('aiSuratLampiran').value.trim(),
-            extraNotes: document.getElementById('aiSuratExtraNotes').value.trim()
-          })
-        });
-        const json = await res.json();
-        if (json.status !== 'success') throw new Error(json.message);
+      const nomorSurat = document.getElementById('editNomorDokumen').value.trim() || '[Nomor Surat]';
+      const lampiranInput = document.getElementById('aiSuratLampiran').value.trim();
+      const hasLampiran = lampiranInput && lampiranInput !== '-' && lampiranInput.toLowerCase() !== 'tidak ada';
+      const extraNotes = document.getElementById('aiSuratExtraNotes').value.trim();
 
-        const d = json.draft;
-        const lampiranVal = String(d.lampiran || '-').trim();
-        const showLampiran = lampiranVal && lampiranVal !== '-' && lampiranVal.toLowerCase() !== 'tidak ada';
+      const skipKeys = /^(Timestamp|STATUS|Link PDF|DRAFT PENGANTAR|No registrasi|Nomor Dokumen|Catatan Admin|Email Aktif|Nomor WhatsApp)/i;
+      const dataLines = [];
+      Object.keys(CURRENT_SURAT_ITEM).forEach(k => {
+        if (k.startsWith('_') || skipKeys.test(k)) return;
+        const val = String(CURRENT_SURAT_ITEM[k] || '').trim();
+        if (val && !val.startsWith('http')) {
+          dataLines.push(`- ${k}: ${val}`);
+        }
+      });
 
-        const lampiranRowHtml = showLampiran ? `
-          <tr>
-            <td style="width: 72pt; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">Lampiran</td>
-            <td style="width: 10pt; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">:</td>
-            <td style="font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">${esc(lampiranVal)}</td>
-          </tr>` : '';
+      const kategori = String(CURRENT_SURAT_ITEM['Pilih Kategori Surat'] || '');
+      const defaultSigner = kategori.toLowerCase().includes('lintas fakultas')
+        ? 'Ketua Program Studi D-4 Teknologi Industri Kimia (atau sesuaikan jika surat tingkat Dekanat)'
+        : 'Ketua Program Studi D-4 Teknologi Industri Kimia';
 
-        const rincianRowsHtml = (Array.isArray(d.data_rincian) && d.data_rincian.length > 0) ? `
-          <table style="width: 100%; border-collapse: collapse; margin: 8pt 0 8pt 24pt; font-family: 'Bookman Old Style', serif; font-size: 10pt; color: #000000;">
-            ${d.data_rincian.map(r => `
-              <tr>
-                <td style="width: 135pt; padding: 1.5pt 0; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">${esc(r.label)}</td>
-                <td style="width: 10pt; padding: 1.5pt 0; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">:</td>
-                <td style="padding: 1.5pt 0; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">${esc(r.nilai)}</td>
-              </tr>
-            `).join('')}
-          </table>` : '';
+      const lampiranRule = hasLampiran
+        ? `   - Lampiran : ${lampiranInput}`
+        : `   - (JANGAN cantumkan baris "Lampiran" karena surat ini tidak memiliki lampiran)`;
 
-        const formattedHtml = `
-          <div style="font-family: 'Bookman Old Style', serif; font-size: 10pt; line-height: 1.25; color: #000000;">
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 12pt; font-family: 'Bookman Old Style', serif; font-size: 10pt; color: #000000;">
-              <tr>
-                <td style="width: 72pt; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">Nomor</td>
-                <td style="width: 10pt; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">:</td>
-                <td style="font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">${esc(d.nomor)}</td>
-              </tr>
-              ${lampiranRowHtml}
-              <tr>
-                <td style="width: 72pt; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">Perihal</td>
-                <td style="width: 10pt; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">:</td>
-                <td style="font-family: 'Bookman Old Style', serif; font-size: 10pt; font-weight: bold; vertical-align: top;">${esc(d.perihal)}</td>
-              </tr>
-            </table>
+      return `Buatkan ISI SURAT DINAS RESMI (TANPA KOP SURAT) untuk Program Studi D-4 Teknologi Industri Kimia, Sekolah Vokasi, Universitas Padjadjaran berdasarkan data ajuan berikut:
 
-            <p style="margin: 0 0 12pt 0; font-family: 'Bookman Old Style', serif; font-size: 10pt;">
-              ${esc(d.tujuan_yth)}<br/>
-              ${esc(d.tujuan_lokasi)}
-            </p>
+DATA AJUAN PEMOHON:
+${dataLines.join('\n')}
+${extraNotes ? `\nINSTRUKSI / KETERANGAN TAMBAHAN:\n- ${extraNotes}` : ''}
 
-            <p style="margin: 0 0 8pt 0; font-family: 'Bookman Old Style', serif; font-size: 10pt;">
-              Dengan hormat,
-            </p>
-
-            <p style="margin: 0 0 6pt 0; text-align: justify; font-family: 'Bookman Old Style', serif; font-size: 10pt;">
-              ${esc(d.paragraf_pembuka)}
-            </p>
-
-            ${rincianRowsHtml}
-
-            <p style="margin: 6pt 0 18pt 0; text-align: justify; font-family: 'Bookman Old Style', serif; font-size: 10pt;">
-              ${esc(d.paragraf_penutup)}
-            </p>
-
-            <table style="width: 100%; border-collapse: collapse; font-family: 'Bookman Old Style', serif; font-size: 10pt; color: #000000;">
-              <tr>
-                <td style="width: 55%;"></td>
-                <td style="width: 45%; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">
-                  ${esc(d.jabatan_penandatangan)}<br/><br/><br/><br/>
-                  <b>....................................................</b>
-                </td>
-              </tr>
-            </table>
-          </div>
-        `;
-
-        const previewBox = document.getElementById('aiSuratPreviewBox');
-        previewBox.innerHTML = formattedHtml;
-        document.getElementById('aiSuratPreviewWrapper').classList.remove('hidden');
-        showToast('Isi Surat Siap', 'Silakan periksa pratinjau lalu klik "Salin ke MS Word".', 'success');
-      } catch (err) {
-        showToast('Gagal Menyusun Surat', err.message, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Susun Isi Surat Otomatis';
-      }
+ATURAN FORMAT & ISI (WAJIB DIPATUHI):
+1. Langsung tampilkan isi suratnya saja tanpa kalimat pembuka, pengantar, atau penutup dari Anda, agar bisa langsung saya copy-paste ke template kop surat di Microsoft Word.
+2. Siapkan tata letak yang rapi saat ditempel ke MS Word dengan font Bookman Old Style ukuran 10 pt (gunakan tabel tanpa garis tepi / tabulasi yang sejajar untuk Nomor, Perihal, dan blok rincian data pemohon, serta paragraf rata kanan-kiri / Justify).
+3. Susunan bagian atas surat:
+   - Nomor : ${nomorSurat}
+${lampiranRule}
+   - Perihal : [Buat perihal yang singkat, baku, dan diawali huruf kapital tiap kata utama]
+4. Tujuan surat ("Yth. ..." dan lokasi tujuan) disesuaikan secara akurat dengan data pemohon.
+5. Gunakan Bahasa Indonesia dinas yang baku, sopan, padat, dan langsung ke inti (tanpa basa-basi berlebih).
+6. Jangan mengarang fakta di luar data di atas. Jika ada informasi spesifik yang belum tercantum (misalnya tanggal kegiatan), tulis dengan tanda kurung siku seperti [tanggal pelaksanaan] agar mudah saya lengkapi.
+7. Penandatangan di bagian bawah kanan: ${defaultSigner}.`;
     }
 
-    async function copyLetterToWord() {
-      const previewBox = document.getElementById('aiSuratPreviewBox');
-      const htmlContent = previewBox.innerHTML;
-      const plainText = previewBox.innerText;
+    async function launchGeminiSuratPrompt() {
+      const promptText = buildSuratPromptForGemini();
+      if (!promptText) return;
+
+      const previewBox = document.getElementById('geminiPromptPreviewBox');
+      previewBox.value = promptText;
+      document.getElementById('geminiPromptWrapper').classList.remove('hidden');
 
       try {
-        if (navigator.clipboard && window.ClipboardItem) {
-          const htmlBlob = new Blob([`<!--StartFragment-->${htmlContent}<!--EndFragment-->`], { type: 'text/html' });
-          const textBlob = new Blob([plainText], { type: 'text/plain' });
-          await navigator.clipboard.write([
-            new ClipboardItem({
-              'text/html': htmlBlob,
-              'text/plain': textBlob
-            })
-          ]);
-        } else {
-          const range = document.createRange();
-          range.selectNodeContents(previewBox);
-          const sel = window.getSelection();
-          sel.removeAllRanges();
-          sel.addRange(range);
-          document.execCommand('copy');
-          sel.removeAllRanges();
-        }
-        showToast('Disalin ke Clipboard', 'Silakan Paste (Ctrl+V) di MS Word — otomatis berformat Bookman Old Style 10pt.', 'success');
-      } catch (err) {
-        navigator.clipboard.writeText(plainText);
-        showToast('Disalin sebagai Teks', 'Teks surat berhasil disalin.', 'info');
+        await navigator.clipboard.writeText(promptText);
+      } catch (e) {
+        previewBox.select();
+        document.execCommand('copy');
       }
+
+      showToast('Prompt Disalin & Gemini Dibuka', 'Tekan Ctrl+V lalu Enter di tab Gemini yang baru terbuka.', 'success');
+      window.open('https://gemini.google.com/app', '_blank', 'noopener');
+    }
+
+    async function copyPromptAgain() {
+      const previewBox = document.getElementById('geminiPromptPreviewBox');
+      try {
+        await navigator.clipboard.writeText(previewBox.value);
+      } catch (e) {
+        previewBox.select();
+        document.execCommand('copy');
+      }
+      showToast('Prompt Disalin Ulang', 'Siap ditempel (Ctrl+V) di halaman Gemini.', 'info');
     }
 
     function onProsesAdminChange() {
