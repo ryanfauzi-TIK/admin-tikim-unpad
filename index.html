@@ -59,6 +59,23 @@
     .toast-enter {
       animation: slideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
+    /* Pratinjau Surat Persis Format MS Word Bookman Old Style 10pt */
+    .word-letter-preview {
+      font-family: 'Bookman Old Style', Georgia, serif;
+      font-size: 10pt;
+      line-height: 1.25;
+      color: #000000;
+    }
+    .word-letter-preview table {
+      border-collapse: collapse;
+      font-family: 'Bookman Old Style', Georgia, serif;
+      font-size: 10pt;
+      color: #000000;
+    }
+    .word-letter-preview td {
+      padding: 1px 0;
+      vertical-align: top;
+    }
   </style>
 </head>
 <body class="text-slate-800 min-h-screen antialiased selection:bg-blue-600 selection:text-white">
@@ -66,7 +83,7 @@
   <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toastContainer" class="fixed bottom-5 right-5 z-[70] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
 
-  <!-- MODAL LOGIN ADMIN (ID & PASSWORD SAJA) -->
+  <!-- MODAL LOGIN ADMIN -->
   <div id="loginModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200">
       <div class="bg-unpad-navy px-6 py-6 border-b-4 border-unpad-gold text-white text-center">
@@ -182,17 +199,14 @@
           <textarea id="editTugasDetail" rows="2" placeholder="Catatan atau keterangan pengerjaan tugas..." class="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm focus:ring-2 focus:ring-blue-600 focus:outline-none"></textarea>
         </div>
 
-        <!-- PANEL KELOLA FILE & LINK TERKAIT -->
         <div class="p-4 rounded-xl bg-blue-50/70 border border-blue-200 space-y-3">
           <div class="flex items-center justify-between">
             <label class="text-xs font-extrabold text-blue-950 uppercase tracking-wide">Daftar File & Link Penting Terkait Tugas Ini</label>
             <span id="editTugasLinksCount" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">0 tautan</span>
           </div>
 
-          <!-- List tautan aktif -->
           <div id="editTugasLinksList" class="space-y-2"></div>
 
-          <!-- Tambah Link Manual -->
           <div class="pt-2 border-t border-blue-200/70">
             <p class="text-[11px] font-bold text-slate-600 mb-1.5">Tambah Link Google Drive / Docs / Sheet / Website:</p>
             <div class="flex flex-col sm:flex-row gap-2">
@@ -203,7 +217,6 @@
             </div>
           </div>
 
-          <!-- Upload File langsung ke Drive -->
           <div class="pt-2 border-t border-blue-200/70">
             <p class="text-[11px] font-bold text-slate-600 mb-1.5">Atau Upload File dari Komputer (Otomatis masuk Google Drive):</p>
             <div class="flex flex-col sm:flex-row gap-2">
@@ -223,15 +236,15 @@
     </div>
   </div>
 
-  <!-- MODAL PROSES / EDIT SURAT + DIRECT UPLOAD DRIVE + NOTIF EMAIL -->
+  <!-- MODAL PROSES / EDIT SURAT + AI GENERATOR ISI SURAT + DIRECT UPLOAD DRIVE + NOTIF EMAIL -->
   <div id="editSuratModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-slate-200">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-slate-200">
       <div class="bg-unpad-navy px-6 py-4 border-b-4 border-unpad-gold flex justify-between items-start text-white shrink-0">
         <div class="pr-4">
           <div class="flex items-center gap-2">
             <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-yellow-400/20 text-yellow-300 border border-yellow-400/30">Pemberkasan Surat</span>
           </div>
-          <h3 class="text-lg font-bold mt-1">Proses & Upload Dokumen Surat</h3>
+          <h3 class="text-lg font-bold mt-1">Proses, Susun Isi Surat & Upload Dokumen</h3>
           <p id="suratModalSubtitle" class="text-xs text-slate-300 mt-0.5 line-clamp-1"></p>
         </div>
         <button onclick="closeModal('editSuratModal')" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-lg font-bold transition">&times;</button>
@@ -275,6 +288,42 @@
           </div>
         </div>
 
+        <!-- PANEL ASISTEN PENYUSUN ISI SURAT (BOOKMAN OLD STYLE 10PT) -->
+        <div class="p-4 rounded-xl bg-indigo-50/70 border border-indigo-200 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span class="text-xs font-extrabold text-indigo-950 uppercase tracking-wide block">Asisten Penyusun Isi Surat (Tanpa Kop Surat)</span>
+              <span class="text-[11px] text-indigo-700">Otomatis membaca detail ajuan pemohon & siap disalin ke MS Word (<b>Bookman Old Style 10pt</b>)</span>
+            </div>
+            <button type="button" id="btnGenerateSuratAi" onclick="generateSuratBodyWithAi()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition shrink-0">
+              Susun Isi Surat Otomatis
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Lampiran (Opsional)</label>
+              <input id="aiSuratLampiran" type="text" placeholder="Contoh: - atau 1 (satu) berkas" value="-" class="w-full border border-slate-300 rounded-xl px-3 py-2 bg-white focus:ring-2 focus:ring-indigo-600 focus:outline-none" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Konteks / Instruksi Tambahan (Opsional)</label>
+              <input id="aiSuratExtraNotes" type="text" placeholder="Contoh: Pelaksanaan 1–30 Desember 2026 / Tembusan WD 1" class="w-full border border-slate-300 rounded-xl px-3 py-2 bg-white focus:ring-2 focus:ring-indigo-600 focus:outline-none" />
+            </div>
+          </div>
+
+          <!-- Area Pratinjau & Edit Langsung (Bookman Old Style 10pt) -->
+          <div id="aiSuratPreviewWrapper" class="hidden space-y-2 pt-1">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-[11px] font-bold text-slate-600">Pratinjau Isi Surat (Bisa langsung diklik & diedit sebelum disalin):</span>
+              <button type="button" onclick="copyLetterToWord()" class="px-3.5 py-1.5 rounded-lg bg-unpad-navy hover:bg-slate-800 text-yellow-300 text-xs font-bold shadow-sm transition">
+                Salin ke MS Word (Bookman Old Style 10pt)
+              </button>
+            </div>
+            <div id="aiSuratPreviewBox" contenteditable="true" class="word-letter-preview bg-white border border-indigo-200 rounded-xl p-5 shadow-inner max-h-80 overflow-y-auto custom-scrollbar focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
+          </div>
+        </div>
+
+        <!-- UPLOAD 1: DRAFT PENGANTAR ADMIN -->
         <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 space-y-2.5">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <label class="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
@@ -292,6 +341,7 @@
           <input id="editDraftAdmin" type="text" placeholder="Link Google Drive otomatis terisi setelah upload (atau tempel manual)" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none" />
         </div>
 
+        <!-- UPLOAD 2: FINAL SURAT DARI TU -->
         <div class="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-2.5">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <label class="text-xs font-bold text-emerald-950 uppercase tracking-wide flex items-center gap-1.5">
@@ -659,9 +709,8 @@
       </div>
     </section>
 
-    <!-- TAB 3: NOTE TUGAS ADMIN (INTERAKTIF DENGAN FILE, LINK & DATA) -->
+    <!-- TAB 3: NOTE TUGAS ADMIN -->
     <section id="panel-tugas" class="tab-panel hidden space-y-4">
-      <!-- Form Tambah Tugas + Lampiran Link / File -->
       <div class="glass-card p-5 rounded-2xl border border-slate-200/90 shadow-sm space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wide">Tambah Tugas Baru ke Google Sheet</h3>
@@ -685,7 +734,6 @@
         </div>
       </div>
 
-      <!-- Filter & Pencarian Tugas -->
       <div class="glass-card p-4 rounded-2xl border border-slate-200/90 shadow-sm flex flex-wrap justify-between items-center gap-3">
         <div class="relative w-full sm:w-80">
           <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -704,7 +752,6 @@
         </div>
       </div>
 
-      <!-- Daftar Kartu Tugas Interaktif -->
       <div id="listTugasContainer" class="space-y-3"></div>
     </section>
 
@@ -763,13 +810,14 @@
     // =========================================================================
     // TEMPELKAN URL WEB APP (/exec) ANDA DI BAWAH INI AGAR TIDAK PERLU DIINPUT LAGI
     // =========================================================================
-    const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbznpn5uCcvu8Tn42vhF5EMg8LysTcCqVR5n5hMKvAcPpp066e7OUhzvz7gcyIaWoOBT/exec";
+    const DEFAULT_API_URL = "https://script.google.com/macros/s/TEMPEL_URL_EXEC_ANDA_DISINI/exec";
 
     let APP_DATA = { surat: [], sarpras: [], magang: [], tugas: [] };
     let DRIVE_FILES_CACHE = [];
     let activeDriveItemId = 'suratKeluar';
     let refreshTimer = null;
     let EDIT_TUGAS_LINKS = [];
+    let CURRENT_SURAT_ITEM = null;
 
     const DEFAULT_DRIVE_FOLDERS = [
       {
@@ -1200,7 +1248,6 @@
         resources.push(classifyResourceUrl(clean, label));
       };
 
-      // 1. Ambil dari _richLinks (hyperlink tersembunyi / smart chip di Google Sheet)
       if (Array.isArray(taskObj._richLinks)) {
         taskObj._richLinks.forEach(item => {
           const lbl = (item.label && !item.label.startsWith('http')) ? item.label : '';
@@ -1208,7 +1255,6 @@
         });
       }
 
-      // 2. Scan semua kolom pada baris tugas untuk mencari URL http/https
       Object.keys(taskObj).forEach(key => {
         if (key.startsWith('_')) return;
         const val = String(taskObj[key] || '');
@@ -1321,7 +1367,7 @@
             </td>
             <td class="p-4 text-right">
               <button onclick="openEditSurat(${item._row})" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition shadow-sm shadow-blue-600/20">
-                Proses / Upload
+                Proses / Susun
               </button>
             </td>
           </tr>
@@ -1332,6 +1378,8 @@
     function openEditSurat(rowNum) {
       const item = (APP_DATA.surat || []).find(s => s._row === rowNum);
       if (!item) return;
+      CURRENT_SURAT_ITEM = item;
+
       const initialStatus = (item['STATUS PROSES ADMIN'] || 'DRAFT').toUpperCase();
       const emailPemohon = String(item['Email Aktif'] || '').trim();
 
@@ -1347,6 +1395,12 @@
       document.getElementById('editLinkPdf').value = item['Link PDF Final'] || '';
       document.getElementById('editDraftAdmin').value = item['DRAFT PENGANTAR ADMIN'] || '';
       document.getElementById('editCatatanAdmin').value = item['Catatan Admin'] || '';
+
+      // Reset asisten penyusun surat
+      document.getElementById('aiSuratLampiran').value = '-';
+      document.getElementById('aiSuratExtraNotes').value = '';
+      document.getElementById('aiSuratPreviewWrapper').classList.add('hidden');
+      document.getElementById('aiSuratPreviewBox').innerHTML = '';
 
       document.getElementById('fileUploadDraft').value = '';
       document.getElementById('fileUploadFinal').value = '';
@@ -1379,6 +1433,140 @@
       }
 
       document.getElementById('editSuratModal').classList.remove('hidden');
+    }
+
+    // --- PENYUSUN ISI SURAT (BOOKMAN OLD STYLE 10PT) ---
+    async function generateSuratBodyWithAi() {
+      if (!CURRENT_SURAT_ITEM) return;
+      const btn = document.getElementById('btnGenerateSuratAi');
+      btn.disabled = true;
+      btn.textContent = 'Menyusun Draf...';
+
+      try {
+        const res = await fetch(getConfig().url, {
+          method: 'POST',
+          body: JSON.stringify({
+            token: getConfig().token,
+            action: 'generateSuratDraft',
+            rowData: CURRENT_SURAT_ITEM,
+            nomorSurat: document.getElementById('editNomorDokumen').value.trim(),
+            lampiran: document.getElementById('aiSuratLampiran').value.trim(),
+            extraNotes: document.getElementById('aiSuratExtraNotes').value.trim()
+          })
+        });
+        const json = await res.json();
+        if (json.status !== 'success') throw new Error(json.message);
+
+        const d = json.draft;
+        const lampiranVal = String(d.lampiran || '-').trim();
+        const showLampiran = lampiranVal && lampiranVal !== '-' && lampiranVal.toLowerCase() !== 'tidak ada';
+
+        const lampiranRowHtml = showLampiran ? `
+          <tr>
+            <td style="width: 72pt; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">Lampiran</td>
+            <td style="width: 10pt; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">:</td>
+            <td style="font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">${esc(lampiranVal)}</td>
+          </tr>` : '';
+
+        const rincianRowsHtml = (Array.isArray(d.data_rincian) && d.data_rincian.length > 0) ? `
+          <table style="width: 100%; border-collapse: collapse; margin: 8pt 0 8pt 24pt; font-family: 'Bookman Old Style', serif; font-size: 10pt; color: #000000;">
+            ${d.data_rincian.map(r => `
+              <tr>
+                <td style="width: 135pt; padding: 1.5pt 0; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">${esc(r.label)}</td>
+                <td style="width: 10pt; padding: 1.5pt 0; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">:</td>
+                <td style="padding: 1.5pt 0; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">${esc(r.nilai)}</td>
+              </tr>
+            `).join('')}
+          </table>` : '';
+
+        const formattedHtml = `
+          <div style="font-family: 'Bookman Old Style', serif; font-size: 10pt; line-height: 1.25; color: #000000;">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 12pt; font-family: 'Bookman Old Style', serif; font-size: 10pt; color: #000000;">
+              <tr>
+                <td style="width: 72pt; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">Nomor</td>
+                <td style="width: 10pt; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">:</td>
+                <td style="font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">${esc(d.nomor)}</td>
+              </tr>
+              ${lampiranRowHtml}
+              <tr>
+                <td style="width: 72pt; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">Perihal</td>
+                <td style="width: 10pt; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">:</td>
+                <td style="font-family: 'Bookman Old Style', serif; font-size: 10pt; font-weight: bold; vertical-align: top;">${esc(d.perihal)}</td>
+              </tr>
+            </table>
+
+            <p style="margin: 0 0 12pt 0; font-family: 'Bookman Old Style', serif; font-size: 10pt;">
+              ${esc(d.tujuan_yth)}<br/>
+              ${esc(d.tujuan_lokasi)}
+            </p>
+
+            <p style="margin: 0 0 8pt 0; font-family: 'Bookman Old Style', serif; font-size: 10pt;">
+              Dengan hormat,
+            </p>
+
+            <p style="margin: 0 0 6pt 0; text-align: justify; font-family: 'Bookman Old Style', serif; font-size: 10pt;">
+              ${esc(d.paragraf_pembuka)}
+            </p>
+
+            ${rincianRowsHtml}
+
+            <p style="margin: 6pt 0 18pt 0; text-align: justify; font-family: 'Bookman Old Style', serif; font-size: 10pt;">
+              ${esc(d.paragraf_penutup)}
+            </p>
+
+            <table style="width: 100%; border-collapse: collapse; font-family: 'Bookman Old Style', serif; font-size: 10pt; color: #000000;">
+              <tr>
+                <td style="width: 55%;"></td>
+                <td style="width: 45%; font-family: 'Bookman Old Style', serif; font-size: 10pt; vertical-align: top;">
+                  ${esc(d.jabatan_penandatangan)}<br/><br/><br/><br/>
+                  <b>....................................................</b>
+                </td>
+              </tr>
+            </table>
+          </div>
+        `;
+
+        const previewBox = document.getElementById('aiSuratPreviewBox');
+        previewBox.innerHTML = formattedHtml;
+        document.getElementById('aiSuratPreviewWrapper').classList.remove('hidden');
+        showToast('Isi Surat Siap', 'Silakan periksa pratinjau lalu klik "Salin ke MS Word".', 'success');
+      } catch (err) {
+        showToast('Gagal Menyusun Surat', err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Susun Isi Surat Otomatis';
+      }
+    }
+
+    async function copyLetterToWord() {
+      const previewBox = document.getElementById('aiSuratPreviewBox');
+      const htmlContent = previewBox.innerHTML;
+      const plainText = previewBox.innerText;
+
+      try {
+        if (navigator.clipboard && window.ClipboardItem) {
+          const htmlBlob = new Blob([`<!--StartFragment-->${htmlContent}<!--EndFragment-->`], { type: 'text/html' });
+          const textBlob = new Blob([plainText], { type: 'text/plain' });
+          await navigator.clipboard.write([
+            new ClipboardItem({
+              'text/html': htmlBlob,
+              'text/plain': textBlob
+            })
+          ]);
+        } else {
+          const range = document.createRange();
+          range.selectNodeContents(previewBox);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          document.execCommand('copy');
+          sel.removeAllRanges();
+        }
+        showToast('Disalin ke Clipboard', 'Silakan Paste (Ctrl+V) di MS Word — otomatis berformat Bookman Old Style 10pt.', 'success');
+      } catch (err) {
+        navigator.clipboard.writeText(plainText);
+        showToast('Disalin sebagai Teks', 'Teks surat berhasil disalin.', 'info');
+      }
     }
 
     function onProsesAdminChange() {
@@ -1807,7 +1995,7 @@
       showToast('Tautan Disalin', 'Link berhasil disalin ke clipboard.', 'info');
     }
 
-    // --- TAB 3: NOTE TUGAS ADMIN (INTERAKTIF FILE, LINK & DATA) ---
+    // --- TAB 3: NOTE TUGAS ADMIN ---
     function renderTugas() {
       const q = document.getElementById('searchTugas').value.toLowerCase();
       const st = document.getElementById('filterStatusTugas').value;
