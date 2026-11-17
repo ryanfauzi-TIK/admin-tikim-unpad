@@ -219,7 +219,7 @@
     </div>
   </div>
 
-  <!-- MODAL PROSES / EDIT SURAT + PELUNCUR PROMPT GEMINI INSTAN + DIRECT UPLOAD DRIVE + NOTIF EMAIL -->
+  <!-- MODAL PROSES / EDIT SURAT + PELUNCUR PROMPT GEMINI FLEKSIBEL + DIRECT UPLOAD DRIVE + NOTIF EMAIL -->
   <div id="editSuratModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-slate-200">
       <div class="bg-unpad-navy px-6 py-4 border-b-4 border-unpad-gold flex justify-between items-start text-white shrink-0">
@@ -263,7 +263,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
             <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Nomor Dokumen Resmi</label>
-            <input id="editNomorDokumen" type="text" placeholder="Contoh: 124/UN6.T.4.6/TU.00/2026" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 font-mono text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" />
+            <input id="editNomorDokumen" oninput="refreshGeminiPromptPreview()" type="text" placeholder="Contoh: 124/UN6.T.4.6/TU.00/2026" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 font-mono text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" />
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">No. Registrasi TU Fakultas</label>
@@ -271,36 +271,61 @@
           </div>
         </div>
 
-        <!-- PANEL PELUNCUR PROMPT GEMINI INSTAN (TANPA KOP, BOOKMAN OLD STYLE 10PT) -->
+        <!-- PANEL PELUNCUR PROMPT GEMINI FLEKSIBEL -->
         <div class="p-4 rounded-xl bg-indigo-50/80 border border-indigo-200 space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <span class="text-xs font-extrabold text-indigo-950 uppercase tracking-wide block">Susun Isi Surat di Gemini (Instan 0 Detik)</span>
-              <span class="text-[11px] text-indigo-700">Otomatis menyalin prompt siap tempel (<b>Ctrl+V</b>) ke <b>gemini.google.com</b> untuk format MS Word <b>Bookman Old Style 10pt</b></span>
+              <span class="text-xs font-extrabold text-indigo-950 uppercase tracking-wide block">Susun Prompt Surat untuk Gemini</span>
+              <span class="text-[11px] text-indigo-700">Atur format hasil akhir & detail tambahan, lalu klik tombol untuk menyalin prompt & membuka Gemini</span>
             </div>
-            <button type="button" onclick="launchGeminiSuratPrompt()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition shrink-0">
-              Salin Prompt & Buka Gemini &nearr;
-            </button>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
-            <div>
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">Lampiran (Opsional)</label>
-              <input id="aiSuratLampiran" type="text" placeholder="Kosongkan / - jika tidak ada" value="-" class="w-full border border-slate-300 rounded-xl px-3 py-2 bg-white focus:ring-2 focus:ring-indigo-600 focus:outline-none" />
-            </div>
-            <div class="sm:col-span-2">
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">Konteks / Instruksi Tambahan (Opsional)</label>
-              <input id="aiSuratExtraNotes" type="text" placeholder="Contoh: Pelaksanaan 1–30 Desember 2026 / Tembusan WD 1" class="w-full border border-slate-300 rounded-xl px-3 py-2 bg-white focus:ring-2 focus:ring-indigo-600 focus:outline-none" />
+            <div class="flex items-center gap-2 shrink-0">
+              <button type="button" onclick="toggleGeminiPromptPreview()" class="px-3 py-2 rounded-xl bg-white hover:bg-indigo-100 text-indigo-700 border border-indigo-300 text-xs font-bold transition">
+                Lihat / Edit Prompt
+              </button>
+              <button type="button" onclick="launchGeminiSuratPrompt()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition">
+                Salin Prompt & Buka Gemini &nearr;
+              </button>
             </div>
           </div>
 
-          <!-- Pratinjau Prompt yang Disalin -->
-          <div id="geminiPromptWrapper" class="hidden space-y-1.5 pt-1">
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 text-xs">
+            <div class="sm:col-span-7">
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Cetak Hasil Akhir Sebagai</label>
+              <select id="aiSuratOutputFormat" onchange="refreshGeminiPromptPreview()" class="w-full border border-slate-300 rounded-xl px-3 py-2 bg-white font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-600 focus:outline-none">
+                <option value="word_copy">Teks Siap Copy-Paste MS Word (Tanpa Kop, Bookman Old Style 10pt)</option>
+                <option value="google_docs">Google Docs (Langsung dibuatkan / ekspor ke Google Docs)</option>
+                <option value="google_sheets">Google Sheets (Tabel / Rekap Data / Lampiran Peserta)</option>
+                <option value="docx_file">File Microsoft Word (.docx) Siap Unduh</option>
+                <option value="pdf_file">File PDF (.pdf) Siap Unduh</option>
+                <option value="email_pengantar">Draft Email Pengantar / Tindak Lanjut Resmi</option>
+              </select>
+            </div>
+            <div class="sm:col-span-5">
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Lampiran Surat (Opsional)</label>
+              <input id="aiSuratLampiran" oninput="refreshGeminiPromptPreview()" type="text" placeholder="Isi - jika tidak ada" value="-" class="w-full border border-slate-300 rounded-xl px-3 py-2 bg-white focus:ring-2 focus:ring-indigo-600 focus:outline-none" />
+            </div>
+          </div>
+
+          <div class="space-y-1.5 text-xs">
+            <div class="flex flex-wrap items-center justify-between gap-1">
+              <label class="text-[11px] font-bold text-slate-700">Tambahan Detail / Instruksi Khusus dalam Prompt (Opsional)</label>
+              <div class="flex flex-wrap gap-1">
+                <button type="button" onclick="insertPromptSnippet('waktu')" class="px-2 py-0.5 rounded-md bg-white hover:bg-indigo-100 border border-indigo-200 text-[10px] font-bold text-indigo-700 transition">+ Waktu & Tempat</button>
+                <button type="button" onclick="insertPromptSnippet('peserta')" class="px-2 py-0.5 rounded-md bg-white hover:bg-indigo-100 border border-indigo-200 text-[10px] font-bold text-indigo-700 transition">+ Tabel Peserta</button>
+                <button type="button" onclick="insertPromptSnippet('tembusan')" class="px-2 py-0.5 rounded-md bg-white hover:bg-indigo-100 border border-indigo-200 text-[10px] font-bold text-indigo-700 transition">+ Tembusan</button>
+                <button type="button" onclick="insertPromptSnippet('dekanat')" class="px-2 py-0.5 rounded-md bg-white hover:bg-indigo-100 border border-indigo-200 text-[10px] font-bold text-indigo-700 transition">+ TTD Dekanat</button>
+              </div>
+            </div>
+            <textarea id="aiSuratExtraNotes" oninput="refreshGeminiPromptPreview()" rows="3" placeholder="Tuliskan detail tambahan agar surat lebih spesifik dan terarah. Contoh:&#10;- Pelaksanaan kegiatan: Senin, 14 Desember 2026 pukul 09.00 WIB di Lab Kimia Terapan&#10;- Daftar mahasiswa: 1. Budi Santoso (NPM 140210230001), 2. Siti Aminah (NPM 140210230002)" class="w-full border border-slate-300 rounded-xl p-2.5 bg-white text-slate-800 focus:ring-2 focus:ring-indigo-600 focus:outline-none"></textarea>
+          </div>
+
+          <!-- Pratinjau & Edit Manual Prompt -->
+          <div id="geminiPromptWrapper" class="hidden space-y-1.5 pt-2 border-t border-indigo-200/80">
             <div class="flex items-center justify-between">
-              <span class="text-[11px] font-bold text-slate-600">Prompt Tersusun (Sudah otomatis tersalin ke clipboard):</span>
-              <button type="button" onclick="copyPromptAgain()" class="text-[11px] font-bold text-indigo-700 hover:underline">Salin Ulang Prompt</button>
+              <span class="text-[11px] font-bold text-indigo-950">Pratinjau Prompt Final (Bisa diedit manual sebelum disalin):</span>
+              <button type="button" onclick="copyPromptAgain()" class="text-[11px] font-bold text-indigo-700 hover:underline">Salin Prompt Ini</button>
             </div>
-            <textarea id="geminiPromptPreviewBox" rows="4" class="w-full border border-indigo-200 rounded-xl p-2.5 text-[11px] font-mono bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+            <textarea id="geminiPromptPreviewBox" rows="6" class="w-full border border-indigo-300 rounded-xl p-2.5 text-[11px] font-mono bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
           </div>
         </div>
 
@@ -1374,6 +1399,7 @@
       document.getElementById('editDraftAdmin').value = item['DRAFT PENGANTAR ADMIN'] || '';
       document.getElementById('editCatatanAdmin').value = item['Catatan Admin'] || '';
 
+      document.getElementById('aiSuratOutputFormat').value = 'word_copy';
       document.getElementById('aiSuratLampiran').value = '-';
       document.getElementById('aiSuratExtraNotes').value = '';
       document.getElementById('geminiPromptWrapper').classList.add('hidden');
@@ -1412,10 +1438,28 @@
       document.getElementById('editSuratModal').classList.remove('hidden');
     }
 
-    // --- PELUNCUR PROMPT GEMINI INSTAN (TANPA KOP SURAT, BOOKMAN OLD STYLE 10PT) ---
+    // --- PELUNCUR PROMPT GEMINI FLEKSIBEL ---
+    function insertPromptSnippet(type) {
+      const box = document.getElementById('aiSuratExtraNotes');
+      const snippets = {
+        waktu: '- Waktu & Tempat Pelaksanaan: [Hari/Tanggal], pukul [08.00 - 16.00 WIB], bertempat di [Nama Ruangan / Lokasi].',
+        peserta: '- Sertakan tabel daftar mahasiswa/peserta dengan kolom (No, Nama Lengkap, NPM, Program Studi):\n  1. [Nama Mahasiswa] ([NPM])',
+        tembusan: '- Tambahkan Tembusan di kiri bawah surat kepada:\n  1. Wakil Dekan Bidang Akademik dan Kemahasiswaan Sekolah Vokasi UNPAD\n  2. Arsip',
+        dekanat: '- Penandatangan surat adalah Wakil Dekan / Dekan Sekolah Vokasi Universitas Padjadjaran (bukan Ketua Program Studi).'
+      };
+      const textToAdd = snippets[type] || '';
+      if (!textToAdd) return;
+
+      const current = box.value.trim();
+      box.value = current ? `${current}\n${textToAdd}` : textToAdd;
+      box.focus();
+      refreshGeminiPromptPreview();
+    }
+
     function buildSuratPromptForGemini() {
       if (!CURRENT_SURAT_ITEM) return '';
 
+      const outputFormat = document.getElementById('aiSuratOutputFormat').value;
       const nomorSurat = document.getElementById('editNomorDokumen').value.trim() || '[Nomor Surat]';
       const lampiranInput = document.getElementById('aiSuratLampiran').value.trim();
       const hasLampiran = lampiranInput && lampiranInput !== '-' && lampiranInput.toLowerCase() !== 'tidak ada';
@@ -1433,39 +1477,90 @@
 
       const kategori = String(CURRENT_SURAT_ITEM['Pilih Kategori Surat'] || '');
       const defaultSigner = kategori.toLowerCase().includes('lintas fakultas')
-        ? 'Ketua Program Studi D-4 Teknologi Industri Kimia (atau sesuaikan jika surat tingkat Dekanat)'
+        ? 'Ketua Program Studi D-4 Teknologi Industri Kimia (atau sesuaikan jika tingkat Dekanat Sekolah Vokasi)'
         : 'Ketua Program Studi D-4 Teknologi Industri Kimia';
 
       const lampiranRule = hasLampiran
         ? `   - Lampiran : ${lampiranInput}`
         : `   - (JANGAN cantumkan baris "Lampiran" karena surat ini tidak memiliki lampiran)`;
 
-      return `Buatkan ISI SURAT DINAS RESMI (TANPA KOP SURAT) untuk Program Studi D-4 Teknologi Industri Kimia, Sekolah Vokasi, Universitas Padjadjaran berdasarkan data ajuan berikut:
+      const formatDirectives = {
+        word_copy: `FORMAT HASIL AKHIR YANG DIMINTA:
+- Cetak sebagai TEKS SIAP COPY-PASTE untuk ditempel ke template kop surat di Microsoft Word (TANPA KOP SURAT).
+- Langsung tampilkan isi suratnya saja tanpa kalimat pembuka, pengantar, atau penutup dari Anda.
+- Siapkan tata letak yang presisi saat ditempel ke MS Word dengan font Bookman Old Style ukuran 10 pt (gunakan tabel tanpa garis tepi / tabulasi yang sejajar untuk Nomor, Perihal, dan blok identitas pemohon, serta paragraf rata kanan-kiri / Justify).`,
+
+        google_docs: `FORMAT HASIL AKHIR YANG DIMINTA:
+- Cetak dan buatkan hasil akhirnya langsung sebagai dokumen GOOGLE DOCS (gunakan fitur pembuatan/ekspor Google Docs) yang siap dibuka dan diedit di Google Drive.
+- Atur tipografi di dalam Google Docs menggunakan font Bookman Old Style ukuran 10 pt, spasi 1.15, paragraf rata kanan-kiri (Justify), dan TANPA KOP SURAT di bagian atas (sisakan margin atas agar siap ditempel ke kop resmi UNPAD).`,
+
+        google_sheets: `FORMAT HASIL AKHIR YANG DIMINTA:
+- Cetak dan buatkan hasil akhirnya langsung sebagai spreadsheet GOOGLE SHEETS (gunakan fitur pembuatan/ekspor Google Sheets).
+- Susun seluruh data ajuan, rincian pemohon, daftar peserta/lampiran, serta status administrasi ke dalam kolom-kolom tabel yang terstruktur rapi, bersih, dan siap diolah.`,
+
+        docx_file: `FORMAT HASIL AKHIR YANG DIMINTA:
+- Buatkan dan berikan tautan unduhan FILE MICROSOFT WORD (.docx) secara langsung.
+- Di dalam file .docx tersebut, gunakan font Bookman Old Style ukuran 10 pt, spasi 1.15, paragraf rata kanan-kiri (Justify), tabel tanpa garis tepi untuk blok Nomor/Perihal/Identitas, dan TANPA KOP SURAT di bagian atas.`,
+
+        pdf_file: `FORMAT HASIL AKHIR YANG DIMINTA:
+- Buatkan dan berikan tautan unduhan FILE PDF (.pdf) siap cetak secara langsung.
+- Gunakan tata letak surat dinas resmi yang rapi dengan font Bookman Old Style ukuran 10 pt, paragraf rata kanan-kiri (Justify), dan TANPA KOP SURAT di bagian atas.`,
+
+        email_pengantar: `FORMAT HASIL AKHIR YANG DIMINTA:
+- Cetak sebagai DRAFT EMAIL PENGANTAR / TINDAK LANJUT RESMI (terdiri dari Baris Subjek Email dan Isi Email yang ringkas, sopan, dan profesional) untuk meneruskan pengajuan surat ini ke pihak terkait (TU Fakultas / Dekanat / Instansi Tujuan).`
+      };
+
+      const selectedDirective = formatDirectives[outputFormat] || formatDirectives.word_copy;
+
+      return `Buatkan dokumen administrasi resmi untuk Program Studi D-4 Teknologi Industri Kimia, Sekolah Vokasi, Universitas Padjadjaran berdasarkan data ajuan berikut:
 
 DATA AJUAN PEMOHON:
 ${dataLines.join('\n')}
-${extraNotes ? `\nINSTRUKSI / KETERANGAN TAMBAHAN:\n- ${extraNotes}` : ''}
+${extraNotes ? `\nTAMBAHAN DETAIL & INSTRUKSI KHUSUS:\n${extraNotes}` : ''}
 
-ATURAN FORMAT & ISI (WAJIB DIPATUHI):
-1. Langsung tampilkan isi suratnya saja tanpa kalimat pembuka, pengantar, atau penutup dari Anda, agar bisa langsung saya copy-paste ke template kop surat di Microsoft Word.
-2. Siapkan tata letak yang rapi saat ditempel ke MS Word dengan font Bookman Old Style ukuran 10 pt (gunakan tabel tanpa garis tepi / tabulasi yang sejajar untuk Nomor, Perihal, dan blok rincian data pemohon, serta paragraf rata kanan-kiri / Justify).
-3. Susunan bagian atas surat:
+${selectedDirective}
+
+STRUKTUR & ATURAN ISI SURAT (WAJIB DIPATUHI):
+1. Susunan kepala surat (jika berbentuk surat):
    - Nomor : ${nomorSurat}
 ${lampiranRule}
    - Perihal : [Buat perihal yang singkat, baku, dan diawali huruf kapital tiap kata utama]
-4. Tujuan surat ("Yth. ..." dan lokasi tujuan) disesuaikan secara akurat dengan data pemohon.
-5. Gunakan Bahasa Indonesia dinas yang baku, sopan, padat, dan langsung ke inti (tanpa basa-basi berlebih).
-6. Jangan mengarang fakta di luar data di atas. Jika ada informasi spesifik yang belum tercantum (misalnya tanggal kegiatan), tulis dengan tanda kurung siku seperti [tanggal pelaksanaan] agar mudah saya lengkapi.
-7. Penandatangan di bagian bawah kanan: ${defaultSigner}.`;
+2. Tujuan surat ("Yth. ..." beserta jabatan/instansi dan lokasi tujuan) disesuaikan secara akurat dengan data pemohon.
+3. Gunakan Bahasa Indonesia dinas yang baku, sopan, padat, dan langsung ke inti (tanpa basa-basi berlebih).
+4. Jangan mengarang fakta di luar data di atas. Jika ada informasi spesifik yang belum tercantum (misalnya tanggal pelaksanaan), tulis dengan tanda kurung siku seperti [tanggal pelaksanaan] agar mudah dilengkapi.
+5. Penandatangan di bagian bawah kanan (kecuali ditentukan lain pada instruksi khusus): ${defaultSigner}.`;
+    }
+
+    function refreshGeminiPromptPreview() {
+      const wrapper = document.getElementById('geminiPromptWrapper');
+      if (!wrapper.classList.contains('hidden')) {
+        document.getElementById('geminiPromptPreviewBox').value = buildSuratPromptForGemini();
+      }
+    }
+
+    function toggleGeminiPromptPreview() {
+      const wrapper = document.getElementById('geminiPromptWrapper');
+      const isHidden = wrapper.classList.contains('hidden');
+      if (isHidden) {
+        document.getElementById('geminiPromptPreviewBox').value = buildSuratPromptForGemini();
+        wrapper.classList.remove('hidden');
+      } else {
+        wrapper.classList.add('hidden');
+      }
     }
 
     async function launchGeminiSuratPrompt() {
-      const promptText = buildSuratPromptForGemini();
+      const wrapper = document.getElementById('geminiPromptWrapper');
+      const previewBox = document.getElementById('geminiPromptPreviewBox');
+
+      const promptText = !wrapper.classList.contains('hidden') && previewBox.value.trim()
+        ? previewBox.value.trim()
+        : buildSuratPromptForGemini();
+
       if (!promptText) return;
 
-      const previewBox = document.getElementById('geminiPromptPreviewBox');
       previewBox.value = promptText;
-      document.getElementById('geminiPromptWrapper').classList.remove('hidden');
+      wrapper.classList.remove('hidden');
 
       try {
         await navigator.clipboard.writeText(promptText);
@@ -1474,7 +1569,8 @@ ${lampiranRule}
         document.execCommand('copy');
       }
 
-      showToast('Prompt Disalin & Gemini Dibuka', 'Tekan Ctrl+V lalu Enter di tab Gemini yang baru terbuka.', 'success');
+      const formatLabel = document.getElementById('aiSuratOutputFormat').selectedOptions[0].text.split(' (')[0];
+      showToast(`Prompt (${formatLabel}) Disalin`, 'Tab Gemini dibuka — tekan Ctrl+V lalu Enter.', 'success');
       window.open('https://gemini.google.com/app', '_blank', 'noopener');
     }
 
