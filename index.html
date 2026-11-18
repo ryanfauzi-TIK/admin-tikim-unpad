@@ -1569,17 +1569,16 @@
       surat: [
         {
           _row: 2,
-          'Timestamp': '18/11/2026 08:45:10',
-          'Nama Lengkap Pemohon': 'Nabila Putri Rahmawati',
-          'Status Pemohon': 'Mahasiswa',
-          'NPM / NIP': '240310230018',
-          'Email Aktif': 'nabila23001@mail.unpad.ac.id',
-          'No. WhatsApp': '081234567890',
-          'Kategori Ajuan Surat': 'Surat Lintas Fakultas / Pihak Luar Vokasi',
-          'Jenis Surat / Dokumen': 'Surat Permohonan Izin Magang / PKL',
-          'Perihal / Judul Surat': 'Permohonan Izin Praktik Kerja Lapangan (PKL) Semester Genap',
-          'Instansi / Pihak Tujuan': 'HRD Manager PT Pertamina (Persero) RU VI Balongan',
-          'Detail Keperluan & Tanggal Kegiatan': 'Pelaksanaan magang industri periode 1 Februari - 31 Mei 2027 untuk 3 mahasiswa D-4 TIKIM.',
+          'Timestamp': '4/20/2026 9:13:02',
+          'Email Address': 'alif23001@mail.unpad.ac.id',
+          'Nama Lengkap & Gelar': 'Alif Rizqi Hidayatullah',
+          'NIP / NPM': '140210230015',
+          'No. WhatsApp (Aktif)': '085697885240',
+          'Pilih Kategori Surat': 'Surat Keluar / Lintas Fakultas (Dekan / Wakil Dekan / Luar Vokasi)',
+          'Perihal / Judul Ajuan Surat': 'Surat Izin Pengambilan Data Tugas Akhir di PT. Petrokimia Gresik',
+          'Pejabat / Instansi Tujuan': 'Direktur SDM & Umum PT. Petrokimia Gresik',
+          'Detail Keperluan & Tanggal Kegiatan': 'Untuk keperluan pengambilan data primer dan wawancara terkait proses produksi amonia untuk Tugas Akhir pada 11 - 22 Mei 2026.',
+          'Lampiran Pendukung (Opsional)': 'https://drive.google.com/drive/folders/1bho29zXrq2AVdYTFt1FNh9JxLkIk1ERnoiP65XsFgSXhcJAec4UAeZIxrppZ_vVLOyBXOkYz',
           'STATUS ACC KAPRODI': 'DISETUJUI KAPRODI',
           'STATUS PROSES ADMIN': 'PROSES TU FAKULTAS',
           'Nomor Dokumen Resmi': '145/UN6.T.4.6/PK.01.06/2026',
@@ -1590,17 +1589,16 @@
         },
         {
           _row: 3,
-          'Timestamp': '17/11/2026 13:20:05',
-          'Nama Lengkap Pemohon': 'Dr. Eng. Hendra Wijaya, S.T., M.T.',
-          'Status Pemohon': 'Dosen',
-          'NPM / NIP': '198504122015041002',
-          'Email Aktif': 'hendra.wijaya@unpad.ac.id',
-          'No. WhatsApp': '081398765432',
-          'Kategori Ajuan Surat': 'Surat Internal Prodi TIKIM',
-          'Jenis Surat / Dokumen': 'Nota Dinas / Undangan Rapat',
-          'Perihal / Judul Surat': 'Undangan Rapat Evaluasi Kurikulum 2024 & Persiapan Praktikum',
-          'Instansi / Pihak Tujuan': 'Seluruh Dosen & Pranata Laboratorium Pendidikan Prodi TIKIM',
-          'Detail Keperluan & Tanggal Kegiatan': 'Hari Jumat, 20 November 2026 pukul 09.00 WIB di Ruang Rapat Gedung D-4 TIKIM Jatinangor.',
+          'Timestamp': '4/20/2026 11:27:05',
+          'Email Address': 'putra24002@mail.unpad.ac.id',
+          'Nama Lengkap & Gelar': 'Putra Alamsyah',
+          'NIP / NPM': '140210240014',
+          'No. WhatsApp (Aktif)': '085156667185',
+          'Pilih Kategori Surat': 'Surat Internal Prodi / Nota Dinas (Kaprodi)',
+          'Perihal / Judul Ajuan Surat': 'Nota Dinas Peminjaman Ruang Kuliah dan Lab TIKIM untuk Workshop Himpunan',
+          'Pejabat / Instansi Tujuan': 'Ketua Program Studi D-4 Teknologi Industri Kimia',
+          'Detail Keperluan & Tanggal Kegiatan': 'Hari Sabtu, 2 Mei 2026 pukul 08.00 - 15.00 WIB di Ruang Kuliah & Lab TIKIM.',
+          'Lampiran Pendukung (Opsional)': '',
           'STATUS ACC KAPRODI': 'DISETUJUI KAPRODI',
           'STATUS PROSES ADMIN': 'SELESAI',
           'Nomor Dokumen Resmi': '142/UN6.T.4.6/TU.00/2026',
@@ -1894,7 +1892,7 @@
       const docMatch = u.match(/docs\.google\.com\/document\/d\/([a-zA-Z0-9_-]+)/);
       const sheetMatch = u.match(/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
       const formMatch = u.match(/docs\.google\.com\/forms\/d\/(?:e\/)?([a-zA-Z0-9_-]+)/);
-      const driveFileMatch = u.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+      const driveFileMatch = u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/);
       const driveFolderMatch = u.match(/drive\.google\.com\/drive\/folders\/([a-zA-Z0-9_-]+)/);
 
       if (docMatch) {
@@ -2053,24 +2051,45 @@
 
       const berkasRaw = getSheetFieldByAliases(
         raw,
-        ['Upload Berkas Pendukung', 'Berkas Pendukung', 'Lampiran Pemohon', 'File Pendukung', 'Dokumen Pendukung'],
-        /berkas\s*pendukung|lampiran\s*pemohon|file\s*pendukung/i
+        [
+          'Lampiran Pendukung (Opsional)',
+          'Lampiran Pendukung',
+          'Upload Berkas Pendukung',
+          'Berkas Pendukung',
+          'Lampiran Pemohon',
+          'File Pendukung',
+          'Dokumen Pendukung'
+        ],
+        /lampiran\s*pendukung|berkas\s*pendukung|lampiran\s*pemohon|file\s*pendukung/i
       );
       const berkasUrl = /^https?:\/\//i.test(berkasRaw) ? berkasRaw : (findRichByCol(/pendukung|lampiran/i) || berkasRaw);
+
+      const kategoriFull = getSheetFieldByAliases(raw, ['Pilih Kategori Surat', 'Kategori Ajuan Surat', 'Kategori Surat'], /kategori.*surat|pilih\s*kategori/i);
+      const jenisRaw = getSheetFieldByAliases(raw, ['Jenis Surat / Dokumen', 'Jenis Surat', 'Pilih Jenis Surat', 'Bentuk Dokumen'], /jenis\s*surat|jenis\s*dokumen/i);
+
+      let kategoriBadgeLabel = jenisRaw || kategoriFull || 'Surat';
+      if (!jenisRaw && kategoriFull) {
+        if (/internal|nota\s*dinas/i.test(kategoriFull)) {
+          kategoriBadgeLabel = 'Internal Prodi / Nota Dinas';
+        } else if (/lintas|keluar|luar\s*vokasi/i.test(kategoriFull)) {
+          kategoriBadgeLabel = 'Lintas Fakultas / Luar Vokasi';
+        }
+      }
 
       return {
         _row: raw?._row,
         raw,
         timestamp: getSheetFieldByAliases(raw, ['Timestamp', 'Waktu Pengajuan', 'Tanggal'], /timestamp|waktu/i),
-        nama: getSheetFieldByAliases(raw, ['Nama Lengkap Pemohon', 'Nama Lengkap & Gelar', 'Nama Lengkap', 'Nama Pemohon'], /nama\s*lengkap|pemohon/i),
+        nama: getSheetFieldByAliases(raw, ['Nama Lengkap & Gelar', 'Nama Lengkap Pemohon', 'Nama Lengkap', 'Nama Pemohon'], /nama\s*lengkap|pemohon/i),
         statusPemohon: getSheetFieldByAliases(raw, ['Status Pemohon', 'Status Civitas', 'Kategori Pemohon'], /status\s*pemohon|civitas/i),
-        npmNip: getSheetFieldByAliases(raw, ['NPM / NIP', 'NIP / NPM', 'NPM', 'NIP'], /npm|nip/i),
-        email: getSheetFieldByAliases(raw, ['Email Aktif', 'Email Address', 'Alamat Email', 'Email'], /email/i),
-        wa: getSheetFieldByAliases(raw, ['No. WhatsApp', 'Nomor WhatsApp', 'No. HP / WhatsApp', 'No WhatsApp', 'WhatsApp'], /whatsapp|no\.?\s*hp/i),
-        kategori: getSheetFieldByAliases(raw, ['Kategori Ajuan Surat', 'Pilih Kategori Surat', 'Kategori Surat'], /kategori.*surat|pilih\s*kategori/i),
-        jenisSurat: getSheetFieldByAliases(raw, ['Jenis Surat / Dokumen', 'Jenis Surat', 'Pilih Jenis Surat', 'Bentuk Dokumen'], /jenis\s*surat|jenis\s*dokumen/i),
-        perihal: getSheetFieldByAliases(raw, ['Perihal / Judul Surat', 'Perihal / Judul Ajuan Surat', 'Perihal Surat', 'Judul Surat', 'Perihal'], /perihal|judul\s*surat|judul\s*ajuan/i),
-        tujuan: getSheetFieldByAliases(raw, ['Instansi / Pihak Tujuan', 'Pejabat / Instansi Tujuan', 'Tujuan Surat', 'Pihak Tujuan'], /tujuan/i),
+        npmNip: getSheetFieldByAliases(raw, ['NIP / NPM', 'NPM / NIP', 'NPM', 'NIP'], /npm|nip/i),
+        email: getSheetFieldByAliases(raw, ['Email Address', 'Email Aktif', 'Alamat Email', 'Email'], /email/i),
+        wa: getSheetFieldByAliases(raw, ['No. WhatsApp (Aktif)', 'No. WhatsApp', 'Nomor WhatsApp', 'No. HP / WhatsApp', 'No WhatsApp', 'WhatsApp'], /whatsapp|no\.?\s*hp/i),
+        kategori: kategoriFull,
+        kategoriBadge: kategoriBadgeLabel,
+        jenisSurat: jenisRaw,
+        perihal: getSheetFieldByAliases(raw, ['Perihal / Judul Ajuan Surat', 'Perihal / Judul Surat', 'Perihal Surat', 'Judul Surat', 'Perihal'], /perihal|judul\s*surat|judul\s*ajuan/i),
+        tujuan: getSheetFieldByAliases(raw, ['Pejabat / Instansi Tujuan', 'Instansi / Pihak Tujuan', 'Tujuan Surat', 'Pihak Tujuan'], /tujuan/i),
         detail: getSheetFieldByAliases(raw, ['Detail Keperluan & Tanggal Kegiatan', 'Detail Keperluan', 'Uraian Keperluan', 'Keterangan Keperluan'], /detail|keperluan|uraian/i),
         berkasPendukung: berkasUrl,
         accKaprodi: getSheetFieldByAliases(raw, ['STATUS ACC KAPRODI', 'Status ACC Kaprodi', 'ACC Kaprodi'], /acc\s*kaprodi|status\s*acc/i),
@@ -2141,13 +2160,16 @@
 
         const isNotaDinas = s.jenisSurat.toLowerCase().includes('nota dinas') || s.kategori.toLowerCase().includes('internal');
         const jenisBadgeClass = isNotaDinas ? 'bg-[#DCE8FB] text-[#0B57D0]' : 'bg-[#ECE9E1] text-[#1F242D]';
+        const berkasInfo = s.berkasPendukung && s.berkasPendukung.startsWith('http')
+          ? classifyResourceUrl(s.berkasPendukung, `Lampiran Pemohon — ${s.nama || 'Surat'}`)
+          : null;
 
         return `
           <tr class="hover:bg-white/60 transition align-top">
             <td class="p-4 pl-6">
               <div class="text-[11px] font-mono text-[#646B77]">${esc(s.timestamp || '-')}</div>
               <div class="font-bold text-[#1F242D] mt-0.5">${esc(s.nama || '-')}</div>
-              <div class="text-xs text-[#646B77]">${esc(s.statusPemohon || 'Civitas')} • ${esc(s.npmNip || '-')}</div>
+              <div class="text-xs text-[#646B77]">${s.statusPemohon ? `${esc(s.statusPemohon)} • ` : ''}NIP/NPM: <span class="font-mono">${esc(s.npmNip || '-')}</span></div>
               <div class="mt-1.5 flex flex-wrap items-center gap-2 text-xs">
                 ${waLink ? `<a href="${esc(waLink)}" target="_blank" rel="noopener" class="text-emerald-700 font-bold hover:underline">WA: ${esc(s.wa)} &nearr;</a>` : ''}
                 ${s.email ? `<span class="text-[#646B77] font-mono text-[11px] truncate max-w-[190px]" title="${esc(s.email)}">${esc(s.email)}</span>` : ''}
@@ -2155,7 +2177,7 @@
             </td>
             <td class="p-4 max-w-sm">
               <div class="flex flex-wrap items-center gap-1.5">
-                <span class="inline-block text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${jenisBadgeClass}">${esc(s.jenisSurat || s.kategori || 'Surat')}</span>
+                <span class="inline-block text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${jenisBadgeClass}" title="${esc(s.kategori || '')}">${esc(s.kategoriBadge)}</span>
               </div>
               <div class="font-bold text-[#1F242D] mt-1 leading-snug">${esc(s.perihal || '-')}</div>
               <div class="text-xs text-[#646B77] mt-0.5">Tujuan: <span class="font-semibold text-[#1F242D]">${esc(s.tujuan || '-')}</span></div>
@@ -2170,7 +2192,10 @@
               <div class="font-mono font-bold text-[#1F242D]">${esc(s.nomorDokumen || 'Belum bernomor')}</div>
               ${s.regTU && s.regTU !== '-' ? `<div class="text-[#646B77]">Reg TU: <span class="font-mono font-semibold text-[#1F242D]">${esc(s.regTU)}</span></div>` : ''}
               <div class="flex flex-wrap gap-1.5 pt-0.5">
-                ${s.berkasPendukung && s.berkasPendukung.startsWith('http') ? `<a href="${esc(s.berkasPendukung)}" target="_blank" rel="noopener" class="btn-ivory px-2.5 py-1 text-[11px] text-[#646B77]">Lampiran &nearr;</a>` : ''}
+                ${berkasInfo ? `
+                  ${berkasInfo.previewUrl ? `<button type="button" onclick="openQuickPreview('${esc(berkasInfo.previewUrl)}', '${esc(s.berkasPendukung)}', '${esc(berkasInfo.label)}', '${esc(berkasInfo.typeLabel)}')" class="btn-ivory px-2.5 py-1 text-[11px] text-[#0B57D0]">Pratinjau Lampiran</button>` : ''}
+                  <a href="${esc(s.berkasPendukung)}" target="_blank" rel="noopener" class="btn-ivory px-2.5 py-1 text-[11px] text-[#646B77]">Lampiran &nearr;</a>
+                ` : ''}
                 ${s.draftAdmin && s.draftAdmin.startsWith('http') ? `<a href="${esc(s.draftAdmin)}" target="_blank" rel="noopener" class="btn-ivory px-2.5 py-1 text-[11px] text-[#0B57D0]">Draft &nearr;</a>` : ''}
                 ${s.linkPdf && s.linkPdf.startsWith('http') ? `<a href="${esc(s.linkPdf)}" target="_blank" rel="noopener" class="btn-cobalt px-2.5 py-1 text-[11px]">PDF Final &nearr;</a>` : ''}
               </div>
@@ -2209,17 +2234,29 @@
       document.getElementById('suratModalSubtitle').textContent = `${item.nama || '-'} — ${item.perihal || '-'}`;
 
       // Isi kartu ringkasan permohonan masuk di dalam modal
-      document.getElementById('suratModalKategoriBadge').textContent = `${item.kategori || 'Umum'} • ${item.jenisSurat || 'Surat'}`;
-      document.getElementById('suratModalPemohonDetail').textContent = `${item.nama || '-'} (${item.statusPemohon || '-'} • ${item.npmNip || '-'})`;
+      document.getElementById('suratModalKategoriBadge').textContent = item.kategori || item.jenisSurat || 'Umum';
+      document.getElementById('suratModalPemohonDetail').textContent = `${item.nama || '-'} (${item.statusPemohon ? item.statusPemohon + ' • ' : ''}${item.npmNip || '-'})`;
       document.getElementById('suratModalTujuanDetail').textContent = item.tujuan || '-';
       document.getElementById('suratModalKeperluanDetail').textContent = item.detail || 'Tidak ada rincian tambahan dari pemohon.';
 
       const berkasRow = document.getElementById('suratModalBerkasPemohonRow');
       const berkasLink = document.getElementById('suratModalBerkasPemohonLink');
       if (item.berkasPendukung && item.berkasPendukung.startsWith('http')) {
+        const berkasInfo = classifyResourceUrl(item.berkasPendukung, `Lampiran Pendukung — ${item.nama || 'Pemohon'}`);
         berkasLink.href = item.berkasPendukung;
+        if (berkasInfo.previewUrl) {
+          berkasLink.onclick = (ev) => {
+            ev.preventDefault();
+            openQuickPreview(berkasInfo.previewUrl, item.berkasPendukung, berkasInfo.label, berkasInfo.typeLabel);
+          };
+          berkasLink.innerHTML = `<span>Pratinjau / Buka Lampiran Pendukung Pemohon &nearr;</span>`;
+        } else {
+          berkasLink.onclick = null;
+          berkasLink.innerHTML = `<span>Lihat Lampiran Pendukung dari Pemohon &nearr;</span>`;
+        }
         berkasRow.classList.remove('hidden');
       } else {
+        berkasLink.onclick = null;
         berkasRow.classList.add('hidden');
       }
 
