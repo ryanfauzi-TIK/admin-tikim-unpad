@@ -661,6 +661,80 @@
     </div>
   </div>
 
+  <!-- MODAL EDIT DATABASE LINK -->
+  <div id="editLinkModal" class="fixed inset-0 bg-[#1F242D]/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="soft-card max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden">
+      <div class="px-6 py-5 border-b border-[#E3DFD5] flex justify-between items-start shrink-0">
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-widest text-[#0B57D0]">Direktori Tautan Terpusat</span>
+          <h3 class="text-lg font-extrabold text-[#1F242D] mt-0.5">Edit Data Tautan / Link</h3>
+          <p class="text-xs text-[#646B77] mt-0.5">Perubahan akan diperbarui pada Database Link dan Master Google Sheet.</p>
+        </div>
+        <button type="button" onclick="closeModal('editLinkModal')" class="w-8 h-8 rounded-full btn-ivory flex items-center justify-center text-base font-bold">&times;</button>
+      </div>
+
+      <form onsubmit="submitEditLink(event)" class="p-6 space-y-4 text-sm overflow-y-auto custom-scrollbar">
+        <input type="hidden" id="editLinkRow" />
+        <input type="hidden" id="editLinkId" />
+        <input type="hidden" id="editLinkOriginalUrl" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3.5">
+          <div class="sm:col-span-6">
+            <label class="block text-[11px] font-bold uppercase tracking-widest text-[#646B77] mb-1.5">Nama Layanan / Dokumen (Wajib)</label>
+            <input id="editLinkTitle" type="text" required placeholder="Nama layanan atau dokumen..." class="soft-inset w-full rounded-2xl px-4 py-2.5 font-semibold" />
+          </div>
+          <div class="sm:col-span-6">
+            <label class="block text-[11px] font-bold uppercase tracking-widest text-[#646B77] mb-1.5">URL / Tautan Lengkap (Wajib)</label>
+            <input id="editLinkUrl" type="url" required placeholder="https://..." class="soft-inset w-full rounded-2xl px-4 py-2.5 font-mono text-xs" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-widest text-[#646B77] mb-1.5">Tingkat / Unit</label>
+            <input id="editLinkUnit" list="linkUnitOptions" type="text" placeholder="Pilih atau ketik unit..." class="soft-inset w-full rounded-2xl px-4 py-2.5 font-medium" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-widest text-[#646B77] mb-1.5">Kategori Kegunaan</label>
+            <input id="editLinkCategory" list="linkCategoryOptions" type="text" placeholder="Pilih atau ketik kategori..." class="soft-inset w-full rounded-2xl px-4 py-2.5 font-medium" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-widest text-[#646B77] mb-1.5">Jenis Tautan</label>
+            <select id="editLinkType" class="soft-inset w-full rounded-2xl px-4 py-2.5 font-medium">
+              <option value="Website / Portal">Website / Portal</option>
+              <option value="Dashboard">Dashboard</option>
+              <option value="Google Form (Input)">Google Form (Input)</option>
+              <option value="Google Form / Bitly">Google Form / Bitly</option>
+              <option value="Google Sheet (Monitoring)">Google Sheet (Monitoring)</option>
+              <option value="Google Docs">Google Docs</option>
+              <option value="Template / Form Keuangan">Template / Form Keuangan</option>
+              <option value="Dokumen PDF">Dokumen PDF</option>
+              <option value="Zoom Meeting">Zoom Meeting</option>
+              <option value="Aplikasi Web">Aplikasi Web</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-widest text-[#646B77] mb-1.5">Keterangan / Syarat Kelengkapan (Opsional)</label>
+          <textarea id="editLinkNote" rows="2" placeholder="Keterangan tambahan atau syarat kelengkapan berkas..." class="soft-inset w-full rounded-2xl px-4 py-2.5 text-sm"></textarea>
+        </div>
+
+        <div class="pt-1">
+          <label class="flex items-center gap-2.5 text-xs font-bold text-[#1F242D] cursor-pointer select-none">
+            <input id="editLinkPinFavorite" type="checkbox" class="soft-checkbox" />
+            <span>Sematkan di <span class="text-amber-600">&#9733; Favorite</span> untuk akses cepat</span>
+          </label>
+        </div>
+
+        <div class="flex justify-end gap-2.5 pt-3 border-t border-[#E3DFD5]">
+          <button type="button" onclick="closeModal('editLinkModal')" class="btn-ivory px-5 py-2.5 text-xs">Batal</button>
+          <button type="submit" id="btnSaveEditLink" class="btn-cobalt px-6 py-2.5 text-xs">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- TOP EDITORIAL HEADER (SOFT / SYSTEM INSPIRED) -->
   <header class="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-2">
     <div class="flex flex-wrap items-center justify-between gap-4">
@@ -3350,6 +3424,21 @@
       localStorage.setItem('tikim_custom_links_v1', JSON.stringify(list));
     }
 
+    function getEditedLinksMap() {
+      try {
+        const saved = localStorage.getItem('tikim_edited_links_v1');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed === 'object') return parsed;
+        }
+      } catch (e) {}
+      return {};
+    }
+
+    function saveEditedLinksMap(mapObj) {
+      localStorage.setItem('tikim_edited_links_v1', JSON.stringify(mapObj));
+    }
+
     function normalizeLinkRow(raw) {
       let unit = String(raw.unit || raw['Tingkat / Unit'] || 'Prodi TIKIM').trim();
       let category = String(raw.category || raw['Kategori Kegunaan'] || 'Umum').trim();
@@ -3373,6 +3462,7 @@
 
       if (!title) title = url;
       return {
+        _row: raw._row || raw.row || null,
         id: raw.id || ('lnk-' + btoa(unescape(encodeURIComponent(url))).slice(0, 14)),
         unit,
         category,
@@ -3390,11 +3480,19 @@
         ? apiLinks
         : (SHEET_SYNCED_LINKS.length > 0 ? SHEET_SYNCED_LINKS : DEFAULT_MASTER_LINKS);
       const customList = getCustomAddedLinks();
+      const editedMap = getEditedLinksMap();
       const mapByUrl = new Map();
 
       baseList.forEach(item => {
         const norm = normalizeLinkRow(item);
-        if (norm.url) mapByUrl.set(norm.url, norm);
+        if (!norm.url) return;
+        const override = editedMap[norm.url];
+        if (override) {
+          const merged = normalizeLinkRow({ ...norm, ...override, _row: norm._row, id: norm.id });
+          mapByUrl.set(merged.url, merged);
+        } else {
+          mapByUrl.set(norm.url, norm);
+        }
       });
 
       customList.forEach(item => {
@@ -3446,6 +3544,7 @@
 
               if ((url && url.startsWith('http')) || (title && title.startsWith('http'))) {
                 parsedRows.push(normalizeLinkRow({
+                  _row: idx + 2,
                   id: 'gs-' + (idx + 1),
                   unit,
                   category,
@@ -3599,6 +3698,157 @@
       });
     }
 
+    function openEditLink(encodedUrl) {
+      const targetUrl = decodeURIComponent(encodedUrl);
+      const linkObj = getCombinedLinks().find(l => l.url === targetUrl);
+      if (!linkObj) {
+        return showToast('Tautan Tidak Ditemukan', 'Data tautan tidak dapat dimuat.', 'error');
+      }
+
+      document.getElementById('editLinkRow').value = linkObj._row || '';
+      document.getElementById('editLinkId').value = linkObj.id || '';
+      document.getElementById('editLinkOriginalUrl').value = linkObj.url;
+      document.getElementById('editLinkTitle').value = linkObj.title || '';
+      document.getElementById('editLinkUrl').value = linkObj.url || '';
+      document.getElementById('editLinkUnit').value = linkObj.unit || 'Prodi TIKIM';
+      document.getElementById('editLinkCategory').value = linkObj.category || 'Portal & Sistem Utama';
+      document.getElementById('editLinkNote').value = linkObj.note || '';
+
+      const typeSelect = document.getElementById('editLinkType');
+      const currentType = linkObj.type || 'Website / Portal';
+      if (!Array.from(typeSelect.options).some(opt => opt.value === currentType)) {
+        const extraOpt = document.createElement('option');
+        extraOpt.value = currentType;
+        extraOpt.textContent = currentType;
+        typeSelect.appendChild(extraOpt);
+      }
+      typeSelect.value = currentType;
+
+      document.getElementById('editLinkPinFavorite').checked = getFavoriteLinkUrls().has(linkObj.url);
+      document.getElementById('editLinkModal').classList.remove('hidden');
+      document.getElementById('editLinkTitle').focus();
+    }
+
+    async function submitEditLink(e) {
+      e.preventDefault();
+      const rowVal = document.getElementById('editLinkRow').value.trim();
+      const idVal = document.getElementById('editLinkId').value.trim();
+      const originalUrl = document.getElementById('editLinkOriginalUrl').value.trim();
+
+      const title = document.getElementById('editLinkTitle').value.trim();
+      const url = document.getElementById('editLinkUrl').value.trim();
+      const unit = document.getElementById('editLinkUnit').value.trim() || 'Prodi TIKIM';
+      const category = document.getElementById('editLinkCategory').value.trim() || 'Portal & Sistem Utama';
+      const type = document.getElementById('editLinkType').value.trim() || 'Website / Portal';
+      const note = document.getElementById('editLinkNote').value.trim();
+      const pinFav = document.getElementById('editLinkPinFavorite').checked;
+
+      if (!title || !/^https?:\/\//i.test(url)) {
+        return showToast('Input Tidak Valid', 'Pastikan Nama Layanan terisi dan URL diawali dengan https://', 'error');
+      }
+
+      const updatedEntry = {
+        _row: rowVal ? Number(rowVal) : null,
+        id: idVal || ('lnk-' + Date.now()),
+        unit,
+        category,
+        type,
+        title,
+        url,
+        note
+      };
+
+      // Perbarui status Favorite (termasuk jika URL berubah)
+      const favSet = getFavoriteLinkUrls();
+      if (originalUrl !== url && favSet.has(originalUrl)) {
+        favSet.delete(originalUrl);
+      }
+      if (pinFav) {
+        favSet.add(url);
+      } else {
+        favSet.delete(url);
+      }
+      saveFavoriteLinkUrls(favSet);
+
+      // Perbarui jika tautan berada di daftar custom localStorage
+      const customList = getCustomAddedLinks();
+      const customIdx = customList.findIndex(item => item.url === originalUrl);
+      if (customIdx !== -1) {
+        customList[customIdx] = { ...customList[customIdx], ...updatedEntry, isCustom: true };
+        saveCustomAddedLinks(customList);
+      }
+
+      // Perbarui cache lokal langsung agar tampilan responsif seketika
+      if (Array.isArray(APP_DATA.links)) {
+        const apiIdx = APP_DATA.links.findIndex(item => {
+          const norm = normalizeLinkRow(item);
+          return (rowVal && norm._row === Number(rowVal)) || norm.url === originalUrl;
+        });
+        if (apiIdx !== -1) {
+          APP_DATA.links[apiIdx] = { ...APP_DATA.links[apiIdx], ...updatedEntry };
+        }
+      }
+
+      if (Array.isArray(SHEET_SYNCED_LINKS)) {
+        const gsIdx = SHEET_SYNCED_LINKS.findIndex(item =>
+          (rowVal && item._row === Number(rowVal)) || item.url === originalUrl
+        );
+        if (gsIdx !== -1) {
+          SHEET_SYNCED_LINKS[gsIdx] = { ...SHEET_SYNCED_LINKS[gsIdx], ...updatedEntry };
+        }
+      }
+
+      const cfg = getConfig();
+      let savedToSheet = false;
+
+      if (cfg.token && !IS_DEMO_MODE) {
+        const btn = document.getElementById('btnSaveEditLink');
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = 'Menyimpan ke Sheet...';
+        }
+
+        const apiRes = await postToApi({
+          token: cfg.token,
+          action: 'updateLink',
+          spreadsheetId: LINKS_SHEET_ID,
+          gid: LINKS_SHEET_GID,
+          row: rowVal ? Number(rowVal) : null,
+          originalUrl: originalUrl,
+          link: updatedEntry
+        });
+
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Simpan Perubahan';
+        }
+
+        if (apiRes && apiRes.status === 'success') {
+          savedToSheet = true;
+          const editedMap = getEditedLinksMap();
+          delete editedMap[originalUrl];
+          delete editedMap[url];
+          saveEditedLinksMap(editedMap);
+        }
+      } else {
+        const editedMap = getEditedLinksMap();
+        editedMap[originalUrl] = updatedEntry;
+        saveEditedLinksMap(editedMap);
+      }
+
+      closeModal('editLinkModal');
+      updateKPIs();
+      renderLinksDatabase();
+
+      if (savedToSheet) {
+        showToast('Tautan Diperbarui', `"${title}" berhasil diperbarui di Google Sheet.`, 'success');
+        fetchAllData(false);
+        fetchMasterLinksFromGoogleSheet(false);
+      } else if (!cfg.token || IS_DEMO_MODE) {
+        showToast('Perubahan Disimpan (Pratinjau)', `"${title}" diperbarui pada tampilan lokal.`, 'success');
+      }
+    }
+
     function syncLinkFilterDropdowns(allLinks) {
       const unitSelect = document.getElementById('filterUnitLinks');
       const catSelect = document.getElementById('filterKategoriLinks');
@@ -3646,7 +3896,12 @@
                 <div>
                   <div class="flex items-start justify-between gap-2">
                     <span class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#DCE8FB] text-[#0B57D0] line-clamp-1">${esc(link.unit)}</span>
-                    <button type="button" onclick="toggleFavoriteLink('${encUrl}')" title="Hapus dari Favorite" class="text-amber-500 hover:scale-110 transition text-lg leading-none shrink-0">&#9733;</button>
+                    <div class="flex items-center gap-1 shrink-0">
+                      <button type="button" onclick="openEditLink('${encUrl}')" title="Edit Tautan" class="w-7 h-7 rounded-full btn-ivory flex items-center justify-center text-[#646B77] hover:text-[#0B57D0]">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                      </button>
+                      <button type="button" onclick="toggleFavoriteLink('${encUrl}')" title="Hapus dari Favorite" class="text-amber-500 hover:scale-110 transition text-lg leading-none px-0.5">&#9733;</button>
+                    </div>
                   </div>
                   <h5 class="font-extrabold text-sm text-[#1F242D] mt-2 leading-snug line-clamp-2">${esc(link.title)}</h5>
                   <p class="text-[11px] text-[#646B77] mt-1 line-clamp-2">${esc(link.note || link.category)}</p>
@@ -3743,6 +3998,10 @@
                         Pratinjau
                       </button>
                     ` : ''}
+                    <button type="button" onclick="openEditLink('${encUrl}')" class="btn-ivory inline-flex items-center gap-1.5 px-3.5 py-2 text-xs text-[#1F242D] hover:text-[#0B57D0]">
+                      <svg class="w-3.5 h-3.5 text-[#0B57D0]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                      <span>Edit</span>
+                    </button>
                     <button type="button" onclick="copyText('${esc(link.url)}')" class="btn-ivory px-3.5 py-2 text-xs">
                       Salin Link
                     </button>
