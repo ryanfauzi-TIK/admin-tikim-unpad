@@ -494,12 +494,36 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
-            <label class="block text-[11px] font-bold uppercase tracking-widest text-[#646B77] mb-1.5">Nomor Dokumen Resmi</label>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="block text-[11px] font-bold uppercase tracking-widest text-[#646B77]">Nomor Dokumen Resmi</label>
+              <button type="button" onclick="insertDefaultNomorSurat()" class="text-[11px] font-bold text-[#0B57D0] hover:underline">+ Format UNPAD</button>
+            </div>
             <input id="editNomorDokumen" oninput="refreshGeminiPromptPreview()" type="text" placeholder="Contoh: 124/UN6.T.4.6/TU.00/2026" class="soft-inset w-full rounded-2xl px-4 py-2.5 font-mono text-xs" />
           </div>
           <div>
             <label class="block text-[11px] font-bold uppercase tracking-widest text-[#646B77] mb-1.5">No. Registrasi TU Fakultas</label>
             <input id="editRegTU" type="text" placeholder="Contoh: 840 atau -" class="soft-inset w-full rounded-2xl px-4 py-2.5 font-mono text-xs" />
+          </div>
+        </div>
+
+        <!-- RINGKASAN DETAIL PENGAJUAN DARI PEMOHON -->
+        <div id="suratDetailSummaryCard" class="soft-card-sm p-4 space-y-2 border border-[#E3DFD5] text-xs">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="text-[10px] font-extrabold uppercase tracking-widest text-[#646B77]">Rincian Permohonan Masuk</span>
+            <span id="suratModalKategoriBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#DCE8FB] text-[#0B57D0]">-</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+            <div><span class="text-[#646B77]">Pemohon:</span> <b id="suratModalPemohonDetail" class="text-[#1F242D]">-</b></div>
+            <div><span class="text-[#646B77]">Tujuan:</span> <b id="suratModalTujuanDetail" class="text-[#1F242D]">-</b></div>
+          </div>
+          <div>
+            <span class="text-[#646B77] block mb-0.5">Detail Keperluan & Tanggal Kegiatan:</span>
+            <p id="suratModalKeperluanDetail" class="text-[#1F242D] bg-[#ECE9E1] rounded-xl p-2.5 leading-relaxed">-</p>
+          </div>
+          <div id="suratModalBerkasPemohonRow" class="hidden pt-1">
+            <a id="suratModalBerkasPemohonLink" href="#" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 font-bold text-[#0B57D0] hover:underline">
+              <span>Lihat Berkas Pendukung dari Pemohon &nearr;</span>
+            </a>
           </div>
         </div>
 
@@ -965,13 +989,15 @@
         <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
           <select id="filterKategoriSurat" onchange="renderSurat()" class="soft-inset rounded-full px-4 py-2.5 text-xs sm:text-sm font-medium flex-1 sm:flex-none">
             <option value="">Semua Kategori</option>
-            <option value="Surat Internal Prodi TIKIM">Internal Prodi TIKIM</option>
-            <option value="Surat Lintas Fakultas / Pihak Luar Vokasi">Lintas Fakultas / Luar Vokasi</option>
+            <option value="INTERNAL">Internal Prodi TIKIM / Nota Dinas</option>
+            <option value="LINTAS">Lintas Fakultas / Luar Vokasi</option>
           </select>
           <select id="filterStatusSurat" onchange="renderSurat()" class="soft-inset rounded-full px-4 py-2.5 text-xs sm:text-sm font-medium flex-1 sm:flex-none">
             <option value="AKTIF">Belum Selesai (Antrean)</option>
-            <option value="SEMUA">Semua Status</option>
+            <option value="DRAFT">Draft / Menunggu ACC</option>
+            <option value="PROSES">Proses TU / Menunggu TTD</option>
             <option value="SELESAI">Selesai</option>
+            <option value="SEMUA">Semua Status</option>
           </select>
           <a href="https://docs.google.com/spreadsheets/d/1A1-iqRRMcI64appupOGbnY1mqeXViPzN2CdPU9D_BL0/edit#gid=591814606" target="_blank" rel="noopener" class="btn-ivory px-4 py-2.5 text-xs inline-flex items-center gap-1.5 text-[#0B57D0]">
             <span>Buka Sheet Persuratan</span>
@@ -1869,6 +1895,7 @@
       const sheetMatch = u.match(/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
       const formMatch = u.match(/docs\.google\.com\/forms\/d\/(?:e\/)?([a-zA-Z0-9_-]+)/);
       const driveFileMatch = u.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+      const driveFolderMatch = u.match(/drive\.google\.com\/drive\/folders\/([a-zA-Z0-9_-]+)/);
 
       if (docMatch) {
         typeLabel = 'Google Docs';
@@ -1883,27 +1910,35 @@
       } else if (formMatch) {
         typeLabel = 'Google Form';
         badgeClass = 'bg-purple-100 text-purple-800';
+        previewUrl = `https://docs.google.com/forms/d/${formMatch[1]}/viewform?embedded=true`;
         defaultTitle = 'Formulir Google Form';
       } else if (driveFileMatch) {
         typeLabel = 'File Drive';
         badgeClass = 'bg-amber-100 text-amber-800';
         previewUrl = `https://drive.google.com/file/d/${driveFileMatch[1]}/preview`;
         defaultTitle = 'Dokumen Google Drive';
-      } else if (lower.includes('drive.google.com/drive/folders')) {
+      } else if (driveFolderMatch) {
         typeLabel = 'Folder Drive';
         badgeClass = 'bg-amber-100 text-amber-800';
         defaultTitle = 'Folder Google Drive';
       } else if (lower.includes('zoom.us')) {
         typeLabel = 'Zoom Meeting';
         badgeClass = 'bg-sky-100 text-sky-800';
-        defaultTitle = 'Ruang Rapat / Kuliah Zoom';
+        defaultTitle = 'Ruang Rapat Zoom';
+      } else if (lower.endsWith('.pdf')) {
+        typeLabel = 'Dokumen PDF';
+        badgeClass = 'bg-rose-100 text-rose-700';
+        previewUrl = u;
+        defaultTitle = 'File PDF';
       }
 
       const iconSvg = `<svg class="w-4 h-4 text-[#0B57D0]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>`;
+      const cleanCustom = String(customLabel || '').trim();
+      const label = (cleanCustom && !/^https?:\/\//i.test(cleanCustom)) ? cleanCustom : defaultTitle;
 
       return {
         url: u,
-        label: customLabel || defaultTitle,
+        label,
         typeLabel,
         badgeClass,
         previewUrl,
@@ -1912,94 +1947,140 @@
     }
 
     function extractTaskResources(task) {
-      const map = new Map();
+      if (!task || typeof task !== 'object') return [];
+      const results = [];
+      const seen = new Set();
+
+      const addResource = (rawUrl, label = '') => {
+        const cleanUrl = String(rawUrl || '').trim().replace(/[),.;]+$/, '');
+        if (!cleanUrl || !/^https?:\/\//i.test(cleanUrl) || seen.has(cleanUrl)) return;
+        seen.add(cleanUrl);
+        results.push(classifyResourceUrl(cleanUrl, label));
+      };
+
       if (Array.isArray(task._richLinks)) {
-        task._richLinks.forEach(rl => {
-          if (rl && rl.url && /^https?:\/\//i.test(rl.url)) {
-            map.set(rl.url, classifyResourceUrl(rl.url, rl.label || ''));
-          }
+        task._richLinks.forEach(item => {
+          if (item && item.url) addResource(item.url, item.label || '');
         });
       }
-      const textFields = [
-        task['Detail / Catatan'] || '',
-        task['Lampiran / Link'] || '',
-        task['Lampiran'] || ''
-      ].join('\n');
 
-      const urlRegex = /(https?:\/\/[^\s<>"']+)/gi;
-      let match;
-      while ((match = urlRegex.exec(textFields)) !== null) {
-        const cleanUrl = match[1].replace(/[),.;]+$/, '');
-        if (!map.has(cleanUrl)) {
-          map.set(cleanUrl, classifyResourceUrl(cleanUrl));
-        }
-      }
-      return Array.from(map.values());
+      Object.keys(task).forEach(key => {
+        if (key.startsWith('_')) return;
+        const val = String(task[key] || '');
+        const matches = val.match(/https?:\/\/[^\s<>"']+/gi) || [];
+        matches.forEach(m => addResource(m, ''));
+      });
+
+      return results;
     }
 
-    function linkifyText(text) {
-      const escaped = esc(text);
-      return escaped.replace(/(https?:\/\/[^\s<]+)/gi, (url) => {
-        return `<a href="${url}" target="_blank" rel="noopener" class="text-[#0B57D0] font-semibold underline break-all">${url}</a>`;
-      });
+    function linkifyText(rawText) {
+      const text = String(rawText || '');
+      const urlRegex = /(https?:\/\/[^\s<>"']+)/gi;
+      const parts = text.split(urlRegex);
+      return parts.map((part, idx) => {
+        if (idx % 2 === 1) {
+          const cleanUrl = part.replace(/[),.;]+$/, '');
+          const trailing = part.slice(cleanUrl.length);
+          return `<a href="${esc(cleanUrl)}" target="_blank" rel="noopener" class="text-[#0B57D0] font-semibold hover:underline break-all">${esc(cleanUrl)}</a>${esc(trailing)}`;
+        }
+        return esc(part);
+      }).join('');
     }
 
     function openQuickPreview(previewUrl, externalUrl, title, typeLabel) {
+      const modal = document.getElementById('previewFileModal');
+      if (!modal) return;
       document.getElementById('previewTypeBadge').textContent = typeLabel || 'DOKUMEN';
       document.getElementById('previewFileTitle').textContent = title || 'Pratinjau Dokumen';
       document.getElementById('btnPreviewOpenExternal').href = externalUrl || previewUrl;
       document.getElementById('btnPreviewCopy').onclick = () => copyText(externalUrl || previewUrl);
-      document.getElementById('previewIframe').src = previewUrl;
-      document.getElementById('previewFileModal').classList.remove('hidden');
+      document.getElementById('previewIframe').src = previewUrl || externalUrl || 'about:blank';
+      modal.classList.remove('hidden');
     }
 
     function closePreviewModal() {
+      const modal = document.getElementById('previewFileModal');
+      if (!modal) return;
       document.getElementById('previewIframe').src = 'about:blank';
-      document.getElementById('previewFileModal').classList.add('hidden');
+      modal.classList.add('hidden');
     }
 
-    async function fetchAllData(showNotif = false) {
-      const cfg = getConfig();
-      if (!cfg.token || IS_DEMO_MODE) {
-        updateKPIs();
-        renderSurat();
-        renderTugas();
-        renderSarpras();
-        renderMagang();
-        return;
-      }
-
-      const statusText = document.getElementById('lastUpdatedText');
-      if (statusText) statusText.textContent = 'Menyinkronkan...';
-
-      try {
-        const url = `${cfg.url}?token=${encodeURIComponent(cfg.token)}&action=getAll`;
-        const res = await fetch(url, { method: 'GET', redirect: 'follow' });
-        const json = await res.json();
-
-        if (json.status !== 'success') {
-          throw new Error(json.message || 'Gagal memuat data dari server.');
-        }
-        APP_DATA = json.data || { surat: [], sarpras: [], magang: [], tugas: [], links: [] };
-        const nowStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-        if (statusText) statusText.textContent = `Live • ${nowStr}`;
-
-        updateKPIs();
-        renderSurat();
-        renderTugas();
-        renderSarpras();
-        renderMagang();
-        renderLinksDatabase();
-
-        if (showNotif) {
-          showToast('Data Tersinkronisasi', 'Seluruh data Google Sheets berhasil diperbarui.', 'success');
-        }
-      } catch (err) {
-        if (statusText) statusText.textContent = 'Koneksi Terputus';
-        if (showNotif) {
-          showToast('Gagal Sinkronisasi', err.message, 'error');
+    function getSheetFieldByAliases(row, aliases, regexFallback = null) {
+      if (!row || typeof row !== 'object') return '';
+      for (const key of aliases) {
+        if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+          return String(row[key]).trim();
         }
       }
+      const rowKeys = Object.keys(row);
+      for (const key of aliases) {
+        const target = key.toLowerCase().trim();
+        const found = rowKeys.find(rk => rk.toLowerCase().trim() === target);
+        if (found && String(row[found] || '').trim() !== '') {
+          return String(row[found]).trim();
+        }
+      }
+      if (regexFallback) {
+        const foundRegex = rowKeys.find(rk => !rk.startsWith('_') && regexFallback.test(rk));
+        if (foundRegex && String(row[foundRegex] || '').trim() !== '') {
+          return String(row[foundRegex]).trim();
+        }
+      }
+      return '';
+    }
+
+    function normalizeSuratItem(raw) {
+      const richLinks = Array.isArray(raw?._richLinks) ? raw._richLinks : [];
+      const findRichByCol = (regex) => {
+        const hit = richLinks.find(rl => rl && rl.url && regex.test(rl.col || ''));
+        return hit ? hit.url : '';
+      };
+
+      const draftRaw = getSheetFieldByAliases(
+        raw,
+        ['DRAFT PENGANTAR ADMIN', 'Draft Surat Admin', 'Draft Pengantar Admin', 'Link Draft'],
+        /draft/i
+      );
+      const draftUrl = /^https?:\/\//i.test(draftRaw) ? draftRaw : (findRichByCol(/draft/i) || draftRaw);
+
+      const finalRaw = getSheetFieldByAliases(
+        raw,
+        ['Link PDF Final', 'Final Surat dari TU', 'Link Surat Final', 'PDF Final'],
+        /pdf\s*final|final\s*surat/i
+      );
+      const finalUrl = /^https?:\/\//i.test(finalRaw) ? finalRaw : (findRichByCol(/pdf\s*final|final\s*surat/i) || finalRaw);
+
+      const berkasRaw = getSheetFieldByAliases(
+        raw,
+        ['Upload Berkas Pendukung', 'Berkas Pendukung', 'Lampiran Pemohon', 'File Pendukung', 'Dokumen Pendukung'],
+        /berkas\s*pendukung|lampiran\s*pemohon|file\s*pendukung/i
+      );
+      const berkasUrl = /^https?:\/\//i.test(berkasRaw) ? berkasRaw : (findRichByCol(/pendukung|lampiran/i) || berkasRaw);
+
+      return {
+        _row: raw?._row,
+        raw,
+        timestamp: getSheetFieldByAliases(raw, ['Timestamp', 'Waktu Pengajuan', 'Tanggal'], /timestamp|waktu/i),
+        nama: getSheetFieldByAliases(raw, ['Nama Lengkap Pemohon', 'Nama Lengkap & Gelar', 'Nama Lengkap', 'Nama Pemohon'], /nama\s*lengkap|pemohon/i),
+        statusPemohon: getSheetFieldByAliases(raw, ['Status Pemohon', 'Status Civitas', 'Kategori Pemohon'], /status\s*pemohon|civitas/i),
+        npmNip: getSheetFieldByAliases(raw, ['NPM / NIP', 'NIP / NPM', 'NPM', 'NIP'], /npm|nip/i),
+        email: getSheetFieldByAliases(raw, ['Email Aktif', 'Email Address', 'Alamat Email', 'Email'], /email/i),
+        wa: getSheetFieldByAliases(raw, ['No. WhatsApp', 'Nomor WhatsApp', 'No. HP / WhatsApp', 'No WhatsApp', 'WhatsApp'], /whatsapp|no\.?\s*hp/i),
+        kategori: getSheetFieldByAliases(raw, ['Kategori Ajuan Surat', 'Pilih Kategori Surat', 'Kategori Surat'], /kategori.*surat|pilih\s*kategori/i),
+        jenisSurat: getSheetFieldByAliases(raw, ['Jenis Surat / Dokumen', 'Jenis Surat', 'Pilih Jenis Surat', 'Bentuk Dokumen'], /jenis\s*surat|jenis\s*dokumen/i),
+        perihal: getSheetFieldByAliases(raw, ['Perihal / Judul Surat', 'Perihal / Judul Ajuan Surat', 'Perihal Surat', 'Judul Surat', 'Perihal'], /perihal|judul\s*surat|judul\s*ajuan/i),
+        tujuan: getSheetFieldByAliases(raw, ['Instansi / Pihak Tujuan', 'Pejabat / Instansi Tujuan', 'Tujuan Surat', 'Pihak Tujuan'], /tujuan/i),
+        detail: getSheetFieldByAliases(raw, ['Detail Keperluan & Tanggal Kegiatan', 'Detail Keperluan', 'Uraian Keperluan', 'Keterangan Keperluan'], /detail|keperluan|uraian/i),
+        berkasPendukung: berkasUrl,
+        accKaprodi: getSheetFieldByAliases(raw, ['STATUS ACC KAPRODI', 'Status ACC Kaprodi', 'ACC Kaprodi'], /acc\s*kaprodi|status\s*acc/i),
+        prosesAdmin: getSheetFieldByAliases(raw, ['STATUS PROSES ADMIN', 'Status Proses Admin', 'Status Admin', 'Status Surat'], /proses\s*admin|status\s*admin|status\s*surat/i) || 'DRAFT',
+        nomorDokumen: getSheetFieldByAliases(raw, ['Nomor Dokumen Resmi', 'Nomor Surat', 'Nomor Dokumen'], /nomor\s*dokumen|nomor\s*surat/i),
+        regTU: getSheetFieldByAliases(raw, ['No registrasi TU Fakultas', 'No. Registrasi TU Fakultas', 'Nomor Registrasi TU'], /registrasi\s*tu/i),
+        draftAdmin: draftUrl,
+        linkPdf: finalUrl,
+        catatanAdmin: getSheetFieldByAliases(raw, ['Catatan Admin', 'Keterangan Admin'], /catatan\s*admin/i)
+      };
     }
 
     function renderSurat() {
@@ -2007,17 +2088,32 @@
       const kat = document.getElementById('filterKategoriSurat')?.value || '';
       const stFilter = document.getElementById('filterStatusSurat')?.value || 'AKTIF';
 
-      const list = [...(APP_DATA.surat || [])].reverse().filter(s => {
-        const stAdmin = (s['STATUS PROSES ADMIN'] || '').toUpperCase();
-        const stAcc = (s['STATUS ACC KAPRODI'] || '').toUpperCase();
-        const isDone = stAdmin === 'SELESAI' || stAcc === 'DITOLAK KAPRODI';
+      const normalizedList = [...(APP_DATA.surat || [])].reverse().map(normalizeSuratItem);
+
+      const list = normalizedList.filter(s => {
+        const stAdmin = s.prosesAdmin.toUpperCase();
+        const stAcc = s.accKaprodi.toUpperCase();
+        const isDone = stAdmin === 'SELESAI' || stAcc.includes('TOLAK');
 
         if (stFilter === 'AKTIF' && isDone) return false;
         if (stFilter === 'SELESAI' && stAdmin !== 'SELESAI') return false;
-        if (kat && (s['Kategori Ajuan Surat'] || '') !== kat) return false;
+        if (stFilter === 'DRAFT' && !stAdmin.includes('DRAFT')) return false;
+        if (stFilter === 'PROSES' && !stAdmin.includes('PROSES') && !stAdmin.includes('TTD')) return false;
+
+        if (kat === 'INTERNAL') {
+          const isInternal = s.kategori.toLowerCase().includes('internal') || s.jenisSurat.toLowerCase().includes('nota dinas');
+          if (!isInternal) return false;
+        } else if (kat === 'LINTAS') {
+          const isLintas = s.kategori.toLowerCase().includes('lintas') || s.kategori.toLowerCase().includes('luar');
+          if (!isLintas) return false;
+        }
 
         if (q) {
-          const hay = Object.values(s).join(' ').toLowerCase();
+          const hay = [
+            s.timestamp, s.nama, s.statusPemohon, s.npmNip, s.email, s.wa,
+            s.kategori, s.jenisSurat, s.perihal, s.tujuan, s.detail,
+            s.nomorDokumen, s.regTU, s.catatanAdmin
+          ].join(' ').toLowerCase();
           if (!hay.includes(q)) return false;
         }
         return true;
@@ -2032,45 +2128,51 @@
       }
 
       tbody.innerHTML = list.map(s => {
-        const waLink = formatWaLink(s['No. WhatsApp']);
-        const acc = (s['STATUS ACC KAPRODI'] || '').toUpperCase();
-        const proses = (s['STATUS PROSES ADMIN'] || 'DRAFT').toUpperCase();
+        const waLink = formatWaLink(s.wa);
+        const acc = s.accKaprodi.toUpperCase();
+        const proses = s.prosesAdmin.toUpperCase();
 
-        const accBadge = acc === 'DISETUJUI KAPRODI'
+        const accBadge = acc.includes('SETUJU')
           ? 'bg-emerald-100 text-emerald-800'
-          : (acc === 'DITOLAK KAPRODI' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800');
+          : (acc.includes('TOLAK') ? 'bg-rose-100 text-rose-700' : (acc.includes('REVISI') ? 'bg-orange-100 text-orange-800' : 'bg-amber-100 text-amber-800'));
         const prosesBadge = proses === 'SELESAI'
           ? 'bg-emerald-100 text-emerald-800'
-          : 'bg-[#DCE8FB] text-[#0B57D0]';
+          : (proses === 'DRAFT' ? 'bg-[#ECE9E1] text-[#1F242D]' : 'bg-[#DCE8FB] text-[#0B57D0]');
 
-        const linkPdf = s['Link PDF Final'] || '';
-        const linkDraft = s['DRAFT PENGANTAR ADMIN'] || '';
+        const isNotaDinas = s.jenisSurat.toLowerCase().includes('nota dinas') || s.kategori.toLowerCase().includes('internal');
+        const jenisBadgeClass = isNotaDinas ? 'bg-[#DCE8FB] text-[#0B57D0]' : 'bg-[#ECE9E1] text-[#1F242D]';
 
         return `
           <tr class="hover:bg-white/60 transition align-top">
             <td class="p-4 pl-6">
-              <div class="text-[11px] font-mono text-[#646B77]">${esc(s['Timestamp'] || '-')}</div>
-              <div class="font-bold text-[#1F242D] mt-0.5">${esc(s['Nama Lengkap Pemohon'] || '-')}</div>
-              <div class="text-xs text-[#646B77]">${esc(s['Status Pemohon'] || '')} • ${esc(s['NPM / NIP'] || '-')}</div>
+              <div class="text-[11px] font-mono text-[#646B77]">${esc(s.timestamp || '-')}</div>
+              <div class="font-bold text-[#1F242D] mt-0.5">${esc(s.nama || '-')}</div>
+              <div class="text-xs text-[#646B77]">${esc(s.statusPemohon || 'Civitas')} • ${esc(s.npmNip || '-')}</div>
               <div class="mt-1.5 flex flex-wrap items-center gap-2 text-xs">
-                ${waLink ? `<a href="${esc(waLink)}" target="_blank" rel="noopener" class="text-emerald-700 font-bold hover:underline">WA: ${esc(s['No. WhatsApp'])} &nearr;</a>` : ''}
+                ${waLink ? `<a href="${esc(waLink)}" target="_blank" rel="noopener" class="text-emerald-700 font-bold hover:underline">WA: ${esc(s.wa)} &nearr;</a>` : ''}
+                ${s.email ? `<span class="text-[#646B77] font-mono text-[11px] truncate max-w-[190px]" title="${esc(s.email)}">${esc(s.email)}</span>` : ''}
               </div>
             </td>
             <td class="p-4 max-w-sm">
-              <span class="inline-block text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#ECE9E1] text-[#1F242D]">${esc(s['Jenis Surat / Dokumen'] || 'Surat')}</span>
-              <div class="font-bold text-[#1F242D] mt-1 leading-snug">${esc(s['Perihal / Judul Surat'] || '-')}</div>
-              <div class="text-xs text-[#646B77] mt-0.5">Tujuan: <span class="font-semibold text-[#1F242D]">${esc(s['Instansi / Pihak Tujuan'] || '-')}</span></div>
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="inline-block text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${jenisBadgeClass}">${esc(s.jenisSurat || s.kategori || 'Surat')}</span>
+              </div>
+              <div class="font-bold text-[#1F242D] mt-1 leading-snug">${esc(s.perihal || '-')}</div>
+              <div class="text-xs text-[#646B77] mt-0.5">Tujuan: <span class="font-semibold text-[#1F242D]">${esc(s.tujuan || '-')}</span></div>
+              ${s.detail ? `<p class="text-[11px] text-[#646B77] mt-1 line-clamp-2">${esc(s.detail)}</p>` : ''}
             </td>
             <td class="p-4 space-y-1.5">
               <div><span class="inline-block text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full ${accBadge}">${esc(acc || 'MENUNGGU ACC')}</span></div>
               <div><span class="inline-block text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full ${prosesBadge}">${esc(proses)}</span></div>
+              ${s.catatanAdmin ? `<p class="text-[11px] text-[#646B77] italic max-w-[180px] line-clamp-2">${esc(s.catatanAdmin)}</p>` : ''}
             </td>
             <td class="p-4 text-xs space-y-1.5">
-              <div class="font-mono font-bold text-[#1F242D]">${esc(s['Nomor Dokumen Resmi'] || 'Belum bernomor')}</div>
-              ${s['No registrasi TU Fakultas'] && s['No registrasi TU Fakultas'] !== '-' ? `<div class="text-[#646B77]">Reg TU: <span class="font-mono font-semibold text-[#1F242D]">${esc(s['No registrasi TU Fakultas'])}</span></div>` : ''}
+              <div class="font-mono font-bold text-[#1F242D]">${esc(s.nomorDokumen || 'Belum bernomor')}</div>
+              ${s.regTU && s.regTU !== '-' ? `<div class="text-[#646B77]">Reg TU: <span class="font-mono font-semibold text-[#1F242D]">${esc(s.regTU)}</span></div>` : ''}
               <div class="flex flex-wrap gap-1.5 pt-0.5">
-                ${linkDraft && linkDraft.startsWith('http') ? `<a href="${esc(linkDraft)}" target="_blank" rel="noopener" class="btn-ivory px-2.5 py-1 text-[11px] text-[#0B57D0]">Draft &nearr;</a>` : ''}
-                ${linkPdf && linkPdf.startsWith('http') ? `<a href="${esc(linkPdf)}" target="_blank" rel="noopener" class="btn-cobalt px-2.5 py-1 text-[11px]">PDF Final &nearr;</a>` : ''}
+                ${s.berkasPendukung && s.berkasPendukung.startsWith('http') ? `<a href="${esc(s.berkasPendukung)}" target="_blank" rel="noopener" class="btn-ivory px-2.5 py-1 text-[11px] text-[#646B77]">Lampiran &nearr;</a>` : ''}
+                ${s.draftAdmin && s.draftAdmin.startsWith('http') ? `<a href="${esc(s.draftAdmin)}" target="_blank" rel="noopener" class="btn-ivory px-2.5 py-1 text-[11px] text-[#0B57D0]">Draft &nearr;</a>` : ''}
+                ${s.linkPdf && s.linkPdf.startsWith('http') ? `<a href="${esc(s.linkPdf)}" target="_blank" rel="noopener" class="btn-cobalt px-2.5 py-1 text-[11px]">PDF Final &nearr;</a>` : ''}
               </div>
             </td>
             <td class="p-4 pr-6 text-right">
@@ -2081,42 +2183,71 @@
       }).join('');
     }
 
+    function insertDefaultNomorSurat() {
+      const inp = document.getElementById('editNomorDokumen');
+      if (!inp) return;
+      const cur = inp.value.trim();
+      if (!cur) {
+        inp.value = '___/UN6.T.4.6/TU.00/2026';
+      } else if (!cur.includes('UN6.T.4.6')) {
+        inp.value = `${cur}/UN6.T.4.6/TU.00/2026`;
+      }
+      inp.focus();
+      refreshGeminiPromptPreview();
+    }
+
     function openEditSurat(rowNum) {
-      const item = (APP_DATA.surat || []).find(s => s._row === rowNum);
-      if (!item) return;
+      const rawItem = (APP_DATA.surat || []).find(s => s._row === rowNum);
+      if (!rawItem) return;
+      const item = normalizeSuratItem(rawItem);
       CURRENT_SURAT_ITEM = item;
 
       document.getElementById('editSuratRow').value = rowNum;
-      document.getElementById('editSuratPerihalRaw').value = item['Perihal / Judul Surat'] || '';
-      document.getElementById('editSuratPemohonRaw').value = item['Nama Lengkap Pemohon'] || '';
-      document.getElementById('editSuratInitialStatus').value = (item['STATUS PROSES ADMIN'] || 'DRAFT').toUpperCase();
-      document.getElementById('suratModalSubtitle').textContent = `${item['Nama Lengkap Pemohon'] || '-'} — ${item['Perihal / Judul Surat'] || '-'}`;
+      document.getElementById('editSuratPerihalRaw').value = item.perihal || 'Surat-Prodi';
+      document.getElementById('editSuratPemohonRaw').value = item.nama || '';
+      document.getElementById('editSuratInitialStatus').value = item.prosesAdmin.toUpperCase();
+      document.getElementById('suratModalSubtitle').textContent = `${item.nama || '-'} — ${item.perihal || '-'}`;
 
-      document.getElementById('editAccKaprodi').value = item['STATUS ACC KAPRODI'] || '';
-      document.getElementById('editProsesAdmin').value = item['STATUS PROSES ADMIN'] || 'DRAFT';
-      document.getElementById('editNomorDokumen').value = item['Nomor Dokumen Resmi'] || '';
-      document.getElementById('editRegTU').value = item['No registrasi TU Fakultas'] || '';
-      document.getElementById('editDraftAdmin').value = item['DRAFT PENGANTAR ADMIN'] || '';
-      document.getElementById('editLinkPdf').value = item['Link PDF Final'] || '';
-      document.getElementById('editCatatanAdmin').value = item['Catatan Admin'] || '';
+      // Isi kartu ringkasan permohonan masuk di dalam modal
+      document.getElementById('suratModalKategoriBadge').textContent = `${item.kategori || 'Umum'} • ${item.jenisSurat || 'Surat'}`;
+      document.getElementById('suratModalPemohonDetail').textContent = `${item.nama || '-'} (${item.statusPemohon || '-'} • ${item.npmNip || '-'})`;
+      document.getElementById('suratModalTujuanDetail').textContent = item.tujuan || '-';
+      document.getElementById('suratModalKeperluanDetail').textContent = item.detail || 'Tidak ada rincian tambahan dari pemohon.';
+
+      const berkasRow = document.getElementById('suratModalBerkasPemohonRow');
+      const berkasLink = document.getElementById('suratModalBerkasPemohonLink');
+      if (item.berkasPendukung && item.berkasPendukung.startsWith('http')) {
+        berkasLink.href = item.berkasPendukung;
+        berkasRow.classList.remove('hidden');
+      } else {
+        berkasRow.classList.add('hidden');
+      }
+
+      document.getElementById('editAccKaprodi').value = item.accKaprodi || '';
+      document.getElementById('editProsesAdmin').value = item.prosesAdmin || 'DRAFT';
+      document.getElementById('editNomorDokumen').value = item.nomorDokumen || '';
+      document.getElementById('editRegTU').value = item.regTU || '';
+      document.getElementById('editDraftAdmin').value = item.draftAdmin || '';
+      document.getElementById('editLinkPdf').value = item.linkPdf || '';
+      document.getElementById('editCatatanAdmin').value = item.catatanAdmin || '';
 
       const pDraft = document.getElementById('linkPreviewDraft');
-      if (item['DRAFT PENGANTAR ADMIN'] && item['DRAFT PENGANTAR ADMIN'].startsWith('http')) {
-        pDraft.href = item['DRAFT PENGANTAR ADMIN'];
+      if (item.draftAdmin && item.draftAdmin.startsWith('http')) {
+        pDraft.href = item.draftAdmin;
         pDraft.classList.remove('hidden');
       } else {
         pDraft.classList.add('hidden');
       }
 
       const pFinal = document.getElementById('linkPreviewFinal');
-      if (item['Link PDF Final'] && item['Link PDF Final'].startsWith('http')) {
-        pFinal.href = item['Link PDF Final'];
+      if (item.linkPdf && item.linkPdf.startsWith('http')) {
+        pFinal.href = item.linkPdf;
         pFinal.classList.remove('hidden');
       } else {
         pFinal.classList.add('hidden');
       }
 
-      const email = (item['Email Aktif'] || '').trim();
+      const email = item.email;
       const emailLabel = document.getElementById('emailRecipientLabel');
       const chkEmail = document.getElementById('chkSendEmailNotif');
       chkEmail.checked = false;
@@ -2163,13 +2294,13 @@
 
       return [
         `Tolong buatkan naskah surat dinas resmi Program Studi Sarjana Terapan (D-4) Teknologi Industri Kimia, Sekolah Vokasi, Universitas Padjadjaran dengan rincian berikut:`,
-        `- Jenis Dokumen: ${item['Jenis Surat / Dokumen'] || 'Surat Resmi'}`,
+        `- Jenis Dokumen: ${item.jenisSurat || 'Surat Resmi'}`,
         `- Nomor Surat: ${nomor}`,
         `- Lampiran: ${lampiran}`,
-        `- Perihal: ${item['Perihal / Judul Surat'] || '-'}`,
-        `- Tujuan Surat: ${item['Instansi / Pihak Tujuan'] || '-'}`,
-        `- Pemohon: ${item['Nama Lengkap Pemohon'] || '-'} (${item['Status Pemohon'] || ''} - ${item['NPM / NIP'] || '-'})`,
-        `- Detail Keperluan: ${item['Detail Keperluan & Tanggal Kegiatan'] || '-'}`,
+        `- Perihal: ${item.perihal || '-'}`,
+        `- Tujuan Surat: ${item.tujuan || '-'}`,
+        `- Pemohon: ${item.nama || '-'} (${item.statusPemohon || ''} - ${item.npmNip || '-'})`,
+        `- Detail Keperluan: ${item.detail || '-'}`,
         extra ? `- Instruksi Tambahan:\n${extra}` : '',
         `\nFormat Hasil Akhir:\n${formatInstructionMap[format] || formatInstructionMap.word_copy}`
       ].filter(Boolean).join('\n');
@@ -2243,11 +2374,11 @@
     }
 
     function updateKPIs() {
-      const suratAll = APP_DATA.surat || [];
+      const suratAll = (APP_DATA.surat || []).map(normalizeSuratItem);
       const suratAktif = suratAll.filter(s => {
-        const st = (s['STATUS PROSES ADMIN'] || '').toUpperCase();
-        const acc = (s['STATUS ACC KAPRODI'] || '').toUpperCase();
-        return st !== 'SELESAI' && acc !== 'DITOLAK KAPRODI';
+        const st = s.prosesAdmin.toUpperCase();
+        const acc = s.accKaprodi.toUpperCase();
+        return st !== 'SELESAI' && !acc.includes('TOLAK');
       });
       const suratSelesaiCount = suratAll.length - suratAktif.length;
       const suratPct = suratAll.length > 0 ? Math.round((suratSelesaiCount / suratAll.length) * 100) : 0;
@@ -3072,22 +3203,17 @@
       btn.disabled = true;
       btn.textContent = 'Menyimpan...';
 
-      // Menggunakan updateRow standar agar 100% kompatibel dengan Code.gs semua versi
-      const detailWithLinks = lampiranJoined && !detail.includes(EDIT_TUGAS_LINKS[0] || '___')
-        ? (detail ? `${detail}\n${lampiranJoined}` : lampiranJoined)
-        : detail;
-
       const res = await postToApi({
         token: getConfig().token,
-        action: 'updateRow',
-        sheet: 'tugas',
+        action: 'updateTask',
         row: rowNum,
-        updates: {
-          'Nama Tugas': nama,
-          'Detail / Catatan': detailWithLinks,
-          'Tanggal Mulai': tanggalMulai,
-          'Tanggal Selesai / Deadline': deadline,
-          'Status': status
+        task: {
+          namaTugas: nama,
+          detail: detail,
+          tanggalMulai: tanggalMulai,
+          deadline: deadline,
+          status: status,
+          lampiran: lampiranJoined
         }
       });
 
@@ -3373,6 +3499,70 @@
         showToast('Kesalahan Koneksi', 'Tidak dapat terhubung ke server Apps Script.', 'error');
         console.error(err);
         return null;
+      }
+    }
+
+    async function fetchAllData(manual = false) {
+      const cfg = getConfig();
+      if (!cfg.token) {
+        if (manual) {
+          openLoginModal();
+          showToast('Belum Login Live API', 'Masukkan ID Admin & Password untuk menyinkronkan data langsung.', 'info');
+        }
+        return;
+      }
+
+      const statusText = document.getElementById('lastUpdatedText');
+      if (statusText && manual) {
+        statusText.textContent = 'Menyinkronkan...';
+      }
+
+      try {
+        const url = `${cfg.url}?token=${encodeURIComponent(cfg.token)}&_ts=${Date.now()}`;
+        const res = await fetch(url, { method: 'GET', redirect: 'follow' });
+        const json = await res.json();
+
+        if (json.status !== 'success') {
+          if (String(json.message || '').toLowerCase().includes('token')) {
+            localStorage.removeItem('tikim_api_token');
+            activateDemoMode();
+          }
+          if (manual) {
+            showToast('Sinkronisasi Gagal', json.message || 'Gagal mengambil data dari server.', 'error');
+          }
+          return;
+        }
+
+        IS_DEMO_MODE = false;
+        const incoming = json.data || {};
+        APP_DATA = {
+          surat: Array.isArray(incoming.surat) ? incoming.surat : [],
+          sarpras: Array.isArray(incoming.sarpras) ? incoming.sarpras : [],
+          magang: Array.isArray(incoming.magang) ? incoming.magang : [],
+          tugas: Array.isArray(incoming.tugas) ? incoming.tugas : [],
+          links: Array.isArray(incoming.links) ? incoming.links : []
+        };
+
+        updateAuthUI();
+        if (statusText) {
+          statusText.textContent = `Live • ${json.updatedAt || new Date().toLocaleTimeString('id-ID')}`;
+        }
+
+        updateKPIs();
+        renderSurat();
+        renderTugas();
+        renderSarpras();
+        renderMagang();
+        renderLinksDatabase();
+
+        if (manual) {
+          showToast('Data Tersinkron', 'Seluruh data terbaru dari Google Sheets telah dimuat.', 'success');
+        }
+      } catch (err) {
+        console.error('fetchAllData error:', err);
+        if (manual) {
+          showToast('Kesalahan Koneksi', 'Tidak dapat terhubung ke endpoint Google Apps Script.', 'error');
+        }
       }
     }
 
