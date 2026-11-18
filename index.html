@@ -1341,7 +1341,7 @@
     const LINKS_SHEET_GID = "99178395";
     const LINKS_SHEET_URL = `https://docs.google.com/spreadsheets/d/${LINKS_SHEET_ID}/edit#gid=${LINKS_SHEET_GID}`;
 
-    let APP_DATA = { surat: [], sarpras: [], magang: [], tugas: [] };
+    let APP_DATA = { surat: [], sarpras: [], magang: [], tugas: [], links: [] };
     let SHEET_SYNCED_LINKS = [];
     let DRIVE_FILES_CACHE = [];
     let activeDriveItemId = 'suratKeluar';
@@ -1906,8 +1906,7 @@
         if (json.status !== 'success') {
           throw new Error(json.message || 'Gagal memuat data dari server.');
         }
-
-        APP_DATA = json.data || { surat: [], sarpras: [], magang: [], tugas: [] };
+        APP_DATA = json.data || { surat: [], sarpras: [], magang: [], tugas: [], links: [] };
         const nowStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
         if (statusText) statusText.textContent = `Live • ${nowStr}`;
 
@@ -1916,6 +1915,7 @@
         renderTugas();
         renderSarpras();
         renderMagang();
+        renderLinksDatabase();
 
         if (showNotif) {
           showToast('Data Tersinkronisasi', 'Seluruh data Google Sheets berhasil diperbarui.', 'success');
@@ -3358,6 +3358,10 @@
       let url = String(raw.url || raw['URL / Tautan'] || '').trim();
       let note = String(raw.note || raw['Keterangan / Syarat Kelengkapan'] || '').trim();
 
+      if ((!url || !/^https?:\/\//i.test(url)) && Array.isArray(raw._richLinks) && raw._richLinks.length > 0) {
+        url = String(raw._richLinks[0].url || '').trim();
+      }
+
       // Tangani pergeseran kolom otomatis bila judul berisi URL dan keterangan berisi nama layanan
       if (/^https?:\/\//i.test(title) && !/^https?:\/\//i.test(url)) {
         const realUrl = title;
@@ -3381,7 +3385,10 @@
     }
 
     function getCombinedLinks() {
-      const baseList = SHEET_SYNCED_LINKS.length > 0 ? SHEET_SYNCED_LINKS : DEFAULT_MASTER_LINKS;
+      const apiLinks = Array.isArray(APP_DATA.links) ? APP_DATA.links : [];
+      const baseList = apiLinks.length > 0
+        ? apiLinks
+        : (SHEET_SYNCED_LINKS.length > 0 ? SHEET_SYNCED_LINKS : DEFAULT_MASTER_LINKS);
       const customList = getCustomAddedLinks();
       const mapByUrl = new Map();
 
@@ -3392,7 +3399,9 @@
 
       customList.forEach(item => {
         const norm = normalizeLinkRow({ ...item, isCustom: true });
-        if (norm.url) mapByUrl.set(norm.url, norm);
+        if (norm.url && !mapByUrl.has(norm.url)) {
+          mapByUrl.set(norm.url, norm);
+        }
       });
 
       return Array.from(mapByUrl.values());
@@ -3536,14 +3545,27 @@
 
       // Sinkronkan juga ke backend Apps Script jika sedang dalam sesi Live API
       const cfg = getConfig();
+      let savedToSheet = false;
       if (cfg.token && !IS_DEMO_MODE) {
-        postToApi({
+        const submitBtn = document.getElementById('btnSubmitNewLink');
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Menyimpan ke Sheet...';
+        }
+        const apiRes = await postToApi({
           token: cfg.token,
           action: 'addLink',
           spreadsheetId: LINKS_SHEET_ID,
           gid: LINKS_SHEET_GID,
           link: newEntry
-        }).catch(() => {});
+        });
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Simpan Link';
+        }
+        if (apiRes && apiRes.status === 'success') {
+          savedToSheet = true;
+        }
       }
 
       document.getElementById('newLinkTitle').value = '';
@@ -3553,7 +3575,12 @@
 
       updateKPIs();
       renderLinksDatabase();
-      showToast('Link Berhasil Ditambahkan', `"${title}" kini tersedia di Database Link${pinFav ? ' & Favorite' : ''}.`, 'success');
+      if (savedToSheet) {
+        showToast('Tersimpan ke Google Sheet', `"${title}" berhasil ditambahkan ke Master Sheet & Database Link${pinFav ? ' (Favorite)' : ''}.`, 'success');
+        fetchAllData(false);
+      } else if (!cfg.token || IS_DEMO_MODE) {
+        showToast('Link Berhasil Ditambahkan', `"${title}" disimpan di perangkat ini${pinFav ? ' & Favorite' : ''}.`, 'success');
+      }
     }
 
     function deleteCustomLink(encodedUrl, title) {
