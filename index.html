@@ -723,6 +723,11 @@
           <span>Sheet Laporan Magang</span>
           <span class="text-[10px] opacity-60">&nearr;</span>
         </a>
+        <a href="https://docs.google.com/spreadsheets/d/1A8S5ykrb1xZhVf7zOC_WpzCu157AydT0biv2kkM4me4/edit#gid=99178395" target="_blank" rel="noopener" class="btn-ivory inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs hover:text-[#0B57D0]">
+          <svg class="w-3.5 h-3.5 text-[#0B57D0]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          <span>Sheet Database Link</span>
+          <span class="text-[10px] opacity-60">&nearr;</span>
+        </a>
       </div>
     </div>
   </header>
@@ -730,8 +735,8 @@
   <!-- MAIN WORKSPACE -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-4 space-y-6">
 
-    <!-- 4 KPI STAT CARDS WITH COBALT PROGRESS INDICATORS -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- 5 KPI STAT CARDS WITH COBALT PROGRESS INDICATORS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
       <!-- KPI 1: SURAT -->
       <div id="kpiCard-surat" onclick="switchTab('surat')" class="kpi-card soft-card-interactive cursor-pointer p-5 flex flex-col justify-between ring-2 ring-[#0B57D0]/30">
         <div class="flex items-start justify-between">
@@ -819,6 +824,28 @@
           <p class="text-[11px] text-[#646B77] font-medium">Kelola & upload berkas &rarr;</p>
         </div>
       </div>
+
+      <!-- KPI 5: DATABASE LINK -->
+      <div id="kpiCard-links" onclick="switchTab('links')" class="kpi-card soft-card-interactive cursor-pointer p-5 flex flex-col justify-between">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-[11px] font-bold text-[#646B77] uppercase tracking-widest">Database Link</p>
+            <p id="kpiLinksCount" class="text-3xl font-extrabold text-[#1F242D] mt-1">36</p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-[#DCE8FB] text-[#0B57D0] flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          </div>
+        </div>
+        <div class="mt-4 space-y-1.5">
+          <div class="flex items-center gap-2.5">
+            <div class="soft-progress-track h-2.5 flex-1">
+              <div id="kpiLinksFavBar" class="h-full bg-amber-400 rounded-full transition-all duration-500" style="width: 15%"></div>
+            </div>
+            <span id="kpiLinksFavBadge" class="text-xs font-bold text-amber-700 whitespace-nowrap">&#9733; 4</span>
+          </div>
+          <p id="kpiLinksSub" class="text-[11px] text-[#646B77] font-medium">Direktori Prodi & Vokasi</p>
+        </div>
+      </div>
     </div>
 
     <!-- SOFT / SYSTEM UNDERLINE NAVIGATION TABS -->
@@ -827,6 +854,11 @@
         <button id="tab-surat" onclick="switchTab('surat')" class="tab-btn soft-tab active flex items-center gap-2 text-xs sm:text-sm">
           <span>Persuratan & Nota Dinas</span>
           <span id="badge-tab-surat" class="px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-[#0B57D0] text-white">0</span>
+        </button>
+
+        <button id="tab-links" onclick="switchTab('links')" class="tab-btn soft-tab flex items-center gap-2 text-xs sm:text-sm">
+          <span>Database Link</span>
+          <span id="badge-tab-links" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#DCE8FB] text-[#0B57D0]">36</span>
         </button>
 
         <button id="tab-drive" onclick="switchTab('drive')" class="tab-btn soft-tab flex items-center gap-2 text-xs sm:text-sm">
@@ -1144,15 +1176,173 @@
       </div>
     </section>
 
+    <!-- TAB 6: DATABASE LINK TERPADU (PRODI TIKIM & SEKOLAH VOKASI UNPAD) -->
+    <section id="panel-links" class="tab-panel hidden space-y-6">
+      <!-- HEADER & MASTER SHEET SYNC BAR -->
+      <div class="soft-card p-5 flex flex-wrap items-center justify-between gap-4">
+        <div class="space-y-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-[#0B57D0]">Direktori Tautan Terpusat</span>
+            <span id="linkSheetSyncBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#DCE8FB] text-[#0B57D0]">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#0B57D0]"></span>
+              <span>Master Sheet Terhubung</span>
+            </span>
+          </div>
+          <h3 class="text-base sm:text-lg font-extrabold text-[#1F242D]">Database Link Prodi TIKIM & Sekolah Vokasi UNPAD</h3>
+          <p class="text-xs text-[#646B77]">Tersinkronisasi dengan Google Sheet Master (<span class="font-mono">gid=99178395</span>) • Tandai <span class="text-amber-600 font-bold">&#9733; Favorite</span> untuk pin ke atas</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5 text-xs">
+          <button type="button" onclick="fetchMasterLinksFromGoogleSheet(true)" class="btn-ivory inline-flex items-center gap-1.5 px-4 py-2.5">
+            <svg class="w-3.5 h-3.5 text-[#0B57D0]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span>Sinkron Sheet</span>
+          </button>
+          <a href="https://docs.google.com/spreadsheets/d/1A8S5ykrb1xZhVf7zOC_WpzCu157AydT0biv2kkM4me4/edit#gid=99178395" target="_blank" rel="noopener" class="btn-ivory inline-flex items-center gap-1.5 px-4 py-2.5 text-[#0B57D0]">
+            <span>Buka Google Sheet</span>
+            <span>&nearr;</span>
+          </a>
+          <button type="button" onclick="toggleAddLinkForm()" id="btnToggleAddLink" class="btn-cobalt inline-flex items-center gap-1.5 px-4 py-2.5">
+            <span>+ Tambah Link</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- COLLAPSIBLE FORM TAMBAH LINK BARU -->
+      <div id="addLinkFormCard" class="hidden soft-card p-6 border border-[#D6DCE5] space-y-4">
+        <div class="flex items-center justify-between border-b border-[#E3DFD5] pb-3">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-[#0B57D0]">Input Tautan Baru</span>
+            <h4 class="text-sm sm:text-base font-extrabold text-[#1F242D]">Tambahkan Link ke Database & Master Google Sheet</h4>
+          </div>
+          <button type="button" onclick="toggleAddLinkForm()" class="w-8 h-8 rounded-full btn-ivory flex items-center justify-center text-base font-bold">&times;</button>
+        </div>
+
+        <form onsubmit="submitNewLink(event)" class="space-y-4 text-sm">
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-3.5">
+            <div class="sm:col-span-6">
+              <label class="block text-[11px] font-bold uppercase tracking-widest text-[#646B77] mb-1.5">Nama Layanan / Dokumen (Wajib)</label>
+              <input id="newLinkTitle" type="text" required placeholder="Contoh: Form Pengajuan SK Pembimbing Akademik" class="soft-inset w-full rounded-2xl px-4 py-2.5 font-medium" />
+            </div>
+            <div class="sm:col-span-6">
+              <label class="block text-[11px] font-bold uppercase tracking-widest text-[#646B77] mb-1.5">URL / Tautan Lengkap (Wajib)</label>
+              <input id="newLinkUrl" type="url" required placeholder="https://docs.google.com/... atau https://bit.ly/..." class="soft-inset w-full rounded-2xl px-4 py-2.5 font-mono text-xs" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-widest text-[#646B77] mb-1.5">Tingkat / Unit</label>
+              <input id="newLinkUnit" list="linkUnitOptions" type="text" value="Prodi TIKIM" placeholder="Pilih atau ketik unit..." class="soft-inset w-full rounded-2xl px-4 py-2.5 font-medium" />
+              <datalist id="linkUnitOptions">
+                <option value="Prodi TIKIM">
+                <option value="Sekolah Vokasi / UNPAD">
+                <option value="Perkuliahan (S1, S2, S3 & D4 Kimia)">
+              </datalist>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-widest text-[#646B77] mb-1.5">Kategori Kegunaan</label>
+              <input id="newLinkCategory" list="linkCategoryOptions" type="text" value="Portal & Sistem Utama" placeholder="Pilih atau ketik kategori..." class="soft-inset w-full rounded-2xl px-4 py-2.5 font-medium" />
+              <datalist id="linkCategoryOptions">
+                <option value="Portal & Sistem Utama">
+                <option value="Persuratan & Nota Dinas">
+                <option value="Persuratan & Registrasi Vokasi">
+                <option value="Keuangan, TOR & LPJ Vokasi 2026">
+                <option value="Sarana Prasarana & Ruangan">
+                <option value="Akademik, Kurikulum & Magang">
+                <option value="Portal & Referensi Umum">
+                <option value="Zoom Perkuliahan Ganjil 2026-2027">
+              </datalist>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-widest text-[#646B77] mb-1.5">Jenis Tautan</label>
+              <select id="newLinkType" class="soft-inset w-full rounded-2xl px-4 py-2.5 font-medium">
+                <option value="Website / Portal">Website / Portal</option>
+                <option value="Google Form (Input)">Google Form (Input)</option>
+                <option value="Google Sheet (Monitoring)">Google Sheet (Monitoring)</option>
+                <option value="Google Docs">Google Docs</option>
+                <option value="Template / Form Keuangan">Template / Form Keuangan</option>
+                <option value="Dokumen PDF">Dokumen PDF</option>
+                <option value="Zoom Meeting">Zoom Meeting</option>
+                <option value="Aplikasi Web">Aplikasi Web</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-widest text-[#646B77] mb-1.5">Keterangan / Syarat Kelengkapan (Opsional)</label>
+            <input id="newLinkNote" type="text" placeholder="Contoh: Syarat melampirkan TOR, Surat Tugas, KTP, dan Buku Tabungan..." class="soft-inset w-full rounded-2xl px-4 py-2.5 text-sm" />
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#E3DFD5]">
+            <label class="flex items-center gap-2.5 text-xs font-bold text-[#1F242D] cursor-pointer select-none">
+              <input id="newLinkPinFavorite" type="checkbox" checked class="soft-checkbox" />
+              <span>Langsung tambahkan ke <span class="text-amber-600">&#9733; Favorite</span> untuk akses cepat</span>
+            </label>
+            <div class="flex items-center gap-2.5">
+              <button type="button" onclick="toggleAddLinkForm()" class="btn-ivory px-5 py-2.5 text-xs">Batal</button>
+              <button type="submit" id="btnSubmitNewLink" class="btn-cobalt px-6 py-2.5 text-xs">Simpan Link</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- SECTION FAVORITE LINKS (PINNED QUICK ACCESS) -->
+      <div id="favoriteLinksWrapper" class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-7 h-7 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-sm font-bold shadow-sm">&#9733;</span>
+            <div>
+              <h4 class="text-sm font-extrabold text-[#1F242D]">Akses Cepat Favorite (<span id="favoriteLinksCountLabel">0</span>)</h4>
+              <p class="text-[11px] text-[#646B77]">Tautan prioritas yang Anda tandai bintang untuk dibuka dalam satu klik</p>
+            </div>
+          </div>
+        </div>
+        <div id="favoriteLinksGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5"></div>
+      </div>
+
+      <!-- FILTER & SEARCH BAR DATABASE LINK -->
+      <div class="soft-card p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3">
+        <div class="relative w-full sm:w-80">
+          <svg class="w-4 h-4 text-[#646B77] absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input id="searchLinks" oninput="renderLinksDatabase()" type="text" placeholder="Cari layanan, TOR, Zoom, surat, syarat..." class="soft-inset w-full rounded-full pl-11 pr-4 py-2.5 text-sm" />
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+          <select id="filterUnitLinks" onchange="renderLinksDatabase()" class="soft-inset rounded-full px-4 py-2.5 text-xs sm:text-sm font-medium flex-1 sm:flex-none">
+            <option value="">Semua Unit</option>
+          </select>
+
+          <select id="filterKategoriLinks" onchange="renderLinksDatabase()" class="soft-inset rounded-full px-4 py-2.5 text-xs sm:text-sm font-medium flex-1 sm:flex-none">
+            <option value="">Semua Kategori Kegunaan</option>
+          </select>
+
+          <div onclick="toggleFilterOnlyFavLinks()" class="inline-flex items-center gap-2 cursor-pointer select-none px-2">
+            <div id="switchOnlyFavLinksTrack" class="soft-switch-track">
+              <div class="soft-switch-thumb"></div>
+            </div>
+            <input id="filterOnlyFavLinks" type="checkbox" class="hidden" />
+            <span class="text-xs font-bold text-[#1F242D]">Hanya &#9733;</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DIREKTORI LENGKAP TERKELOMPOK PER KATEGORI -->
+      <div id="linksDirectoryContainer" class="space-y-5"></div>
+    </section>
+
   </main>
 
   <script>
     // =========================================================================
-    // ENDPOINT GOOGLE APPS SCRIPT PRODI TIKIM UNPAD
+    // ENDPOINT GOOGLE APPS SCRIPT & MASTER GOOGLE SHEET DATABASE LINK
     // =========================================================================
     const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbznpn5uCcvu8Tn42vhF5EMg8LysTcCqVR5n5hMKvAcPpp066e7OUhzvz7gcyIaWoOBT/exec";
+    const LINKS_SHEET_ID = "1A8S5ykrb1xZhVf7zOC_WpzCu157AydT0biv2kkM4me4";
+    const LINKS_SHEET_GID = "99178395";
+    const LINKS_SHEET_URL = `https://docs.google.com/spreadsheets/d/${LINKS_SHEET_ID}/edit#gid=${LINKS_SHEET_GID}`;
 
     let APP_DATA = { surat: [], sarpras: [], magang: [], tugas: [] };
+    let SHEET_SYNCED_LINKS = [];
     let DRIVE_FILES_CACHE = [];
     let activeDriveItemId = 'suratKeluar';
     let refreshTimer = null;
@@ -1160,114 +1350,52 @@
     let CURRENT_SURAT_ITEM = null;
     let IS_DEMO_MODE = false;
 
-    // Sample data untuk pratinjau instan ketika belum login ke Live API
-    const SAMPLE_DATA = {
-      surat: [
-        {
-          _row: 2,
-          'Timestamp': '11/17/2026 09:14:22',
-          'Nama Lengkap & Gelar': 'Raka Pratama Wijaya',
-          'Status Pemohon': 'Mahasiswa',
-          'NIP / NPM': '140210230018',
-          'Email Aktif': 'raka23001@mail.unpad.ac.id',
-          'Nomor WhatsApp Active': '081234567890',
-          'Pilih Kategori Surat': 'Surat Lintas Fakultas / Pihak Luar Vokasi',
-          'Perihal / Judul Ajuan Surat': 'Permohonan Izin Magang Industri di PT Pertamina (Persero) RU VI Balongan',
-          'Pejabat / Instansi Tujuan': 'Manager Human Capital PT Pertamina (Persero) RU VI Balongan',
-          'STATUS ACC KAPRODI': 'DISETUJUI KAPRODI',
-          'STATUS PROSES ADMIN': 'DRAFT',
-          'Nomor Dokumen Resmi': '142/UN6.T.4.6/TU.00/2026',
-          'No registrasi TU Fakultas': '-',
-          'Upload Draft / Berkas Pendukung': 'https://drive.google.com/drive/folders/1bho29zXrq2AVdYTFt1FNh9JxLkIk1ERnoiP65XsFgSXhcJAec4UAeZIxrppZ_vVLOyBXOkYz',
-          'DRAFT PENGANTAR ADMIN': '',
-          'Link PDF Final': '',
-          'Catatan Admin': ''
-        },
-        {
-          _row: 3,
-          'Timestamp': '11/16/2026 14:30:05',
-          'Nama Lengkap & Gelar': 'Dr. Eng. Nabila Kusuma, S.T., M.T.',
-          'Status Pemohon': 'Dosen',
-          'NIP / NPM': '198804122015042001',
-          'Email Aktif': 'nabila.kusuma@unpad.ac.id',
-          'Nomor WhatsApp Active': '081398765432',
-          'Pilih Kategori Surat': 'Surat Internal Prodi TIKIM',
-          'Perihal / Judul Ajuan Surat': 'Surat Tugas Pendampingan Kunjungan Industri Mahasiswa Angkatan 2024',
-          'Pejabat / Instansi Tujuan': 'Dekan Sekolah Vokasi Universitas Padjadjaran',
-          'STATUS ACC KAPRODI': 'DISETUJUI KAPRODI',
-          'STATUS PROSES ADMIN': 'SELESAI',
-          'Nomor Dokumen Resmi': '139/UN6.T.4.6/KP/2026',
-          'No registrasi TU Fakultas': '812',
-          'Upload Draft / Berkas Pendukung': '',
-          'DRAFT PENGANTAR ADMIN': 'https://drive.google.com/drive/folders/15Nr29X7eYTx3E11AZGsuwZ-cZVkzjvAO',
-          'Link PDF Final': 'https://drive.google.com/drive/folders/1LuiP_k2_JgxIQo4mKAz6OIgJ9JBEl7yE',
-          'Catatan Admin': 'Dokumen bertanda tangan elektronik telah terbit.'
-        }
-      ],
-      tugas: [
-        {
-          _row: 2,
-          'Nama Tugas': 'Email Kaprodi PAUS & Koordinasi Akreditasi',
-          'Detail / Catatan': 'Isinya akun email dan koordinasi akses PAUS Kaprodi D-4 Teknologi Industri Kimia',
-          'Tanggal Mulai': '11/17/2026',
-          'Tanggal Selesai / Deadline': '11/25/2026',
-          'Status': 'Sedang Dikerjakan',
-          _richLinks: [
-            { col: 'Lampiran', label: 'Dokumen Referensi PAUS Kaprodi', url: 'https://docs.google.com/spreadsheets/d/1Sf3mGlj39De3I9err-LaNxBNP1QTcwj99eiG4yKxURc/edit#gid=1846146421' }
-          ]
-        },
-        {
-          _row: 3,
-          'Nama Tugas': 'Rekapitulasi Nilai & Laporan Magang Semester Ganjil 2026',
-          'Detail / Catatan': 'Verifikasi kelengkapan berkas mahasiswa sebelum sidang akhir magang.',
-          'Tanggal Mulai': '11/10/2026',
-          'Tanggal Selesai / Deadline': '11/30/2026',
-          'Status': 'Pending',
-          _richLinks: [
-            { col: 'Lampiran', label: 'Master Sheet Laporan Magang', url: 'https://docs.google.com/spreadsheets/d/1hJoyBKnOxKij-XBCm_kLBC8eX4V4YDRbuz9GH7-R-kw/edit#gid=708323526' }
-          ]
-        },
-        {
-          _row: 4,
-          'Nama Tugas': 'Pengarsipan Surat Keluar Bulan Oktober 2026',
-          'Detail / Catatan': 'Seluruh salinan PDF sudah masuk folder arsip tahunan.',
-          'Tanggal Mulai': '11/01/2026',
-          'Tanggal Selesai / Deadline': '11/05/2026',
-          'Status': 'Selesai',
-          _richLinks: []
-        }
-      ],
-      sarpras: [
-        {
-          _row: 2,
-          'Timestamp': '11/17/2026 10:05:11',
-          'Nama Lengkap': 'Dimas Arya Saputra',
-          'Status Pelapor': 'Mahasiswa',
-          'Nomor WhatsApp / Email': '085711223344',
-          'Lokasi Spesifik': 'Laboratorium Proses Kimia Lt. 2',
-          'Kategori Sarana Prasarana': 'Peralatan Laboratorium & Utilitas',
-          'Tingkat Urgensi': 'Tinggi / Mendesak',
-          'Deskripsi Kerusakan / Pengaduan': 'Fume hood (lemari asam) unit B suara kipas exhaust bergetar kencang dan daya hisap menurun.',
-          'Unggah Foto / Video Bukti Kerusakan': '',
-          'Status Pengaduan': 'Diteruskan ke Sarpras Fakultas',
-          'Kontak / PJ Sarpras': 'Pak Hendra (Teknisi Vokasi)',
-          'Catatan Internal Prodi': 'Sudah dijadwalkan pengecekan teknisi hari Kamis.'
-        }
-      ],
-      magang: [
-        {
-          _row: 2,
-          'Nama Lengkap': 'Aulia Rahmawati',
-          'NPM': '140210220009',
-          'Angkatan': '2022',
-          'Nama Perusahaan / Instansi Magang 1': 'PT Pupuk Kujang Cikampek',
-          'Periode Magang 1': 'Jul - Sep 2026',
-          'Dosen Pembimbing': 'Ir. Bambang Sutrisno, M.T.',
-          'Upload File Laporan Magang': 'https://docs.google.com/spreadsheets/d/1hJoyBKnOxKij-XBCm_kLBC8eX4V4YDRbuz9GH7-R-kw/edit#gid=708323526',
-          'Upload File / Lembar Nilai Magang': 'https://docs.google.com/spreadsheets/d/1hJoyBKnOxKij-XBCm_kLBC8eX4V4YDRbuz9GH7-R-kw/edit#gid=708323526'
-        }
-      ]
-    };
+    // Master Data 36 Tautan dari Google Sheet (Direktori Tautan Layanan Prodi TIKIM & Sekolah Vokasi UNPAD 2026)
+    const DEFAULT_MASTER_LINKS = [
+      { id: 'ml-1', unit: 'Prodi TIKIM', category: 'Portal & Sistem Utama', type: 'Website / Portal', title: 'Website Prodi TIKIM (Under Development)', url: 'https://web-tik-vokasi.pages.dev/', note: 'Portal website resmi Prodi D-4 Teknologi Industri Kimia (tahap pengembangan)' },
+      { id: 'ml-2', unit: 'Prodi TIKIM', category: 'Portal & Sistem Utama', type: 'Dashboard', title: 'Dashboard Admin TIKIM', url: 'https://bit.ly/dasboardADMIN', note: 'Meja kerja admin prodi untuk monitoring surat, tugas, sarpras, drive, dan magang' },
+      { id: 'ml-3', unit: 'Prodi TIKIM', category: 'Portal & Sistem Utama', type: 'Website / Portal', title: 'Master Link TIKIM (Linktree Ajuan & Pengaduan)', url: 'https://linktr.ee/Tikim.vokasi', note: 'Kumpulan tautan layanan ajuan dan pengaduan mahasiswa/dosen di tingkat prodi' },
+      { id: 'ml-4', unit: 'Prodi TIKIM', category: 'Portal & Sistem Utama', type: 'Aplikasi Web', title: 'Aplikasi Pembuatan Sertifikat TIKIM', url: 'https://prodi-tik-unpad.github.io/Sertifikasi/', note: 'Sistem pembuatan sertifikat kegiatan Program Studi TIKIM' },
+      { id: 'ml-5', unit: 'Prodi TIKIM', category: 'Persuratan & Nota Dinas', type: 'Google Form (Input)', title: 'Ajuan Surat / Nota Dinas Prodi TIKIM', url: 'https://docs.google.com/forms/d/e/1FAIpQLSdxUl5kw5TeHi3HYxVBXmOoQ_YKu7Y23vrhkT9kVjnbEhDUow/viewform?usp=publish-editor', note: 'Formulir pengajuan pembuatan surat atau nota dinas prodi' },
+      { id: 'ml-6', unit: 'Prodi TIKIM', category: 'Persuratan & Nota Dinas', type: 'Google Sheet (Monitoring)', title: 'Monitoring Ajuan Surat & Nota Dinas Prodi TIKIM', url: 'https://docs.google.com/spreadsheets/d/1A1-iqRRMcI64appupOGbnY1mqeXViPzN2CdPU9D_BL0/edit?resourcekey=&gid=591814606#gid=591814606', note: 'Spreadsheet pantauan status surat masuk/keluar dan nota dinas prodi' },
+      { id: 'ml-7', unit: 'Prodi TIKIM', category: 'Sarana Prasarana & Ruangan', type: 'Google Form (Input)', title: 'Ajuan Peminjaman Ruangan Prodi TIKIM', url: 'https://docs.google.com/forms/d/e/1FAIpQLSe-K7iYON_M2ftSEv3m7QjoNWYq3KpcNXIZJg5HfCqOjbSetw/viewform?usp=dialog', note: 'Formulir permohonan peminjaman ruangan di lingkungan Prodi TIKIM' },
+      { id: 'ml-8', unit: 'Prodi TIKIM', category: 'Sarana Prasarana & Ruangan', type: 'Google Form (Input)', title: 'Aduan Sarana & Prasarana (Sarpras) Prodi TIKIM', url: 'https://docs.google.com/forms/d/e/1FAIpQLSf3x8HVyYhZ045r7gWNWpYWjVM7oFZLYCybCUIVN4RYndkL1w/viewform?usp=publish-editor', note: 'Formulir pengaduan kerusakan atau kendala fasilitas/sarpras prodi' },
+      { id: 'ml-9', unit: 'Prodi TIKIM', category: 'Sarana Prasarana & Ruangan', type: 'Google Sheet (Monitoring)', title: 'Monitoring Aduan Sarpras Prodi TIKIM', url: 'https://docs.google.com/spreadsheets/d/1yvHWt93Ubb-npezTs0Z3XH2LS5eH-Flog6aaOn_6hlg/edit?usp=sharing', note: 'Spreadsheet rekap dan tindak lanjut perbaikan aduan sarpras prodi' },
+      { id: 'ml-10', unit: 'Prodi TIKIM', category: 'Akademik, Kurikulum & Magang', type: 'Google Form (Input)', title: 'Form Back Up Laporan & Nilai Magang TIKIM', url: 'https://docs.google.com/forms/d/e/1FAIpQLSe3coTVjGYscbbZitQ3gtXgIEUgGooIPMp5iqGshTQk5_J33g/viewform', note: 'Formulir unggah arsip laporan dan lembar nilai magang mahasiswa' },
+      { id: 'ml-11', unit: 'Prodi TIKIM', category: 'Akademik, Kurikulum & Magang', type: 'Google Sheet (Monitoring)', title: 'Monitoring Back Up Laporan & Nilai Magang TIKIM', url: 'https://docs.google.com/spreadsheets/d/1hJoyBKnOxKij-XBCm_kLBC8eX4V4YDRbuz9GH7-R-kw/edit?resourcekey=&gid=708323526#gid=708323526', note: 'Spreadsheet monitoring kelengkapan backup laporan dan nilai magang' },
+      { id: 'ml-12', unit: 'Prodi TIKIM', category: 'Akademik, Kurikulum & Magang', type: 'Google Docs', title: 'Dokumen Kurikulum 2024 TIKIM', url: 'https://docs.google.com/document/d/1oqSpSxnBw10UF8I8P2E0NX0zE-p8Gfn-/edit', note: 'Dokumen acuan Kurikulum 2024 Prodi D-4 Teknologi Industri Kimia' },
+      { id: 'ml-13', unit: 'Prodi TIKIM', category: 'Akademik, Kurikulum & Magang', type: 'Google Sheet (Monitoring)', title: 'Isian Prodi - Pemutakhiran Kurikulum 2024', url: 'https://docs.google.com/spreadsheets/d/1YSYUv3bKcdVtbr18mvPcDqvG2abHgv6DII53-3IfONc/edit?gid=1006023101#gid=1006023101', note: 'Spreadsheet isian pemutakhiran kurikulum 2024 tingkat fakultas/prodi' },
+      { id: 'ml-14', unit: 'Sekolah Vokasi / UNPAD', category: 'Portal & Referensi Umum', type: 'Website / Portal', title: 'Link Ajuan Mahasiswa Sekolah Vokasi (Linktree)', url: 'https://linktr.ee/vokas1', note: 'Portal kumpulan tautan layanan akademik dan kemahasiswaan Sekolah Vokasi' },
+      { id: 'ml-15', unit: 'Sekolah Vokasi / UNPAD', category: 'Portal & Referensi Umum', type: 'Dokumen PDF', title: 'Standar Biaya Umum (SBU) UNPAD 2026', url: 'https://drive.google.com/file/d/1ImGYL3h9OiVA3SGKJ-AhM_b2JYatyL72/view', note: 'Pedoman acuan standar biaya umum Universitas Padjadjaran Tahun 2026' },
+      { id: 'ml-16', unit: 'Sekolah Vokasi / UNPAD', category: 'Persuratan & Registrasi Vokasi', type: 'Google Form / Bitly', title: 'Form Ajuan Surat WD 1', url: 'https://bit.ly/AjuanSurat-WD1', note: 'Tautan pengajuan surat ke Wakil Dekan I (Catatan: status tautan masih belum jadi)' },
+      { id: 'ml-17', unit: 'Sekolah Vokasi / UNPAD', category: 'Persuratan & Registrasi Vokasi', type: 'Google Form / Bitly', title: 'Form Ajuan Surat WD 2 (Pembuatan Surat Tugas)', url: 'https://bit.ly/AjuanSurat-WD2', note: 'Formulir pengajuan surat ke Wakil Dekan II (digunakan untuk pembuatan Surat Tugas)' },
+      { id: 'ml-18', unit: 'Sekolah Vokasi / UNPAD', category: 'Persuratan & Registrasi Vokasi', type: 'Google Form / Bitly', title: 'Registrasi Surat Masuk Prodi ke Dekan, WD I & WD II', url: 'https://bit.ly/RegistrasiSuratMasukProdiSV26', note: 'Tautan registrasi pengajuan surat dari prodi/unit untuk Dekan, WD I, dan WD II' },
+      { id: 'ml-19', unit: 'Sekolah Vokasi / UNPAD', category: 'Persuratan & Registrasi Vokasi', type: 'Google Form / Bitly', title: 'Registrasi Surat Masuk Sekolah Vokasi (Surat Tugas)', url: 'https://bit.ly/RegistrasiSuratMasukSV2026', note: 'Pengajuan Surat Tugas (dosen pendamping, narasumber, dll.) ditujukan dulu kepada Dekan' },
+      { id: 'ml-20', unit: 'Sekolah Vokasi / UNPAD', category: 'Persuratan & Registrasi Vokasi', type: 'Google Sheet (Monitoring)', title: 'Monitoring Surat Masuk & Surat Tugas Vokasi 2026 (Bitly)', url: 'https://bit.ly/MonitoringSuratMasukSV2026', note: 'Pantauan progres surat masuk dan surat tugas (dosen, narasumber, dll.) di Vokasi' },
+      { id: 'ml-21', unit: 'Sekolah Vokasi / UNPAD', category: 'Persuratan & Registrasi Vokasi', type: 'Google Sheet (Monitoring)', title: 'Monitoring Registrasi Surat Tugas Masuk (Direct Sheet)', url: 'https://docs.google.com/spreadsheets/d/1KhZHejkDB8dzs7T0VmjZvpgyBdr9xwtskFVxcXILTDg/edit?gid=0#gid=0&fvid=1457758331', note: 'Tautan langsung spreadsheet monitoring registrasi surat tugas masuk Vokasi' },
+      { id: 'ml-22', unit: 'Sekolah Vokasi / UNPAD', category: 'Keuangan, TOR & LPJ Vokasi 2026', type: 'Google Form (Input)', title: 'Form Ajuan Keuangan Sekolah Vokasi', url: 'https://docs.google.com/forms/d/e/1FAIpQLSeCfwibEk2-4JGEhtOEZKxObNJD15PmG10-ngszkPq3cNQJcA/viewform', note: 'Catatan Sheet: Status non-aktif per 15 Nov 2026 (gunakan tautan kategori TOR/Ajuan di bawah)' },
+      { id: 'ml-23', unit: 'Sekolah Vokasi / UNPAD', category: 'Keuangan, TOR & LPJ Vokasi 2026', type: 'Google Sheet (Monitoring)', title: 'Monitoring Ajuan Keuangan Sekolah Vokasi 2026', url: 'https://docs.google.com/spreadsheets/d/1G-D6lbGlSddO92kVr-vPFQK-HFr7VO5RT-RP-CRAHMc/edit?gid=471307551#gid=471307551', note: 'Spreadsheet pantauan status proses ajuan keuangan tahun 2026' },
+      { id: 'ml-24', unit: 'Sekolah Vokasi / UNPAD', category: 'Keuangan, TOR & LPJ Vokasi 2026', type: 'Template / Form Keuangan', title: 'Ajuan & TOR Honorarium Narasumber Vokasi 2026', url: 'https://bit.ly/HonorariumNarasumberVokasi2026', note: 'Syarat: Surat Tugas Narasumber, Kesediaan Ruangan WD 1-2, Surat Permohonan Honor, TOR, Daftar Hadir, Dokumentasi, Flyer, KTP, Norek Buku Tabungan, CV, Undangan Acara' },
+      { id: 'ml-25', unit: 'Sekolah Vokasi / UNPAD', category: 'Keuangan, TOR & LPJ Vokasi 2026', type: 'Template / Form Keuangan', title: 'Ajuan & TOR BHP Praktikum / ATK Vokasi 2026', url: 'https://bit.ly/BHPPraktikumVokasi2026', note: 'Syarat: Surat Permohonan Bahan Habis Pakai (BHP) / ATK dan TOR' },
+      { id: 'ml-26', unit: 'Sekolah Vokasi / UNPAD', category: 'Keuangan, TOR & LPJ Vokasi 2026', type: 'Template / Form Keuangan', title: 'LPJ Keuangan Vokasi 2026', url: 'https://bit.ly/LPJKeuanganVokasi2026', note: 'Tautan pelaporan pertanggungjawaban (LPJ) penggunaan anggaran Sekolah Vokasi 2026' },
+      { id: 'ml-27', unit: 'Sekolah Vokasi / UNPAD', category: 'Keuangan, TOR & LPJ Vokasi 2026', type: 'Template / Form Keuangan', title: 'Ajuan Transport Lokal (Translog) Vokasi 2026', url: 'https://bit.ly/TranslogVokasi2026', note: 'Tautan pengajuan biaya transport lokal kegiatan Sekolah Vokasi 2026' },
+      { id: 'ml-28', unit: 'Sekolah Vokasi / UNPAD', category: 'Keuangan, TOR & LPJ Vokasi 2026', type: 'Template / Form Keuangan', title: 'Ajuan Surat Perjalanan Dinas (Perjadin) Vokasi 2026', url: 'https://bit.ly/PerjadinVokasi2026', note: 'Syarat: Wajib melampirkan Surat Undangan Resmi dari Penyelenggara' },
+      { id: 'ml-29', unit: 'Sekolah Vokasi / UNPAD', category: 'Keuangan, TOR & LPJ Vokasi 2026', type: 'Template / Form Keuangan', title: 'Ajuan Konsumsi Vokasi 2026', url: 'https://bit.ly/KonsumsiVokasi2026', note: 'Tautan pengajuan anggaran konsumsi rapat/kegiatan Sekolah Vokasi 2026' },
+      { id: 'ml-30', unit: 'Sekolah Vokasi / UNPAD', category: 'Keuangan, TOR & LPJ Vokasi 2026', type: 'Template / Form Keuangan', title: 'Ajuan Operasional Perkantoran Vokasi 2026', url: 'https://bit.ly/OperasionalVokasi2026', note: 'Tautan pengajuan kebutuhan operasional perkantoran Sekolah Vokasi 2026' },
+      { id: 'ml-31', unit: 'Sekolah Vokasi / UNPAD', category: 'Keuangan, TOR & LPJ Vokasi 2026', type: 'Template / Form Keuangan', title: 'Ajuan Honorarium Dosen LB & Asisten Praktikum Vokasi 2026', url: 'https://bit.ly/HonorDosenLBdanAsprakVokasi2026', note: 'Tautan pengajuan honorarium Dosen Luar Biasa (LB) dan Asisten Praktikum (Asprak)' },
+      { id: 'ml-32', unit: 'Perkuliahan (S1, S2, S3 & D4 Kimia)', category: 'Zoom Perkuliahan Ganjil 2026-2027', type: 'Zoom Meeting', title: 'Zoom Perkuliahan Hari Senin', url: 'https://zoom.us/j/95267190102?pwd=NjM0aFpGZlJtQ2ZyUlJyMnNYcW1hQT09', note: 'Jadwal Senin (S1, S2, S3 & D4 Kimia Semester Ganjil 2026-2027) | Passcode: kimiatik' },
+      { id: 'ml-33', unit: 'Perkuliahan (S1, S2, S3 & D4 Kimia)', category: 'Zoom Perkuliahan Ganjil 2026-2027', type: 'Zoom Meeting', title: 'Zoom Perkuliahan Hari Selasa', url: 'https://zoom.us/j/96781264954?pwd=M2FVcFlkRzlSTG1MT053YjBVWURxZz09', note: 'Jadwal Selasa (S1, S2, S3 & D4 Kimia Semester Ganjil 2026-2027) | Passcode: kimiatik' },
+      { id: 'ml-34', unit: 'Perkuliahan (S1, S2, S3 & D4 Kimia)', category: 'Zoom Perkuliahan Ganjil 2026-2027', type: 'Zoom Meeting', title: 'Zoom Perkuliahan Hari Rabu', url: 'https://zoom.us/j/97345823201?pwd=c0NGTElNSlJlUlNmUWJnRENNZ3J3UT09', note: 'Jadwal Rabu (S1, S2, S3 & D4 Kimia Semester Ganjil 2026-2027) | Passcode: kimiatik' },
+      { id: 'ml-35', unit: 'Perkuliahan (S1, S2, S3 & D4 Kimia)', category: 'Zoom Perkuliahan Ganjil 2026-2027', type: 'Zoom Meeting', title: 'Zoom Perkuliahan Hari Kamis', url: 'https://zoom.us/j/91717307987?pwd=RHkzaG1TZlJ1T3JUM21NclpsZTEzUT09', note: 'Jadwal Kamis (S1, S2, S3 & D4 Kimia Semester Ganjil 2026-2027) | Passcode: kimiatik' },
+      { id: 'ml-36', unit: 'Perkuliahan (S1, S2, S3 & D4 Kimia)', category: 'Zoom Perkuliahan Ganjil 2026-2027', type: 'Zoom Meeting', title: 'Zoom Perkuliahan Hari Jumat', url: 'https://zoom.us/j/97668531470?pwd=QUNCM0tKN0syTWVHRm5GR3d1Y1VGUT09', note: 'Jadwal Jumat (S1, S2, S3 & D4 Kimia Semester Ganjil 2026-2027) | Passcode: kimiatik' }
+    ];
+
+    const DEFAULT_FAVORITE_LINK_URLS = [
+      'https://linktr.ee/Tikim.vokasi',
+      'https://bit.ly/RegistrasiSuratMasukProdiSV26',
+      'https://bit.ly/RegistrasiSuratMasukSV2026',
+      'https://docs.google.com/spreadsheets/d/1G-D6lbGlSddO92kVr-vPFQK-HFr7VO5RT-RP-CRAHMc/edit?gid=471307551#gid=471307551'
+    ];
 
     const DEFAULT_DRIVE_FOLDERS = [
       {
@@ -1276,35 +1404,22 @@
         customFolderId: '',
         isYearly: true,
         title: 'Surat Keluar 2026',
-        desc: 'Arsip resmi surat keluar prodi',
-        tag: 'Surat Keluar',
+        desc: 'Arsip surat keluar resmi Prodi TIKIM',
+        tag: 'Persuratan',
         color: 'cobalt',
         visible: true,
         isDefault: true,
         driveUrl: 'https://drive.google.com/drive/folders/1nKiC631oHKgjx7OVwgt0q9sDn8-Xw0Wt'
       },
       {
-        id: 'suratMasuk',
-        folderKey: 'suratMasuk',
-        customFolderId: '',
-        isYearly: true,
-        title: 'Surat Masuk 2026',
-        desc: 'Surat dari Dekanat / Mitra',
-        tag: 'Surat Masuk',
-        color: 'purple',
-        visible: true,
-        isDefault: true,
-        driveUrl: 'https://drive.google.com/drive/folders/1jKQGTVJzyP9vg2aly6mI8CbyX7eBuvdy'
-      },
-      {
         id: 'draftAdmin',
         folderKey: 'draftAdmin',
         customFolderId: '',
         isYearly: false,
-        title: 'Draft Surat Admin',
-        desc: 'Konsep surat pengantar prodi',
+        title: 'Draft Pengantar Admin',
+        desc: 'Draft surat & nota dinas sebelum TTD',
         tag: 'Draft Admin',
-        color: 'amber',
+        color: 'sky',
         visible: true,
         isDefault: true,
         driveUrl: 'https://drive.google.com/drive/folders/15Nr29X7eYTx3E11AZGsuwZ-cZVkzjvAO'
@@ -1315,7 +1430,7 @@
         customFolderId: '',
         isYearly: false,
         title: 'Final Surat dari TU',
-        desc: 'Surat bertanda tangan & cap',
+        desc: 'Surat resmi bertanda tangan dari Fakultas',
         tag: 'Final TU',
         color: 'emerald',
         visible: true,
@@ -1323,19 +1438,134 @@
         driveUrl: 'https://drive.google.com/drive/folders/1LuiP_k2_JgxIQo4mKAz6OIgJ9JBEl7yE'
       },
       {
-        id: 'berkasPendukung',
-        folderKey: 'berkasPendukung',
+        id: 'lampiranTugas',
+        folderKey: 'lampiranTugas',
         customFolderId: '',
         isYearly: false,
-        title: 'Berkas Pendukung',
-        desc: 'Lampiran upload GForm pemohon',
-        tag: 'GForm Upload',
-        color: 'sky',
+        title: 'Lampiran Tugas Admin',
+        desc: 'Dokumen pendukung catatan tugas prodi',
+        tag: 'Tugas Admin',
+        color: 'amber',
         visible: true,
         isDefault: true,
         driveUrl: 'https://drive.google.com/drive/folders/1bho29zXrq2AVdYTFt1FNh9JxLkIk1ERnoiP65XsFgSXhcJAec4UAeZIxrppZ_vVLOyBXOkYz'
+      },
+      {
+        id: 'laporanMagang',
+        folderKey: 'laporanMagang',
+        customFolderId: '',
+        isYearly: false,
+        title: 'Arsip Laporan Magang',
+        desc: 'Backup laporan & nilai magang mahasiswa',
+        tag: 'Magang',
+        color: 'purple',
+        visible: true,
+        isDefault: true,
+        driveUrl: 'https://docs.google.com/spreadsheets/d/1hJoyBKnOxKij-XBCm_kLBC8eX4V4YDRbuz9GH7-R-kw/edit#gid=708323526'
       }
     ];
+
+    const SAMPLE_DATA = {
+      surat: [
+        {
+          _row: 2,
+          'Timestamp': '18/11/2026 08:45:10',
+          'Nama Lengkap Pemohon': 'Nabila Putri Rahmawati',
+          'Status Pemohon': 'Mahasiswa',
+          'NPM / NIP': '240310230018',
+          'Email Aktif': 'nabila23001@mail.unpad.ac.id',
+          'No. WhatsApp': '081234567890',
+          'Kategori Ajuan Surat': 'Surat Lintas Fakultas / Pihak Luar Vokasi',
+          'Jenis Surat / Dokumen': 'Surat Permohonan Izin Magang / PKL',
+          'Perihal / Judul Surat': 'Permohonan Izin Praktik Kerja Lapangan (PKL) Semester Genap',
+          'Instansi / Pihak Tujuan': 'HRD Manager PT Pertamina (Persero) RU VI Balongan',
+          'Detail Keperluan & Tanggal Kegiatan': 'Pelaksanaan magang industri periode 1 Februari - 31 Mei 2027 untuk 3 mahasiswa D-4 TIKIM.',
+          'STATUS ACC KAPRODI': 'DISETUJUI KAPRODI',
+          'STATUS PROSES ADMIN': 'PROSES TU FAKULTAS',
+          'Nomor Dokumen Resmi': '145/UN6.T.4.6/PK.01.06/2026',
+          'No registrasi TU Fakultas': '892',
+          'Link PDF Final': '',
+          'DRAFT PENGANTAR ADMIN': 'https://drive.google.com/drive/folders/15Nr29X7eYTx3E11AZGsuwZ-cZVkzjvAO',
+          'Catatan Admin': 'Draft pengantar sudah diteruskan ke TU Sekolah Vokasi.'
+        },
+        {
+          _row: 3,
+          'Timestamp': '17/11/2026 13:20:05',
+          'Nama Lengkap Pemohon': 'Dr. Eng. Hendra Wijaya, S.T., M.T.',
+          'Status Pemohon': 'Dosen',
+          'NPM / NIP': '198504122015041002',
+          'Email Aktif': 'hendra.wijaya@unpad.ac.id',
+          'No. WhatsApp': '081398765432',
+          'Kategori Ajuan Surat': 'Surat Internal Prodi TIKIM',
+          'Jenis Surat / Dokumen': 'Nota Dinas / Undangan Rapat',
+          'Perihal / Judul Surat': 'Undangan Rapat Evaluasi Kurikulum 2024 & Persiapan Praktikum',
+          'Instansi / Pihak Tujuan': 'Seluruh Dosen & Pranata Laboratorium Pendidikan Prodi TIKIM',
+          'Detail Keperluan & Tanggal Kegiatan': 'Hari Jumat, 20 November 2026 pukul 09.00 WIB di Ruang Rapat Gedung D-4 TIKIM Jatinangor.',
+          'STATUS ACC KAPRODI': 'DISETUJUI KAPRODI',
+          'STATUS PROSES ADMIN': 'SELESAI',
+          'Nomor Dokumen Resmi': '142/UN6.T.4.6/TU.00/2026',
+          'No registrasi TU Fakultas': '-',
+          'Link PDF Final': 'https://drive.google.com/drive/folders/1LuiP_k2_JgxIQo4mKAz6OIgJ9JBEl7yE',
+          'DRAFT PENGANTAR ADMIN': '',
+          'Catatan Admin': 'Surat telah ditandatangani Kaprodi dan didistribusikan.'
+        }
+      ],
+      tugas: [
+        {
+          _row: 2,
+          'Nama Tugas': 'Rekapitulasi Pemutakhiran Kurikulum 2024 & SBU 2026',
+          'Detail / Catatan': 'Melengkapi isian matriks mata kuliah praktikum dan menyesuaikan RAB BHP dengan SBU UNPAD 2026.',
+          'Tanggal Mulai': '11/15/2026',
+          'Tanggal Selesai / Deadline': '11/22/2026',
+          'Status': 'Sedang Dikerjakan',
+          _richLinks: [
+            { col: 'Lampiran', label: 'Dokumen Kurikulum 2024 TIKIM', url: 'https://docs.google.com/document/d/1oqSpSxnBw10UF8I8P2E0NX0zE-p8Gfn-/edit' },
+            { col: 'Lampiran', label: 'Isian Pemutakhiran Kurikulum', url: 'https://docs.google.com/spreadsheets/d/1YSYUv3bKcdVtbr18mvPcDqvG2abHgv6DII53-3IfONc/edit?gid=1006023101#gid=1006023101' }
+          ]
+        },
+        {
+          _row: 3,
+          'Nama Tugas': 'Verifikasi Berkas Pengajuan Honorarium Narasumber Kuliah Tamu',
+          'Detail / Catatan': 'Cek kelengkapan TOR, Surat Tugas Dekan, KTP, NPWP, dan buku tabungan narasumber.',
+          'Tanggal Mulai': '11/16/2026',
+          'Tanggal Selesai / Deadline': '11/25/2026',
+          'Status': 'Pending',
+          _richLinks: [
+            { col: 'Lampiran', label: 'Template Honorarium Narasumber Vokasi', url: 'https://bit.ly/HonorariumNarasumberVokasi2026' }
+          ]
+        }
+      ],
+      sarpras: [
+        {
+          _row: 2,
+          'Timestamp': '16/11/2026 10:15:00',
+          'Nama Lengkap': 'Rizky Ramadhan',
+          'Status Pelapor': 'Mahasiswa',
+          'Nomor WhatsApp / Email': '085711223344',
+          'Lokasi Spesifik': 'Laboratorium Proses Kimia Lt. 2',
+          'Kategori Sarana Prasarana': 'AC / Pendingin Ruangan & Kelistrikan',
+          'Tingkat Urgensi': 'Tinggi',
+          'Deskripsi Kerusakan / Pengaduan': 'Unit AC sisi timur tidak dingin dan mengeluarkan bunyi bergetar saat praktikum berlangsung.',
+          'Unggah Foto / Video Bukti Kerusakan': '',
+          'Status Pengaduan': 'Diteruskan ke Sarpras Fakultas',
+          'Kontak / PJ Sarpras': 'Pak Dedi (Teknisi SV)',
+          'Catatan Internal Prodi': 'Sudah dilaporkan melalui form sarpras vokasi.'
+        }
+      ],
+      magang: [
+        {
+          _row: 2,
+          'Nama Lengkap': 'Aulia Azzahra',
+          'NPM': '240310220009',
+          'Angkatan': '2022',
+          'Nama Perusahaan / Instansi Magang 1': 'PT Chandra Asri Pacific Tbk (Cilegon)',
+          'Periode Magang 1': 'Agustus - November 2026',
+          'Dosen Pembimbing': 'Dr. Ir. Bambang Nurhadi, M.Si.',
+          'Upload File Laporan Magang': 'https://docs.google.com/spreadsheets/d/1hJoyBKnOxKij-XBCm_kLBC8eX4V4YDRbuz9GH7-R-kw/edit#gid=708323526',
+          'Upload File / Lembar Nilai Magang': 'https://docs.google.com/spreadsheets/d/1hJoyBKnOxKij-XBCm_kLBC8eX4V4YDRbuz9GH7-R-kw/edit#gid=708323526'
+        }
+      ]
+    };
 
     const COLOR_STYLES = {
       cobalt:  { badge: 'bg-[#DCE8FB] text-[#0B57D0]', active: 'ring-2 ring-[#0B57D0]', btn: 'text-[#0B57D0]' },
@@ -1520,6 +1750,364 @@
       return (parts[0][0] + parts[1][0]).toUpperCase();
     }
 
+    function fallbackCopyText(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (e) {}
+      document.body.removeChild(ta);
+    }
+
+    function copyText(text) {
+      if (!text) return;
+      fallbackCopyText(text);
+      showToast('Tautan Disalin', 'Link telah disalin ke clipboard.', 'info');
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = String(reader.result || '');
+          const base64 = result.includes(',') ? result.split(',')[1] : result;
+          resolve(base64);
+        };
+        reader.onerror = () => reject(new Error('Gagal membaca file dari perangkat.'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function classifyResourceUrl(url, customLabel = '') {
+      const u = String(url || '').trim();
+      const lower = u.toLowerCase();
+      let typeLabel = 'Tautan Web';
+      let badgeClass = 'bg-[#ECE9E1] text-[#1F242D]';
+      let previewUrl = '';
+      let defaultTitle = u.replace(/^https?:\/\//i, '').slice(0, 48);
+
+      const docMatch = u.match(/docs\.google\.com\/document\/d\/([a-zA-Z0-9_-]+)/);
+      const sheetMatch = u.match(/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+      const formMatch = u.match(/docs\.google\.com\/forms\/d\/(?:e\/)?([a-zA-Z0-9_-]+)/);
+      const driveFileMatch = u.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+
+      if (docMatch) {
+        typeLabel = 'Google Docs';
+        badgeClass = 'bg-blue-100 text-blue-800';
+        previewUrl = `https://docs.google.com/document/d/${docMatch[1]}/preview`;
+        defaultTitle = 'Dokumen Google Docs';
+      } else if (sheetMatch) {
+        typeLabel = 'Google Sheets';
+        badgeClass = 'bg-emerald-100 text-emerald-800';
+        previewUrl = `https://docs.google.com/spreadsheets/d/${sheetMatch[1]}/preview`;
+        defaultTitle = 'Spreadsheet Google Sheets';
+      } else if (formMatch) {
+        typeLabel = 'Google Form';
+        badgeClass = 'bg-purple-100 text-purple-800';
+        defaultTitle = 'Formulir Google Form';
+      } else if (driveFileMatch) {
+        typeLabel = 'File Drive';
+        badgeClass = 'bg-amber-100 text-amber-800';
+        previewUrl = `https://drive.google.com/file/d/${driveFileMatch[1]}/preview`;
+        defaultTitle = 'Dokumen Google Drive';
+      } else if (lower.includes('drive.google.com/drive/folders')) {
+        typeLabel = 'Folder Drive';
+        badgeClass = 'bg-amber-100 text-amber-800';
+        defaultTitle = 'Folder Google Drive';
+      } else if (lower.includes('zoom.us')) {
+        typeLabel = 'Zoom Meeting';
+        badgeClass = 'bg-sky-100 text-sky-800';
+        defaultTitle = 'Ruang Rapat / Kuliah Zoom';
+      }
+
+      const iconSvg = `<svg class="w-4 h-4 text-[#0B57D0]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>`;
+
+      return {
+        url: u,
+        label: customLabel || defaultTitle,
+        typeLabel,
+        badgeClass,
+        previewUrl,
+        iconSvg
+      };
+    }
+
+    function extractTaskResources(task) {
+      const map = new Map();
+      if (Array.isArray(task._richLinks)) {
+        task._richLinks.forEach(rl => {
+          if (rl && rl.url && /^https?:\/\//i.test(rl.url)) {
+            map.set(rl.url, classifyResourceUrl(rl.url, rl.label || ''));
+          }
+        });
+      }
+      const textFields = [
+        task['Detail / Catatan'] || '',
+        task['Lampiran / Link'] || '',
+        task['Lampiran'] || ''
+      ].join('\n');
+
+      const urlRegex = /(https?:\/\/[^\s<>"']+)/gi;
+      let match;
+      while ((match = urlRegex.exec(textFields)) !== null) {
+        const cleanUrl = match[1].replace(/[),.;]+$/, '');
+        if (!map.has(cleanUrl)) {
+          map.set(cleanUrl, classifyResourceUrl(cleanUrl));
+        }
+      }
+      return Array.from(map.values());
+    }
+
+    function linkifyText(text) {
+      const escaped = esc(text);
+      return escaped.replace(/(https?:\/\/[^\s<]+)/gi, (url) => {
+        return `<a href="${url}" target="_blank" rel="noopener" class="text-[#0B57D0] font-semibold underline break-all">${url}</a>`;
+      });
+    }
+
+    function openQuickPreview(previewUrl, externalUrl, title, typeLabel) {
+      document.getElementById('previewTypeBadge').textContent = typeLabel || 'DOKUMEN';
+      document.getElementById('previewFileTitle').textContent = title || 'Pratinjau Dokumen';
+      document.getElementById('btnPreviewOpenExternal').href = externalUrl || previewUrl;
+      document.getElementById('btnPreviewCopy').onclick = () => copyText(externalUrl || previewUrl);
+      document.getElementById('previewIframe').src = previewUrl;
+      document.getElementById('previewFileModal').classList.remove('hidden');
+    }
+
+    function closePreviewModal() {
+      document.getElementById('previewIframe').src = 'about:blank';
+      document.getElementById('previewFileModal').classList.add('hidden');
+    }
+
+    async function fetchAllData(showNotif = false) {
+      const cfg = getConfig();
+      if (!cfg.token || IS_DEMO_MODE) {
+        updateKPIs();
+        renderSurat();
+        renderTugas();
+        renderSarpras();
+        renderMagang();
+        return;
+      }
+
+      const statusText = document.getElementById('lastUpdatedText');
+      if (statusText) statusText.textContent = 'Menyinkronkan...';
+
+      try {
+        const url = `${cfg.url}?token=${encodeURIComponent(cfg.token)}&action=getAll`;
+        const res = await fetch(url, { method: 'GET', redirect: 'follow' });
+        const json = await res.json();
+
+        if (json.status !== 'success') {
+          throw new Error(json.message || 'Gagal memuat data dari server.');
+        }
+
+        APP_DATA = json.data || { surat: [], sarpras: [], magang: [], tugas: [] };
+        const nowStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        if (statusText) statusText.textContent = `Live • ${nowStr}`;
+
+        updateKPIs();
+        renderSurat();
+        renderTugas();
+        renderSarpras();
+        renderMagang();
+
+        if (showNotif) {
+          showToast('Data Tersinkronisasi', 'Seluruh data Google Sheets berhasil diperbarui.', 'success');
+        }
+      } catch (err) {
+        if (statusText) statusText.textContent = 'Koneksi Terputus';
+        if (showNotif) {
+          showToast('Gagal Sinkronisasi', err.message, 'error');
+        }
+      }
+    }
+
+    function renderSurat() {
+      const q = (document.getElementById('searchSurat')?.value || '').toLowerCase();
+      const kat = document.getElementById('filterKategoriSurat')?.value || '';
+      const stFilter = document.getElementById('filterStatusSurat')?.value || 'AKTIF';
+
+      const list = [...(APP_DATA.surat || [])].reverse().filter(s => {
+        const stAdmin = (s['STATUS PROSES ADMIN'] || '').toUpperCase();
+        const stAcc = (s['STATUS ACC KAPRODI'] || '').toUpperCase();
+        const isDone = stAdmin === 'SELESAI' || stAcc === 'DITOLAK KAPRODI';
+
+        if (stFilter === 'AKTIF' && isDone) return false;
+        if (stFilter === 'SELESAI' && stAdmin !== 'SELESAI') return false;
+        if (kat && (s['Kategori Ajuan Surat'] || '') !== kat) return false;
+
+        if (q) {
+          const hay = Object.values(s).join(' ').toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      const tbody = document.getElementById('tableSuratBody');
+      if (!tbody) return;
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-[#646B77]">Tidak ada data pengajuan surat yang sesuai filter.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(s => {
+        const waLink = formatWaLink(s['No. WhatsApp']);
+        const acc = (s['STATUS ACC KAPRODI'] || '').toUpperCase();
+        const proses = (s['STATUS PROSES ADMIN'] || 'DRAFT').toUpperCase();
+
+        const accBadge = acc === 'DISETUJUI KAPRODI'
+          ? 'bg-emerald-100 text-emerald-800'
+          : (acc === 'DITOLAK KAPRODI' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800');
+        const prosesBadge = proses === 'SELESAI'
+          ? 'bg-emerald-100 text-emerald-800'
+          : 'bg-[#DCE8FB] text-[#0B57D0]';
+
+        const linkPdf = s['Link PDF Final'] || '';
+        const linkDraft = s['DRAFT PENGANTAR ADMIN'] || '';
+
+        return `
+          <tr class="hover:bg-white/60 transition align-top">
+            <td class="p-4 pl-6">
+              <div class="text-[11px] font-mono text-[#646B77]">${esc(s['Timestamp'] || '-')}</div>
+              <div class="font-bold text-[#1F242D] mt-0.5">${esc(s['Nama Lengkap Pemohon'] || '-')}</div>
+              <div class="text-xs text-[#646B77]">${esc(s['Status Pemohon'] || '')} • ${esc(s['NPM / NIP'] || '-')}</div>
+              <div class="mt-1.5 flex flex-wrap items-center gap-2 text-xs">
+                ${waLink ? `<a href="${esc(waLink)}" target="_blank" rel="noopener" class="text-emerald-700 font-bold hover:underline">WA: ${esc(s['No. WhatsApp'])} &nearr;</a>` : ''}
+              </div>
+            </td>
+            <td class="p-4 max-w-sm">
+              <span class="inline-block text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#ECE9E1] text-[#1F242D]">${esc(s['Jenis Surat / Dokumen'] || 'Surat')}</span>
+              <div class="font-bold text-[#1F242D] mt-1 leading-snug">${esc(s['Perihal / Judul Surat'] || '-')}</div>
+              <div class="text-xs text-[#646B77] mt-0.5">Tujuan: <span class="font-semibold text-[#1F242D]">${esc(s['Instansi / Pihak Tujuan'] || '-')}</span></div>
+            </td>
+            <td class="p-4 space-y-1.5">
+              <div><span class="inline-block text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full ${accBadge}">${esc(acc || 'MENUNGGU ACC')}</span></div>
+              <div><span class="inline-block text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full ${prosesBadge}">${esc(proses)}</span></div>
+            </td>
+            <td class="p-4 text-xs space-y-1.5">
+              <div class="font-mono font-bold text-[#1F242D]">${esc(s['Nomor Dokumen Resmi'] || 'Belum bernomor')}</div>
+              ${s['No registrasi TU Fakultas'] && s['No registrasi TU Fakultas'] !== '-' ? `<div class="text-[#646B77]">Reg TU: <span class="font-mono font-semibold text-[#1F242D]">${esc(s['No registrasi TU Fakultas'])}</span></div>` : ''}
+              <div class="flex flex-wrap gap-1.5 pt-0.5">
+                ${linkDraft && linkDraft.startsWith('http') ? `<a href="${esc(linkDraft)}" target="_blank" rel="noopener" class="btn-ivory px-2.5 py-1 text-[11px] text-[#0B57D0]">Draft &nearr;</a>` : ''}
+                ${linkPdf && linkPdf.startsWith('http') ? `<a href="${esc(linkPdf)}" target="_blank" rel="noopener" class="btn-cobalt px-2.5 py-1 text-[11px]">PDF Final &nearr;</a>` : ''}
+              </div>
+            </td>
+            <td class="p-4 pr-6 text-right">
+              <button onclick="openEditSurat(${s._row})" class="btn-cobalt px-4 py-2 text-xs">Proses Surat</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openEditSurat(rowNum) {
+      const item = (APP_DATA.surat || []).find(s => s._row === rowNum);
+      if (!item) return;
+      CURRENT_SURAT_ITEM = item;
+
+      document.getElementById('editSuratRow').value = rowNum;
+      document.getElementById('editSuratPerihalRaw').value = item['Perihal / Judul Surat'] || '';
+      document.getElementById('editSuratPemohonRaw').value = item['Nama Lengkap Pemohon'] || '';
+      document.getElementById('editSuratInitialStatus').value = (item['STATUS PROSES ADMIN'] || 'DRAFT').toUpperCase();
+      document.getElementById('suratModalSubtitle').textContent = `${item['Nama Lengkap Pemohon'] || '-'} — ${item['Perihal / Judul Surat'] || '-'}`;
+
+      document.getElementById('editAccKaprodi').value = item['STATUS ACC KAPRODI'] || '';
+      document.getElementById('editProsesAdmin').value = item['STATUS PROSES ADMIN'] || 'DRAFT';
+      document.getElementById('editNomorDokumen').value = item['Nomor Dokumen Resmi'] || '';
+      document.getElementById('editRegTU').value = item['No registrasi TU Fakultas'] || '';
+      document.getElementById('editDraftAdmin').value = item['DRAFT PENGANTAR ADMIN'] || '';
+      document.getElementById('editLinkPdf').value = item['Link PDF Final'] || '';
+      document.getElementById('editCatatanAdmin').value = item['Catatan Admin'] || '';
+
+      const pDraft = document.getElementById('linkPreviewDraft');
+      if (item['DRAFT PENGANTAR ADMIN'] && item['DRAFT PENGANTAR ADMIN'].startsWith('http')) {
+        pDraft.href = item['DRAFT PENGANTAR ADMIN'];
+        pDraft.classList.remove('hidden');
+      } else {
+        pDraft.classList.add('hidden');
+      }
+
+      const pFinal = document.getElementById('linkPreviewFinal');
+      if (item['Link PDF Final'] && item['Link PDF Final'].startsWith('http')) {
+        pFinal.href = item['Link PDF Final'];
+        pFinal.classList.remove('hidden');
+      } else {
+        pFinal.classList.add('hidden');
+      }
+
+      const email = (item['Email Aktif'] || '').trim();
+      const emailLabel = document.getElementById('emailRecipientLabel');
+      const chkEmail = document.getElementById('chkSendEmailNotif');
+      chkEmail.checked = false;
+      if (email && email.includes('@')) {
+        emailLabel.textContent = email;
+        chkEmail.disabled = false;
+      } else {
+        emailLabel.textContent = 'Email pemohon tidak tersedia';
+        chkEmail.disabled = true;
+      }
+
+      document.getElementById('geminiPromptWrapper').classList.add('hidden');
+      refreshGeminiPromptPreview();
+      document.getElementById('editSuratModal').classList.remove('hidden');
+    }
+
+    function insertPromptSnippet(type) {
+      const box = document.getElementById('aiSuratExtraNotes');
+      const snippets = {
+        waktu: '\n- Waktu & Tempat Pelaksanaan: [Hari/Tanggal], Pukul [09.00 WIB - selesai], bertempat di [Lokasi/Ruang].',
+        peserta: '\n- Sertakan tabel daftar nama mahasiswa/dosen peserta (No, Nama Lengkap, NPM/NIP, Program Studi).',
+        tembusan: '\n- Tambahkan Tembusan kepada: 1. Dekan Sekolah Vokasi UNPAD; 2. Wakil Dekan I Sekolah Vokasi UNPAD.',
+        dekanat: '\n- Format penandatanganan ditujukan/diketahui oleh Dekan / Wakil Dekan Sekolah Vokasi Universitas Padjadjaran.'
+      };
+      box.value = (box.value + (snippets[type] || '')).trim();
+      refreshGeminiPromptPreview();
+    }
+
+    function buildSuratPromptForGemini() {
+      const item = CURRENT_SURAT_ITEM || {};
+      const nomor = document.getElementById('editNomorDokumen')?.value.trim() || '___/UN6.T.4.6/TU.00/2026';
+      const lampiran = document.getElementById('aiSuratLampiran')?.value.trim() || '-';
+      const format = document.getElementById('aiSuratOutputFormat')?.value || 'word_copy';
+      const extra = document.getElementById('aiSuratExtraNotes')?.value.trim() || '';
+
+      const formatInstructionMap = {
+        word_copy: 'Buatkan teks surat resmi siap copy-paste ke Microsoft Word (tanpa kop surat karena sudah menggunakan kertas berkop resmi prodi, gunakan struktur baku tata naskah dinas Universitas Padjadjaran).',
+        google_docs: 'Susun naskah surat resmi lengkap yang siap diekspor ke Google Docs dengan tata letak rapi.',
+        google_sheets: 'Susun rekap data / lampiran surat dalam format tabel terstruktur yang siap disalin ke Google Sheets.',
+        docx_file: 'Buatkan dokumen surat resmi lengkap beserta struktur file Microsoft Word (.docx).',
+        pdf_file: 'Susun naskah surat dinas formal siap cetak ke PDF.',
+        email_pengantar: 'Buatkan draft email pengantar resmi yang sopan dan ringkas untuk pengiriman surat ini.'
+      };
+
+      return [
+        `Tolong buatkan naskah surat dinas resmi Program Studi Sarjana Terapan (D-4) Teknologi Industri Kimia, Sekolah Vokasi, Universitas Padjadjaran dengan rincian berikut:`,
+        `- Jenis Dokumen: ${item['Jenis Surat / Dokumen'] || 'Surat Resmi'}`,
+        `- Nomor Surat: ${nomor}`,
+        `- Lampiran: ${lampiran}`,
+        `- Perihal: ${item['Perihal / Judul Surat'] || '-'}`,
+        `- Tujuan Surat: ${item['Instansi / Pihak Tujuan'] || '-'}`,
+        `- Pemohon: ${item['Nama Lengkap Pemohon'] || '-'} (${item['Status Pemohon'] || ''} - ${item['NPM / NIP'] || '-'})`,
+        `- Detail Keperluan: ${item['Detail Keperluan & Tanggal Kegiatan'] || '-'}`,
+        extra ? `- Instruksi Tambahan:\n${extra}` : '',
+        `\nFormat Hasil Akhir:\n${formatInstructionMap[format] || formatInstructionMap.word_copy}`
+      ].filter(Boolean).join('\n');
+    }
+
+    function refreshGeminiPromptPreview() {
+      const previewBox = document.getElementById('geminiPromptPreviewBox');
+      if (previewBox) {
+        previewBox.value = buildSuratPromptForGemini();
+      }
+    }
+
     function getQuickFolders() {
       try {
         const saved = localStorage.getItem('tikim_quick_folders_v1');
@@ -1574,48 +2162,9 @@
           if (firstVisible) browseDriveItem(firstVisible.id);
         }
       }
-    }
 
-    async function fetchAllData(showLoading = false) {
-      const cfg = getConfig();
-      if (!cfg.token || IS_DEMO_MODE) {
-        if (showLoading) {
-          updateKPIs();
-          renderSurat();
-          renderTugas();
-          renderSarpras();
-          renderMagang();
-          showToast('Data Pratinjau Segar', 'Klik "Login Live API" di kanan atas untuk memuat data Google Sheets asli.', 'info');
-        }
-        return;
-      }
-
-      if (showLoading) {
-        document.getElementById('lastUpdatedText').textContent = 'Sinkronisasi...';
-      }
-
-      try {
-        const res = await fetch(`${cfg.url}?token=${encodeURIComponent(cfg.token)}`, {
-          method: 'GET',
-          redirect: 'follow'
-        });
-        const json = await res.json();
-        if (json.status !== 'success') {
-          localStorage.removeItem('tikim_api_token');
-          activateDemoMode();
-          showToast('Sesi Berakhir', json.message, 'error');
-          return;
-        }
-        APP_DATA = json.data;
-        document.getElementById('lastUpdatedText').textContent = 'Live: ' + json.updatedAt;
-        updateKPIs();
-        renderSurat();
-        renderTugas();
-        renderSarpras();
-        renderMagang();
-      } catch (err) {
-        document.getElementById('lastUpdatedText').textContent = 'Gagal terhubung';
-        console.error(err);
+      if (tabName === 'links') {
+        renderLinksDatabase();
       }
     }
 
@@ -1659,395 +2208,19 @@
 
       const visibleCount = getQuickFolders().filter(f => f.visible).length;
       document.getElementById('kpiDriveCount').textContent = `${visibleCount} Folder`;
-    }
 
-    function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        if (file.size > 15 * 1024 * 1024) {
-          reject(new Error("Ukuran file maksimal 15 MB."));
-          return;
-        }
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = err => reject(err);
-        reader.readAsDataURL(file);
-      });
-    }
+      const allLinks = getCombinedLinks();
+      const favSet = getFavoriteLinkUrls();
+      const favCount = allLinks.filter(l => favSet.has(l.url)).length;
+      const favPct = allLinks.length > 0 ? Math.min(100, Math.round((favCount / allLinks.length) * 100)) : 0;
 
-    function classifyResourceUrl(url, customLabel = '') {
-      const u = String(url || '').trim();
-      const lower = u.toLowerCase();
-
-      let typeLabel = 'Link Web';
-      let badgeClass = 'bg-[#ECE9E1] text-[#1F242D]';
-      let iconSvg = '<svg class="w-4 h-4 text-[#0B57D0] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>';
-      let previewUrl = null;
-      let defaultName = customLabel || '';
-
-      if (lower.includes('docs.google.com/document')) {
-        typeLabel = 'Google Docs';
-        badgeClass = 'bg-[#DCE8FB] text-[#0B57D0]';
-        const m = u.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
-        if (m) previewUrl = `https://docs.google.com/document/d/${m[1]}/preview`;
-        if (!defaultName) defaultName = 'Dokumen Google Docs';
-      } else if (lower.includes('docs.google.com/spreadsheets')) {
-        typeLabel = 'Google Sheets';
-        badgeClass = 'bg-emerald-100 text-emerald-800';
-        const m = u.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
-        if (m) previewUrl = `https://docs.google.com/spreadsheets/d/${m[1]}/preview`;
-        if (!defaultName) defaultName = 'Spreadsheet Data';
-      } else if (lower.includes('docs.google.com/presentation')) {
-        typeLabel = 'Google Slides';
-        badgeClass = 'bg-amber-100 text-amber-800';
-        const m = u.match(/\/presentation\/d\/([a-zA-Z0-9_-]+)/);
-        if (m) previewUrl = `https://docs.google.com/presentation/d/${m[1]}/preview`;
-        if (!defaultName) defaultName = 'Presentasi Slides';
-      } else if (lower.includes('drive.google.com/drive/folders') || lower.includes('drive.google.com/folderview')) {
-        typeLabel = 'Folder Drive';
-        badgeClass = 'bg-[#DCE8FB] text-[#0B57D0]';
-        const m = u.match(/\/folders\/([a-zA-Z0-9_-]+)/);
-        if (m) previewUrl = `https://drive.google.com/embeddedfolderview?id=${m[1]}#list`;
-        if (!defaultName) defaultName = 'Folder Google Drive';
-      } else if (lower.includes('drive.google.com')) {
-        typeLabel = 'File Drive';
-        badgeClass = 'bg-[#DCE8FB] text-[#0B57D0]';
-        const m = u.match(/\/d\/([a-zA-Z0-9_-]+)/) || u.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-        if (m) previewUrl = `https://drive.google.com/file/d/${m[1]}/preview`;
-        if (!defaultName) defaultName = 'Berkas Google Drive';
-      } else if (lower.endsWith('.pdf')) {
-        typeLabel = 'PDF';
-        badgeClass = 'bg-rose-100 text-rose-700';
-        previewUrl = u;
-        if (!defaultName) defaultName = decodeURIComponent(u.split('/').pop().split('?')[0]);
-      }
-
-      if (!defaultName) {
-        try {
-          const urlObj = new URL(u);
-          defaultName = urlObj.hostname.replace(/^www\./, '') + (urlObj.pathname !== '/' ? urlObj.pathname.slice(0, 28) : '');
-        } catch (e) {
-          defaultName = u.slice(0, 42);
-        }
-      }
-
-      return { url: u, label: defaultName, typeLabel, badgeClass, iconSvg, previewUrl };
-    }
-
-    function extractTaskResources(taskObj) {
-      const resources = [];
-      const seen = new Set();
-
-      const addUrl = (rawUrl, label = '') => {
-        const clean = String(rawUrl || '').trim().replace(/[),.;]+$/, '');
-        if (!clean || !/^https?:\/\//i.test(clean) || seen.has(clean)) return;
-        seen.add(clean);
-        resources.push(classifyResourceUrl(clean, label));
-      };
-
-      if (Array.isArray(taskObj._richLinks)) {
-        taskObj._richLinks.forEach(item => {
-          const lbl = (item.label && !item.label.startsWith('http')) ? item.label : '';
-          addUrl(item.url, lbl);
-        });
-      }
-
-      Object.keys(taskObj).forEach(key => {
-        if (key.startsWith('_')) return;
-        const val = String(taskObj[key] || '');
-        const matches = val.match(/https?:\/\/[^\s<>"']+/gi);
-        if (matches) {
-          matches.forEach(m => addUrl(m));
-        }
-      });
-
-      return resources;
-    }
-
-    function openQuickPreview(previewUrl, originalUrl, title, typeLabel) {
-      document.getElementById('previewFileTitle').textContent = title || 'Pratinjau Dokumen';
-      document.getElementById('previewTypeBadge').textContent = typeLabel || 'FILE';
-      document.getElementById('previewIframe').src = previewUrl;
-      document.getElementById('btnPreviewOpenExternal').href = originalUrl;
-      document.getElementById('btnPreviewCopy').onclick = () => copyText(originalUrl);
-      document.getElementById('previewFileModal').classList.remove('hidden');
-    }
-
-    function closePreviewModal() {
-      document.getElementById('previewIframe').src = 'about:blank';
-      closeModal('previewFileModal');
-    }
-
-    function linkifyText(text) {
-      const safe = esc(text || '');
-      return safe.replace(/(https?:\/\/[^\s<]+)/gi, '<a href="$1" target="_blank" rel="noopener" class="text-[#0B57D0] underline hover:opacity-80 break-all">$1</a>');
-    }
-
-    function copyText(text) {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).catch(() => fallbackCopyText(text));
-      } else {
-        fallbackCopyText(text);
-      }
-      showToast('Tautan Disalin', 'Link berhasil disalin ke clipboard.', 'info');
-    }
-
-    function fallbackCopyText(text) {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.opacity = '0';
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      ta.remove();
-    }
-
-    // --- RENDER SURAT ---
-    function renderSurat() {
-      const q = document.getElementById('searchSurat').value.toLowerCase();
-      const kat = document.getElementById('filterKategoriSurat').value;
-      const stFilter = document.getElementById('filterStatusSurat').value;
-
-      const list = [...(APP_DATA.surat || [])].reverse().filter(item => {
-        const proses = (item['STATUS PROSES ADMIN'] || '').toUpperCase();
-        const acc = (item['STATUS ACC KAPRODI'] || '').toUpperCase();
-        if (stFilter === 'AKTIF' && (proses === 'SELESAI' || acc === 'DITOLAK KAPRODI')) return false;
-        if (stFilter === 'SELESAI' && proses !== 'SELESAI') return false;
-        if (kat && item['Pilih Kategori Surat'] !== kat) return false;
-
-        if (q) {
-          const hay = [
-            item['Nama Lengkap & Gelar'],
-            item['NIP / NPM'],
-            item['Perihal / Judul Ajuan Surat'],
-            item['Nomor Dokumen Resmi'],
-            item['Pejabat / Instansi Tujuan']
-          ].join(' ').toLowerCase();
-          if (!hay.includes(q)) return false;
-        }
-        return true;
-      });
-
-      const tbody = document.getElementById('tableSuratBody');
-      if (list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-[#646B77]">Tidak ada data surat yang sesuai dengan filter pencarian.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = list.map(item => {
-        const waUrl = formatWaLink(item['Nomor WhatsApp Active']);
-        const acc = item['STATUS ACC KAPRODI'] || 'MENUNGGU ACC';
-        const proses = item['STATUS PROSES ADMIN'] || 'BARU';
-        const accBadge = acc.includes('DISETUJUI') ? 'bg-emerald-100 text-emerald-800' :
-                         acc.includes('DITOLAK') ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800';
-        const prosesBadge = proses === 'SELESAI' ? 'bg-[#DCE8FB] text-[#0B57D0]' : 'bg-[#ECE9E1] text-[#1F242D]';
-
-        const berkasPemohon = item['Upload Draft / Berkas Pendukung'];
-        const draftAdmin = item['DRAFT PENGANTAR ADMIN'];
-        const pdfFinal = item['Link PDF Final'];
-        const initials = getInitials(item['Nama Lengkap & Gelar']);
-
-        return `
-          <tr class="hover:bg-white/60 transition align-top">
-            <td class="p-4 pl-6">
-              <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-full bg-[#DCE8FB] text-[#0B57D0] font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">
-                  ${esc(initials)}
-                </div>
-                <div>
-                  <div class="text-[11px] font-mono text-[#646B77]">${esc(item['Timestamp'])}</div>
-                  <div class="font-bold text-[#1F242D] mt-0.5">${esc(item['Nama Lengkap & Gelar'])}</div>
-                  <div class="text-xs text-[#646B77]">${esc(item['Status Pemohon'])} • <span class="font-mono">${esc(item['NIP / NPM'])}</span></div>
-                  ${waUrl ? `<a href="${waUrl}" target="_blank" rel="noopener" class="btn-ivory inline-flex items-center gap-1 mt-2 px-3 py-1 text-[11px] text-emerald-700">Chat WA (${esc(item['Nomor WhatsApp Active'])})</a>` : ''}
-                </div>
-              </div>
-            </td>
-            <td class="p-4 max-w-xs">
-              <span class="inline-block text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#ECE9E1] text-[#646B77] mb-1.5">${esc(item['Pilih Kategori Surat'])}</span>
-              <div class="font-bold text-[#1F242D] leading-snug">${esc(item['Perihal / Judul Ajuan Surat'])}</div>
-              <div class="text-xs text-[#646B77] mt-1">Tujuan: <span class="text-[#1F242D] font-semibold">${esc(item['Pejabat / Instansi Tujuan'])}</span></div>
-              ${item['Catatan Admin'] ? `<div class="text-xs text-[#1F242D] bg-[#ECE9E1] px-3 py-1.5 rounded-xl mt-2"><b>Note:</b> ${esc(item['Catatan Admin'])}</div>` : ''}
-            </td>
-            <td class="p-4 space-y-1.5">
-              <div><span class="inline-block text-[11px] font-bold px-3 py-0.5 rounded-full ${accBadge}">${esc(acc)}</span></div>
-              <div><span class="inline-block text-[11px] font-bold px-3 py-0.5 rounded-full ${prosesBadge}">${esc(proses)}</span></div>
-            </td>
-            <td class="p-4 text-xs space-y-1.5">
-              <div class="font-mono font-bold text-[#1F242D]">${esc(item['Nomor Dokumen Resmi'] || '-')}</div>
-              <div class="text-[#646B77]">Reg TU: <span class="font-mono">${esc(item['No registrasi TU Fakultas'] || '-')}</span></div>
-              <div class="flex flex-wrap gap-1.5 pt-1">
-                ${berkasPemohon && berkasPemohon.startsWith('http') ? `<a href="${esc(berkasPemohon)}" target="_blank" rel="noopener" class="btn-ivory px-2.5 py-1 text-[11px]">1. Berkas</a>` : ''}
-                ${draftAdmin && draftAdmin.startsWith('http') ? `<a href="${esc(draftAdmin)}" target="_blank" rel="noopener" class="btn-ivory px-2.5 py-1 text-[11px] text-amber-800">2. Draft</a>` : ''}
-                ${pdfFinal && pdfFinal.startsWith('http') ? `<a href="${esc(pdfFinal)}" target="_blank" rel="noopener" class="btn-cobalt px-2.5 py-1 text-[11px]">3. PDF Final</a>` : ''}
-              </div>
-            </td>
-            <td class="p-4 pr-6 text-right">
-              <button onclick="openEditSurat(${item._row})" class="btn-cobalt px-4 py-2 text-xs">
-                Proses / Susun
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    function openEditSurat(rowNum) {
-      const item = (APP_DATA.surat || []).find(s => s._row === rowNum);
-      if (!item) return;
-      CURRENT_SURAT_ITEM = item;
-
-      const initialStatus = (item['STATUS PROSES ADMIN'] || 'DRAFT').toUpperCase();
-      const emailPemohon = String(item['Email Aktif'] || '').trim();
-
-      document.getElementById('editSuratRow').value = rowNum;
-      document.getElementById('editSuratInitialStatus').value = initialStatus;
-      document.getElementById('editSuratPerihalRaw').value = item['Perihal / Judul Ajuan Surat'] || '';
-      document.getElementById('editSuratPemohonRaw').value = item['Nama Lengkap & Gelar'] || '';
-      document.getElementById('suratModalSubtitle').textContent = `${item['Nama Lengkap & Gelar']} — ${item['Perihal / Judul Ajuan Surat']}`;
-      document.getElementById('editAccKaprodi').value = item['STATUS ACC KAPRODI'] || '';
-      document.getElementById('editProsesAdmin').value = item['STATUS PROSES ADMIN'] || 'DRAFT';
-      document.getElementById('editNomorDokumen').value = item['Nomor Dokumen Resmi'] || '';
-      document.getElementById('editRegTU').value = item['No registrasi TU Fakultas'] || '';
-      document.getElementById('editLinkPdf').value = item['Link PDF Final'] || '';
-      document.getElementById('editDraftAdmin').value = item['DRAFT PENGANTAR ADMIN'] || '';
-      document.getElementById('editCatatanAdmin').value = item['Catatan Admin'] || '';
-
-      document.getElementById('aiSuratOutputFormat').value = 'word_copy';
-      document.getElementById('aiSuratLampiran').value = '-';
-      document.getElementById('aiSuratExtraNotes').value = '';
-      document.getElementById('geminiPromptWrapper').classList.add('hidden');
-      document.getElementById('geminiPromptPreviewBox').value = '';
-
-      document.getElementById('fileUploadDraft').value = '';
-      document.getElementById('fileUploadFinal').value = '';
-
-      const chkEmail = document.getElementById('chkSendEmailNotif');
-      const emailLabel = document.getElementById('emailRecipientLabel');
-      if (emailPemohon && emailPemohon.includes('@')) {
-        emailLabel.textContent = emailPemohon;
-        chkEmail.disabled = false;
-      } else {
-        emailLabel.textContent = 'Email pemohon tidak tersedia di GForm';
-        chkEmail.disabled = true;
-      }
-      chkEmail.checked = false;
-
-      const pDraft = document.getElementById('linkPreviewDraft');
-      if (item['DRAFT PENGANTAR ADMIN'] && item['DRAFT PENGANTAR ADMIN'].startsWith('http')) {
-        pDraft.href = item['DRAFT PENGANTAR ADMIN'];
-        pDraft.classList.remove('hidden');
-      } else {
-        pDraft.classList.add('hidden');
-      }
-
-      const pFinal = document.getElementById('linkPreviewFinal');
-      if (item['Link PDF Final'] && item['Link PDF Final'].startsWith('http')) {
-        pFinal.href = item['Link PDF Final'];
-        pFinal.classList.remove('hidden');
-      } else {
-        pFinal.classList.add('hidden');
-      }
-
-      document.getElementById('editSuratModal').classList.remove('hidden');
-    }
-
-    // --- PELUNCUR PROMPT GEMINI FLEKSIBEL ---
-    function insertPromptSnippet(type) {
-      const box = document.getElementById('aiSuratExtraNotes');
-      const snippets = {
-        waktu: '- Waktu & Tempat Pelaksanaan: [Hari/Tanggal], pukul [08.00 - 16.00 WIB], bertempat di [Nama Ruangan / Lokasi].',
-        peserta: '- Sertakan tabel daftar mahasiswa/peserta dengan kolom (No, Nama Lengkap, NPM, Program Studi):\n  1. [Nama Mahasiswa] ([NPM])',
-        tembusan: '- Tambahkan Tembusan di kiri bawah surat kepada:\n  1. Wakil Dekan Bidang Akademik dan Kemahasiswaan Sekolah Vokasi UNPAD\n  2. Arsip',
-        dekanat: '- Penandatangan surat adalah Wakil Dekan / Dekan Sekolah Vokasi Universitas Padjadjaran (bukan Ketua Program Studi).'
-      };
-      const textToAdd = snippets[type] || '';
-      if (!textToAdd) return;
-
-      const current = box.value.trim();
-      box.value = current ? `${current}\n${textToAdd}` : textToAdd;
-      box.focus();
-      refreshGeminiPromptPreview();
-    }
-
-    function buildSuratPromptForGemini() {
-      if (!CURRENT_SURAT_ITEM) return '';
-
-      const outputFormat = document.getElementById('aiSuratOutputFormat').value;
-      const nomorSurat = document.getElementById('editNomorDokumen').value.trim() || '[Nomor Surat]';
-      const lampiranInput = document.getElementById('aiSuratLampiran').value.trim();
-      const hasLampiran = lampiranInput && lampiranInput !== '-' && lampiranInput.toLowerCase() !== 'tidak ada';
-      const extraNotes = document.getElementById('aiSuratExtraNotes').value.trim();
-
-      const skipKeys = /^(Timestamp|STATUS|Link PDF|DRAFT PENGANTAR|No registrasi|Nomor Dokumen|Catatan Admin|Email Aktif|Nomor WhatsApp)/i;
-      const dataLines = [];
-      Object.keys(CURRENT_SURAT_ITEM).forEach(k => {
-        if (k.startsWith('_') || skipKeys.test(k)) return;
-        const val = String(CURRENT_SURAT_ITEM[k] || '').trim();
-        if (val && !val.startsWith('http')) {
-          dataLines.push(`- ${k}: ${val}`);
-        }
-      });
-
-      const kategori = String(CURRENT_SURAT_ITEM['Pilih Kategori Surat'] || '');
-      const defaultSigner = kategori.toLowerCase().includes('lintas fakultas')
-        ? 'Ketua Program Studi D-4 Teknologi Industri Kimia (atau sesuaikan jika tingkat Dekanat Sekolah Vokasi)'
-        : 'Ketua Program Studi D-4 Teknologi Industri Kimia';
-
-      const lampiranRule = hasLampiran
-        ? `   - Lampiran : ${lampiranInput}`
-        : `   - (JANGAN cantumkan baris "Lampiran" karena surat ini tidak memiliki lampiran)`;
-
-      const formatDirectives = {
-        word_copy: `FORMAT HASIL AKHIR YANG DIMINTA:
-- Cetak sebagai TEKS SIAP COPY-PASTE untuk ditempel ke template kop surat di Microsoft Word (TANPA KOP SURAT).
-- Langsung tampilkan isi suratnya saja tanpa kalimat pembuka, pengantar, atau penutup dari Anda.
-- Siapkan tata letak yang presisi saat ditempel ke MS Word dengan font Bookman Old Style ukuran 10 pt (gunakan tabel tanpa garis tepi / tabulasi yang sejajar untuk Nomor, Perihal, dan blok identitas pemohon, serta paragraf rata kanan-kiri / Justify).`,
-
-        google_docs: `FORMAT HASIL AKHIR YANG DIMINTA:
-- Cetak dan buatkan hasil akhirnya langsung sebagai dokumen GOOGLE DOCS (gunakan fitur pembuatan/ekspor Google Docs) yang siap dibuka dan diedit di Google Drive.
-- Atur tipografi di dalam Google Docs menggunakan font Bookman Old Style ukuran 10 pt, spasi 1.15, paragraf rata kanan-kiri (Justify), dan TANPA KOP SURAT di bagian atas (sisakan margin atas agar siap ditempel ke kop resmi UNPAD).`,
-
-        google_sheets: `FORMAT HASIL AKHIR YANG DIMINTA:
-- Cetak dan buatkan hasil akhirnya langsung sebagai spreadsheet GOOGLE SHEETS (gunakan fitur pembuatan/ekspor Google Sheets).
-- Susun seluruh data ajuan, rincian pemohon, daftar peserta/lampiran, serta status administrasi ke dalam kolom-kolom tabel yang terstruktur rapi, bersih, dan siap diolah.`,
-
-        docx_file: `FORMAT HASIL AKHIR YANG DIMINTA:
-- Buatkan dan berikan tautan unduhan FILE MICROSOFT WORD (.docx) secara langsung.
-- Di dalam file .docx tersebut, gunakan font Bookman Old Style ukuran 10 pt, spasi 1.15, paragraf rata kanan-kiri (Justify), tabel tanpa garis tepi untuk blok Nomor/Perihal/Identitas, dan TANPA KOP SURAT di bagian atas.`,
-
-        pdf_file: `FORMAT HASIL AKHIR YANG DIMINTA:
-- Buatkan dan berikan tautan unduhan FILE PDF (.pdf) siap cetak secara langsung.
-- Gunakan tata letak surat dinas resmi yang rapi dengan font Bookman Old Style ukuran 10 pt, paragraf rata kanan-kiri (Justify), dan TANPA KOP SURAT di bagian atas.`,
-
-        email_pengantar: `FORMAT HASIL AKHIR YANG DIMINTA:
-- Cetak sebagai DRAFT EMAIL PENGANTAR / TINDAK LANJUT RESMI (terdiri dari Baris Subjek Email dan Isi Email yang ringkas, sopan, dan profesional) untuk meneruskan pengajuan surat ini ke pihak terkait (TU Fakultas / Dekanat / Instansi Tujuan).`
-      };
-
-      const selectedDirective = formatDirectives[outputFormat] || formatDirectives.word_copy;
-
-      return `Buatkan dokumen administrasi resmi untuk Program Studi D-4 Teknologi Industri Kimia, Sekolah Vokasi, Universitas Padjadjaran berdasarkan data ajuan berikut:
-
-DATA AJUAN PEMOHON:
-${dataLines.join('\n')}
-${extraNotes ? `\nTAMBAHAN DETAIL & INSTRUKSI KHUSUS:\n${extraNotes}` : ''}
-
-${selectedDirective}
-
-STRUKTUR & ATURAN ISI SURAT (WAJIB DIPATUHI):
-1. Susunan kepala surat (jika berbentuk surat):
-   - Nomor : ${nomorSurat}
-${lampiranRule}
-   - Perihal : [Buat perihal yang singkat, baku, dan diawali huruf kapital tiap kata utama]
-2. Tujuan surat ("Yth. ..." beserta jabatan/instansi dan lokasi tujuan) disesuaikan secara akurat dengan data pemohon.
-3. Gunakan Bahasa Indonesia dinas yang baku, sopan, padat, dan langsung ke inti (tanpa basa-basi berlebih).
-4. Jangan mengarang fakta di luar data di atas. Jika ada informasi spesifik yang belum tercantum (misalnya tanggal pelaksanaan), tulis dengan tanda kurung siku seperti [tanggal pelaksanaan] agar mudah dilengkapi.
-5. Penandatangan di bagian bawah kanan (kecuali ditentukan lain pada instruksi khusus): ${defaultSigner}.`;
-    }
-
-    function refreshGeminiPromptPreview() {
-      const wrapper = document.getElementById('geminiPromptWrapper');
-      if (!wrapper.classList.contains('hidden')) {
-        document.getElementById('geminiPromptPreviewBox').value = buildSuratPromptForGemini();
+      const kpiLinksEl = document.getElementById('kpiLinksCount');
+      if (kpiLinksEl) {
+        kpiLinksEl.textContent = allLinks.length;
+        document.getElementById('kpiLinksFavBar').style.width = `${Math.max(12, favPct)}%`;
+        document.getElementById('kpiLinksFavBadge').innerHTML = `&#9733; ${favCount}`;
+        document.getElementById('kpiLinksSub').textContent = `${favCount} tautan difavoritkan`;
+        document.getElementById('badge-tab-links').textContent = allLinks.length;
       }
     }
 
@@ -3129,9 +3302,445 @@ ${lampiranRule}
       }
     }
 
+    // =========================================================================
+    // MODUL DATABASE LINK (GOOGLE SHEET SYNC + TAMBAH + FAVORITE)
+    // =========================================================================
+    function getFavoriteLinkUrls() {
+      try {
+        const saved = localStorage.getItem('tikim_favorite_links_v1');
+        if (saved !== null) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) return new Set(parsed);
+        }
+      } catch (e) {}
+      return new Set(DEFAULT_FAVORITE_LINK_URLS);
+    }
+
+    function saveFavoriteLinkUrls(urlSet) {
+      localStorage.setItem('tikim_favorite_links_v1', JSON.stringify(Array.from(urlSet)));
+    }
+
+    function toggleFavoriteLink(encodedUrl) {
+      const url = decodeURIComponent(encodedUrl);
+      const favSet = getFavoriteLinkUrls();
+      if (favSet.has(url)) {
+        favSet.delete(url);
+        showToast('Dihapus dari Favorite', 'Tautan dilepas dari daftar akses cepat.', 'info');
+      } else {
+        favSet.add(url);
+        showToast('Ditambahkan ke Favorite', 'Tautan dipin ke bagian atas Database Link.', 'success');
+      }
+      saveFavoriteLinkUrls(favSet);
+      updateKPIs();
+      renderLinksDatabase();
+    }
+
+    function getCustomAddedLinks() {
+      try {
+        const saved = localStorage.getItem('tikim_custom_links_v1');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) return parsed;
+        }
+      } catch (e) {}
+      return [];
+    }
+
+    function saveCustomAddedLinks(list) {
+      localStorage.setItem('tikim_custom_links_v1', JSON.stringify(list));
+    }
+
+    function normalizeLinkRow(raw) {
+      let unit = String(raw.unit || raw['Tingkat / Unit'] || 'Prodi TIKIM').trim();
+      let category = String(raw.category || raw['Kategori Kegunaan'] || 'Umum').trim();
+      let type = String(raw.type || raw['Jenis Tautan'] || 'Website / Portal').trim();
+      let title = String(raw.title || raw['Nama Layanan / Dokumen'] || '').trim();
+      let url = String(raw.url || raw['URL / Tautan'] || '').trim();
+      let note = String(raw.note || raw['Keterangan / Syarat Kelengkapan'] || '').trim();
+
+      // Tangani pergeseran kolom otomatis bila judul berisi URL dan keterangan berisi nama layanan
+      if (/^https?:\/\//i.test(title) && !/^https?:\/\//i.test(url)) {
+        const realUrl = title;
+        const shiftedTitle = note || url || realUrl;
+        url = realUrl;
+        title = shiftedTitle;
+        note = '';
+      }
+
+      if (!title) title = url;
+      return {
+        id: raw.id || ('lnk-' + btoa(unescape(encodeURIComponent(url))).slice(0, 14)),
+        unit,
+        category,
+        type,
+        title,
+        url,
+        note,
+        isCustom: Boolean(raw.isCustom)
+      };
+    }
+
+    function getCombinedLinks() {
+      const baseList = SHEET_SYNCED_LINKS.length > 0 ? SHEET_SYNCED_LINKS : DEFAULT_MASTER_LINKS;
+      const customList = getCustomAddedLinks();
+      const mapByUrl = new Map();
+
+      baseList.forEach(item => {
+        const norm = normalizeLinkRow(item);
+        if (norm.url) mapByUrl.set(norm.url, norm);
+      });
+
+      customList.forEach(item => {
+        const norm = normalizeLinkRow({ ...item, isCustom: true });
+        if (norm.url) mapByUrl.set(norm.url, norm);
+      });
+
+      return Array.from(mapByUrl.values());
+    }
+
+    function fetchMasterLinksFromGoogleSheet(manualTrigger = false) {
+      const badgeEl = document.getElementById('linkSheetSyncBadge');
+      if (badgeEl && manualTrigger) {
+        badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span><span>Menyinkronkan Sheet...</span>`;
+      }
+
+      const callbackName = 'gvizLinksCb_' + Date.now();
+      const scriptId = 'gviz-links-script';
+      const oldScript = document.getElementById(scriptId);
+      if (oldScript) oldScript.remove();
+
+      const timeoutId = setTimeout(() => {
+        delete window[callbackName];
+        if (badgeEl) {
+          badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-[#0B57D0]"></span><span>Master Sheet Terhubung (36+ Link)</span>`;
+        }
+        if (manualTrigger) {
+          showToast('Sinkronisasi Selesai', 'Menampilkan seluruh direktori link terbaru.', 'info');
+        }
+      }, 4500);
+
+      window[callbackName] = function(response) {
+        clearTimeout(timeoutId);
+        delete window[callbackName];
+        try {
+          if (response && response.table && Array.isArray(response.table.rows)) {
+            const parsedRows = [];
+            response.table.rows.forEach((r, idx) => {
+              const cells = r.c || [];
+              const val = (i) => (cells[i] && cells[i].v !== null && cells[i].v !== undefined) ? String(cells[i].v).trim() : '';
+              const unit = val(1);
+              const category = val(2);
+              const type = val(3);
+              const title = val(4);
+              const url = val(5);
+              const note = val(6);
+
+              if ((url && url.startsWith('http')) || (title && title.startsWith('http'))) {
+                parsedRows.push(normalizeLinkRow({
+                  id: 'gs-' + (idx + 1),
+                  unit,
+                  category,
+                  type,
+                  title,
+                  url,
+                  note
+                }));
+              }
+            });
+
+            if (parsedRows.length > 0) {
+              SHEET_SYNCED_LINKS = parsedRows;
+              updateKPIs();
+              renderLinksDatabase();
+              if (badgeEl) {
+                badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span><span>Live Google Sheet (${parsedRows.length} baris)</span>`;
+              }
+              if (manualTrigger) {
+                showToast('Google Sheet Tersinkron', `${parsedRows.length} tautan dimuat langsung dari spreadsheet.`, 'success');
+              }
+              return;
+            }
+          }
+        } catch (err) {
+          console.warn('Fallback ke master links bawaan:', err);
+        }
+
+        if (badgeEl) {
+          badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-[#0B57D0]"></span><span>Master Sheet Terhubung</span>`;
+        }
+      };
+
+      const script = document.createElement('script');
+      script.id = scriptId;
+      script.src = `https://docs.google.com/spreadsheets/d/${LINKS_SHEET_ID}/gviz/tq?tqx=responseHandler:${callbackName}&gid=${LINKS_SHEET_GID}`;
+      script.onerror = () => {
+        clearTimeout(timeoutId);
+        delete window[callbackName];
+        if (badgeEl) {
+          badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-[#0B57D0]"></span><span>Master Sheet Terhubung</span>`;
+        }
+      };
+      document.body.appendChild(script);
+    }
+
+    function toggleAddLinkForm() {
+      const card = document.getElementById('addLinkFormCard');
+      card.classList.toggle('hidden');
+      if (!card.classList.contains('hidden')) {
+        document.getElementById('newLinkTitle').focus();
+      }
+    }
+
+    function toggleFilterOnlyFavLinks() {
+      const chk = document.getElementById('filterOnlyFavLinks');
+      const track = document.getElementById('switchOnlyFavLinksTrack');
+      chk.checked = !chk.checked;
+      track.classList.toggle('active', chk.checked);
+      renderLinksDatabase();
+    }
+
+    async function submitNewLink(e) {
+      e.preventDefault();
+      const title = document.getElementById('newLinkTitle').value.trim();
+      const url = document.getElementById('newLinkUrl').value.trim();
+      const unit = document.getElementById('newLinkUnit').value.trim() || 'Prodi TIKIM';
+      const category = document.getElementById('newLinkCategory').value.trim() || 'Portal & Sistem Utama';
+      const type = document.getElementById('newLinkType').value.trim() || 'Website / Portal';
+      const note = document.getElementById('newLinkNote').value.trim();
+      const pinFav = document.getElementById('newLinkPinFavorite').checked;
+
+      if (!title || !/^https?:\/\//i.test(url)) {
+        return showToast('Input Tidak Valid', 'Pastikan Nama Layanan terisi dan URL diawali dengan https://', 'error');
+      }
+
+      const newEntry = {
+        id: 'custom-' + Date.now(),
+        unit,
+        category,
+        type,
+        title,
+        url,
+        note,
+        isCustom: true
+      };
+
+      const customList = getCustomAddedLinks();
+      customList.unshift(newEntry);
+      saveCustomAddedLinks(customList);
+
+      if (pinFav) {
+        const favSet = getFavoriteLinkUrls();
+        favSet.add(url);
+        saveFavoriteLinkUrls(favSet);
+      }
+
+      // Sinkronkan juga ke backend Apps Script jika sedang dalam sesi Live API
+      const cfg = getConfig();
+      if (cfg.token && !IS_DEMO_MODE) {
+        postToApi({
+          token: cfg.token,
+          action: 'addLink',
+          spreadsheetId: LINKS_SHEET_ID,
+          gid: LINKS_SHEET_GID,
+          link: newEntry
+        }).catch(() => {});
+      }
+
+      document.getElementById('newLinkTitle').value = '';
+      document.getElementById('newLinkUrl').value = '';
+      document.getElementById('newLinkNote').value = '';
+      toggleAddLinkForm();
+
+      updateKPIs();
+      renderLinksDatabase();
+      showToast('Link Berhasil Ditambahkan', `"${title}" kini tersedia di Database Link${pinFav ? ' & Favorite' : ''}.`, 'success');
+    }
+
+    function deleteCustomLink(encodedUrl, title) {
+      const url = decodeURIComponent(encodedUrl);
+      showSoftConfirm('Hapus Tautan Tambahan?', `Hapus "${title}" dari daftar tautan tambahan Anda?`, () => {
+        const updated = getCustomAddedLinks().filter(item => item.url !== url);
+        saveCustomAddedLinks(updated);
+        const favSet = getFavoriteLinkUrls();
+        if (favSet.has(url)) {
+          favSet.delete(url);
+          saveFavoriteLinkUrls(favSet);
+        }
+        updateKPIs();
+        renderLinksDatabase();
+        showToast('Tautan Dihapus', 'Link tambahan berhasil dihapus.', 'info');
+      });
+    }
+
+    function syncLinkFilterDropdowns(allLinks) {
+      const unitSelect = document.getElementById('filterUnitLinks');
+      const catSelect = document.getElementById('filterKategoriLinks');
+      if (!unitSelect || !catSelect) return;
+
+      const curUnit = unitSelect.value;
+      const curCat = catSelect.value;
+
+      const units = Array.from(new Set(allLinks.map(l => l.unit).filter(Boolean)));
+      const categories = Array.from(new Set(allLinks.map(l => l.category).filter(Boolean)));
+
+      unitSelect.innerHTML = `<option value="">Semua Unit (${units.length})</option>` +
+        units.map(u => `<option value="${esc(u)}">${esc(u)}</option>`).join('');
+      if (units.includes(curUnit)) unitSelect.value = curUnit;
+
+      catSelect.innerHTML = `<option value="">Semua Kategori Kegunaan (${categories.length})</option>` +
+        categories.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+      if (categories.includes(curCat)) catSelect.value = curCat;
+    }
+
+    function renderLinksDatabase() {
+      const allLinks = getCombinedLinks();
+      const favSet = getFavoriteLinkUrls();
+      syncLinkFilterDropdowns(allLinks);
+
+      // 1. Render Favorite Links Grid
+      const favLinks = allLinks.filter(l => favSet.has(l.url));
+      const favCountEl = document.getElementById('favoriteLinksCountLabel');
+      const favGridEl = document.getElementById('favoriteLinksGrid');
+      if (favCountEl) favCountEl.textContent = favLinks.length;
+
+      if (favGridEl) {
+        if (favLinks.length === 0) {
+          favGridEl.innerHTML = `
+            <div class="col-span-full soft-card-sm p-5 text-center text-xs text-[#646B77]">
+              Belum ada tautan yang ditandai Favorite. Klik ikon bintang <span class="text-amber-500 font-bold">&#9734;</span> pada daftar link di bawah untuk menyematkannya di sini.
+            </div>
+          `;
+        } else {
+          favGridEl.innerHTML = favLinks.map(link => {
+            const info = classifyResourceUrl(link.url, link.title);
+            const encUrl = encodeURIComponent(link.url);
+            return `
+              <div class="soft-card-interactive p-4 flex flex-col justify-between border border-amber-200/80">
+                <div>
+                  <div class="flex items-start justify-between gap-2">
+                    <span class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#DCE8FB] text-[#0B57D0] line-clamp-1">${esc(link.unit)}</span>
+                    <button type="button" onclick="toggleFavoriteLink('${encUrl}')" title="Hapus dari Favorite" class="text-amber-500 hover:scale-110 transition text-lg leading-none shrink-0">&#9733;</button>
+                  </div>
+                  <h5 class="font-extrabold text-sm text-[#1F242D] mt-2 leading-snug line-clamp-2">${esc(link.title)}</h5>
+                  <p class="text-[11px] text-[#646B77] mt-1 line-clamp-2">${esc(link.note || link.category)}</p>
+                </div>
+                <div class="mt-3.5 pt-2.5 border-t border-[#E3DFD5] flex items-center justify-between gap-1.5 text-xs">
+                  <button type="button" onclick="copyText('${esc(link.url)}')" class="btn-ivory px-3 py-1 text-[11px]">Salin</button>
+                  <div class="flex items-center gap-1.5">
+                    ${info.previewUrl ? `<button type="button" onclick="openQuickPreview('${esc(info.previewUrl)}', '${esc(link.url)}', '${esc(link.title)}', '${esc(link.type)}')" class="btn-ivory px-2.5 py-1 text-[11px] text-[#0B57D0]">Pratinjau</button>` : ''}
+                    <a href="${esc(link.url)}" target="_blank" rel="noopener" class="btn-cobalt px-3.5 py-1 text-[11px]">Buka &nearr;</a>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // 2. Filter & Render Categorized Directory
+      const q = (document.getElementById('searchLinks')?.value || '').toLowerCase();
+      const unitFilter = document.getElementById('filterUnitLinks')?.value || '';
+      const catFilter = document.getElementById('filterKategoriLinks')?.value || '';
+      const onlyFav = document.getElementById('filterOnlyFavLinks')?.checked || false;
+
+      const filtered = allLinks.filter(link => {
+        if (onlyFav && !favSet.has(link.url)) return false;
+        if (unitFilter && link.unit !== unitFilter) return false;
+        if (catFilter && link.category !== catFilter) return false;
+        if (q) {
+          const hay = `${link.title} ${link.unit} ${link.category} ${link.type} ${link.note} ${link.url}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      const dirContainer = document.getElementById('linksDirectoryContainer');
+      if (!dirContainer) return;
+
+      if (filtered.length === 0) {
+        dirContainer.innerHTML = `<div class="soft-card p-10 text-center text-sm text-[#646B77]">Tidak ada tautan yang cocok dengan kata kunci atau filter saat ini.</div>`;
+        return;
+      }
+
+      // Kelompokkan berdasarkan Kategori Kegunaan
+      const grouped = new Map();
+      filtered.forEach(item => {
+        const key = item.category || 'Lainnya';
+        if (!grouped.has(key)) grouped.set(key, []);
+        grouped.get(key).push(item);
+      });
+
+      dirContainer.innerHTML = Array.from(grouped.entries()).map(([categoryName, items]) => `
+        <div class="soft-card overflow-hidden">
+          <div class="px-6 py-4 border-b border-[#E3DFD5] flex flex-wrap items-center justify-between gap-2 bg-white/40">
+            <div class="flex items-center gap-2.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#0B57D0]"></span>
+              <h4 class="font-extrabold text-sm sm:text-base text-[#1F242D]">${esc(categoryName)}</h4>
+            </div>
+            <span class="text-[11px] font-bold px-3 py-0.5 rounded-full bg-[#ECE9E1] text-[#1F242D]">${items.length} tautan</span>
+          </div>
+
+          <div class="divide-y divide-[#E8E4DA]">
+            ${items.map(link => {
+              const isFav = favSet.has(link.url);
+              const encUrl = encodeURIComponent(link.url);
+              const info = classifyResourceUrl(link.url, link.title);
+              const unitBadgeClass = link.unit.includes('Prodi')
+                ? 'bg-[#DCE8FB] text-[#0B57D0]'
+                : (link.unit.includes('Vokasi') ? 'bg-emerald-100 text-emerald-800' : 'bg-purple-100 text-purple-800');
+
+              return `
+                <div class="p-4 sm:px-6 hover:bg-white/60 transition flex flex-col lg:flex-row lg:items-center justify-between gap-3.5">
+                  <div class="flex items-start gap-3.5 min-w-0 flex-1">
+                    <button type="button" onclick="toggleFavoriteLink('${encUrl}')" title="${isFav ? 'Hapus dari Favorite' : 'Tandai sebagai Favorite'}" class="w-9 h-9 rounded-full btn-ivory flex items-center justify-center text-lg shrink-0 mt-0.5 ${isFav ? 'text-amber-500' : 'text-[#646B77] hover:text-amber-500'}">
+                      ${isFav ? '&#9733;' : '&#9734;'}
+                    </button>
+
+                    <div class="min-w-0 flex-1 space-y-1">
+                      <div class="flex flex-wrap items-center gap-1.5">
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${unitBadgeClass}">${esc(link.unit)}</span>
+                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#ECE9E1] text-[#646B77]">${esc(link.type)}</span>
+                        ${link.isCustom ? `<span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">Ditambahkan Admin</span>` : ''}
+                      </div>
+                      <a href="${esc(link.url)}" target="_blank" rel="noopener" class="font-extrabold text-sm sm:text-base text-[#1F242D] hover:text-[#0B57D0] transition block leading-snug">
+                        ${esc(link.title)}
+                      </a>
+                      ${link.note ? `<p class="text-xs text-[#646B77] leading-relaxed">${esc(link.note)}</p>` : ''}
+                      <p class="text-[11px] font-mono text-[#0B57D0]/80 truncate">${esc(link.url)}</p>
+                    </div>
+                  </div>
+
+                  <div class="flex flex-wrap items-center gap-2 shrink-0 pl-12 lg:pl-0">
+                    ${info.previewUrl ? `
+                      <button type="button" onclick="openQuickPreview('${esc(info.previewUrl)}', '${esc(link.url)}', '${esc(link.title)}', '${esc(link.type)}')" class="btn-ivory px-3.5 py-2 text-xs text-[#0B57D0]">
+                        Pratinjau
+                      </button>
+                    ` : ''}
+                    <button type="button" onclick="copyText('${esc(link.url)}')" class="btn-ivory px-3.5 py-2 text-xs">
+                      Salin Link
+                    </button>
+                    <a href="${esc(link.url)}" target="_blank" rel="noopener" class="btn-cobalt px-4 py-2 text-xs">
+                      Buka &nearr;
+                    </a>
+                    ${link.isCustom ? `
+                      <button type="button" onclick="deleteCustomLink('${encUrl}', '${esc(link.title)}')" class="btn-ivory px-3 py-2 text-xs text-rose-600">
+                        Hapus
+                      </button>
+                    ` : ''}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
     // INIT
     window.addEventListener('DOMContentLoaded', () => {
       renderQuickAccessSection();
+      renderLinksDatabase();
+      fetchMasterLinksFromGoogleSheet(false);
       const cfg = getConfig();
       if (!cfg.token) {
         activateDemoMode();
